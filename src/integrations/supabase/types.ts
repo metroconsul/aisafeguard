@@ -14,11 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      empresas: {
+        Row: {
+          cnpj: string
+          created_at: string | null
+          id: string
+          nome_fantasia: string
+        }
+        Insert: {
+          cnpj: string
+          created_at?: string | null
+          id?: string
+          nome_fantasia: string
+        }
+        Update: {
+          cnpj?: string
+          created_at?: string | null
+          id?: string
+          nome_fantasia?: string
+        }
+        Relationships: []
+      }
       entregas: {
         Row: {
           created_at: string | null
           data_entrega: string | null
           data_vencimento: string
+          empresa_id: string | null
           epi_id: string
           funcionario_id: string
           id: string
@@ -29,6 +51,7 @@ export type Database = {
           created_at?: string | null
           data_entrega?: string | null
           data_vencimento: string
+          empresa_id?: string | null
           epi_id: string
           funcionario_id: string
           id?: string
@@ -39,6 +62,7 @@ export type Database = {
           created_at?: string | null
           data_entrega?: string | null
           data_vencimento?: string
+          empresa_id?: string | null
           epi_id?: string
           funcionario_id?: string
           id?: string
@@ -46,6 +70,13 @@ export type Database = {
           status_assinatura?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "entregas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "entregas_epi_id_fkey"
             columns: ["epi_id"]
@@ -66,6 +97,7 @@ export type Database = {
         Row: {
           created_at: string | null
           dias_validade: number
+          empresa_id: string | null
           id: string
           nome_equipamento: string
           numero_ca: string
@@ -74,6 +106,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           dias_validade: number
+          empresa_id?: string | null
           id?: string
           nome_equipamento: string
           numero_ca: string
@@ -82,17 +115,27 @@ export type Database = {
         Update: {
           created_at?: string | null
           dias_validade?: number
+          empresa_id?: string | null
           id?: string
           nome_equipamento?: string
           numero_ca?: string
           quantidade_estoque?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "epis_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       funcionarios: {
         Row: {
           cargo: string
           created_at: string | null
+          empresa_id: string | null
           id: string
           matricula: string
           nome: string
@@ -102,6 +145,7 @@ export type Database = {
         Insert: {
           cargo: string
           created_at?: string | null
+          empresa_id?: string | null
           id?: string
           matricula: string
           nome: string
@@ -111,20 +155,61 @@ export type Database = {
         Update: {
           cargo?: string
           created_at?: string | null
+          empresa_id?: string | null
           id?: string
           matricula?: string
           nome?: string
           setor?: string
           telefone_whatsapp?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "funcionarios_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      perfis: {
+        Row: {
+          created_at: string | null
+          empresa_id: string
+          id: string
+          nome_completo: string
+          role: string
+        }
+        Insert: {
+          created_at?: string | null
+          empresa_id: string
+          id: string
+          nome_completo: string
+          role?: string
+        }
+        Update: {
+          created_at?: string | null
+          empresa_id?: string
+          id?: string
+          nome_completo?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "perfis_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_empresa_id: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never

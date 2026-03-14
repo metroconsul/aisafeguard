@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,7 @@ import type { Tables } from "@/integrations/supabase/types";
 type Epi = Tables<"epis">;
 
 export default function Epis() {
+  const { perfil } = useAuth();
   const [data, setData] = useState<Epi[]>([]);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ nome_equipamento: "", numero_ca: "", dias_validade: "", quantidade_estoque: "" });
@@ -37,11 +39,16 @@ export default function Epis() {
   }, []);
 
   const handleAdd = async () => {
+    if (!perfil?.empresa_id) {
+      toast.error("Perfil não carregado.");
+      return;
+    }
     const { error } = await supabase.from("epis").insert({
       nome_equipamento: form.nome_equipamento,
       numero_ca: form.numero_ca,
       dias_validade: parseInt(form.dias_validade) || 0,
       quantidade_estoque: parseInt(form.quantidade_estoque) || 0,
+      empresa_id: perfil.empresa_id,
     });
     if (error) { toast.error("Erro: " + error.message); return; }
     toast.success("EPI adicionado!");

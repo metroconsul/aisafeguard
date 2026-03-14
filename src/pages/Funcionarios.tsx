@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,7 @@ import type { Tables } from "@/integrations/supabase/types";
 type Funcionario = Tables<"funcionarios">;
 
 export default function Funcionarios() {
+  const { perfil } = useAuth();
   const [data, setData] = useState<Funcionario[]>([]);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ nome: "", matricula: "", cargo: "", setor: "", telefone_whatsapp: "" });
@@ -24,7 +26,14 @@ export default function Funcionarios() {
   useEffect(() => { load(); }, []);
 
   const handleAdd = async () => {
-    const { error } = await supabase.from("funcionarios").insert(form);
+    if (!perfil?.empresa_id) {
+      toast.error("Perfil não carregado.");
+      return;
+    }
+    const { error } = await supabase.from("funcionarios").insert({
+      ...form,
+      empresa_id: perfil.empresa_id,
+    });
     if (error) { toast.error("Erro: " + error.message); return; }
     toast.success("Funcionário adicionado!");
     setForm({ nome: "", matricula: "", cargo: "", setor: "", telefone_whatsapp: "" });

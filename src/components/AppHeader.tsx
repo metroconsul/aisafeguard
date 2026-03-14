@@ -1,8 +1,22 @@
-import { Search, Bell } from "lucide-react";
+import { Search, Bell, LogOut } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export function AppHeader() {
+  const { perfil, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login");
+  };
+
+  const initials = perfil?.nome_completo
+    ? perfil.nome_completo.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+    : "??";
+
   return (
     <header className="flex h-14 items-center gap-4 border-b border-border bg-card px-4">
       <SidebarTrigger className="text-muted-foreground" />
@@ -25,13 +39,21 @@ export function AppHeader() {
 
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-            TS
+            {initials}
           </div>
           <div className="hidden md:block">
-            <p className="text-sm font-medium leading-none text-foreground">Técnico de Segurança</p>
-            <p className="text-xs text-muted-foreground">Administrador</p>
+            <p className="text-sm font-medium leading-none text-foreground">{perfil?.nome_completo ?? "Usuário"}</p>
+            <p className="text-xs text-muted-foreground capitalize">{perfil?.role ?? ""}</p>
           </div>
         </div>
+
+        <button
+          onClick={handleSignOut}
+          className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-destructive"
+          title="Sair"
+        >
+          <LogOut className="h-4 w-4" strokeWidth={1.5} />
+        </button>
       </div>
     </header>
   );

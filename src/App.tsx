@@ -3,12 +3,16 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import Dashboard from "@/pages/Dashboard";
 import NovaEntrega from "@/pages/NovaEntrega";
 import Funcionarios from "@/pages/Funcionarios";
 import Epis from "@/pages/Epis";
 import Assinar from "@/pages/Assinar";
+import Login from "@/pages/Login";
+import Cadastro from "@/pages/Cadastro";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -19,26 +23,32 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          {/* Signature page - no layout (mobile standalone) */}
-          <Route path="/assinar/:id" element={<Assinar />} />
+        <AuthProvider>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/cadastro" element={<Cadastro />} />
+            <Route path="/assinar/:id" element={<Assinar />} />
 
-          {/* Admin pages with layout */}
-          <Route
-            path="/*"
-            element={
-              <AppLayout>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/nova-entrega" element={<NovaEntrega />} />
-                  <Route path="/funcionarios" element={<Funcionarios />} />
-                  <Route path="/epis" element={<Epis />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </AppLayout>
-            }
-          />
-        </Routes>
+            {/* Protected admin routes */}
+            <Route
+              path="/*"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/nova-entrega" element={<NovaEntrega />} />
+                      <Route path="/funcionarios" element={<Funcionarios />} />
+                      <Route path="/epis" element={<Epis />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
