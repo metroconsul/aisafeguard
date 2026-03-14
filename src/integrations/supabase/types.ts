@@ -14,7 +14,111 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      entregas: {
+        Row: {
+          created_at: string | null
+          data_entrega: string | null
+          data_vencimento: string
+          epi_id: string
+          funcionario_id: string
+          id: string
+          imagem_assinatura: string | null
+          status_assinatura: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_entrega?: string | null
+          data_vencimento: string
+          epi_id: string
+          funcionario_id: string
+          id?: string
+          imagem_assinatura?: string | null
+          status_assinatura?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data_entrega?: string | null
+          data_vencimento?: string
+          epi_id?: string
+          funcionario_id?: string
+          id?: string
+          imagem_assinatura?: string | null
+          status_assinatura?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entregas_epi_id_fkey"
+            columns: ["epi_id"]
+            isOneToOne: false
+            referencedRelation: "epis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entregas_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      epis: {
+        Row: {
+          created_at: string | null
+          dias_validade: number
+          id: string
+          nome_equipamento: string
+          numero_ca: string
+          quantidade_estoque: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          dias_validade: number
+          id?: string
+          nome_equipamento: string
+          numero_ca: string
+          quantidade_estoque?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          dias_validade?: number
+          id?: string
+          nome_equipamento?: string
+          numero_ca?: string
+          quantidade_estoque?: number | null
+        }
+        Relationships: []
+      }
+      funcionarios: {
+        Row: {
+          cargo: string
+          created_at: string | null
+          id: string
+          matricula: string
+          nome: string
+          setor: string
+          telefone_whatsapp: string | null
+        }
+        Insert: {
+          cargo: string
+          created_at?: string | null
+          id?: string
+          matricula: string
+          nome: string
+          setor: string
+          telefone_whatsapp?: string | null
+        }
+        Update: {
+          cargo?: string
+          created_at?: string | null
+          id?: string
+          matricula?: string
+          nome?: string
+          setor?: string
+          telefone_whatsapp?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
