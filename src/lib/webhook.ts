@@ -22,3 +22,28 @@ export async function triggerWebhook(payload: WebhookPayload) {
     return false;
   }
 }
+
+// Webhook de confirmação de assinatura
+interface SignatureWebhookPayload {
+  id_entrega: string;
+  nome_funcionario: string;
+  telefone_whatsapp: string;
+  nome_epi: string;
+  data_assinatura: string;
+  imagem_assinatura: string;
+}
+
+export async function triggerSignatureWebhook(payload: SignatureWebhookPayload) {
+  try {
+    const response = await fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tipo: "assinatura_confirmada", ...payload }),
+    });
+    console.log("Signature webhook triggered:", response.status);
+    return response.ok;
+  } catch (error) {
+    console.error("Signature webhook error:", error);
+    return false;
+  }
+}

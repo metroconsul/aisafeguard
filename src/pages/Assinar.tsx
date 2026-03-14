@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { triggerSignatureWebhook } from "@/lib/webhook";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Loader2 } from "lucide-react";
 
 interface EntregaData {
   id: string;
-  funcionario: { nome: string };
+  funcionario: { nome: string; telefone_whatsapp: string | null };
   epi: { nome_equipamento: string; numero_ca: string };
   data_entrega: string | null;
   status_assinatura: string | null;
@@ -25,12 +26,12 @@ export default function Assinar() {
     if (!id) return;
     supabase
       .from("entregas")
-      .select("id, data_entrega, status_assinatura, funcionarios(nome), epis(nome_equipamento, numero_ca)")
+      .select("id, data_entrega, status_assinatura, funcionarios(nome, telefone_whatsapp), epis(nome_equipamento, numero_ca)")
       .eq("id", id)
       .maybeSingle()
       .then(({ data }) => {
         if (data) {
-          const funcData = data.funcionarios as unknown as { nome: string };
+          const funcData = data.funcionarios as unknown as { nome: string; telefone_whatsapp: string | null };
           const epiData = data.epis as unknown as { nome_equipamento: string; numero_ca: string };
           setEntrega({
             id: data.id,
@@ -97,15 +98,32 @@ export default function Assinar() {
   };
 
   const save = async () => {
-    if (!canvasRef.current || !id) return;
+    if (!canvasRef.current || !id || !entrega) return;
     setSaving(true);
     const dataUrl = canvasRef.current.toDataURL("image/png");
+    const now = new Date().toISOString();
+
     const { error } = await supabase
       .from("entregas")
       .update({ imagem_assinatura: dataUrl, status_assinatura: "Assinado" })
       .eq("id", id);
+
+    if (error) {
+      setSaving(false);
+      return;
+    }
+
+    // Disparar webhook de confirmação
+    await triggerSignatureWebhook({
+      id_entrega: id,
+      nome_funcionario: entrega.funcionario.nome,
+      telefone_whatsapp: entrega.funcionario.telefone_whatsapp || "",
+      nome_epi: entrega.epi.nome_equipamento,
+      data_assinatura: now,
+      imagem_assinatura: dataUrl,
+    });
+
     setSaving(false);
-    if (error) return;
     setDone(true);
   };
 
