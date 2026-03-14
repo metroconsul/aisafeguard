@@ -124,7 +124,7 @@ export function useIntegracoes() {
         }
 
         setIntegracoes((prev) => [data as IntegracaoWhatsApp, ...prev]);
-        toast.success("Integração criada! Escaneie o QR Code para conectar.");
+        toast.success("Integração criada! Clique em 'Conectar' para gerar o QR Code.");
         return data as IntegracaoWhatsApp;
       } catch (err: any) {
         toast.error("Erro ao criar integração: " + (err.message || ""));
