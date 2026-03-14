@@ -21,7 +21,20 @@ export default function Epis() {
     });
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+
+    const channel = supabase
+      .channel("epis-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "epis" },
+        () => { load(); }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const handleAdd = async () => {
     const { error } = await supabase.from("epis").insert({
