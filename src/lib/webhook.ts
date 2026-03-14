@@ -36,7 +36,7 @@ interface SignatureWebhookPayload {
 
 export async function triggerSignatureWebhook(payload: SignatureWebhookPayload) {
   try {
-    const response = await fetch(WEBHOOK_URL, {
+    const response = await fetch(SIGNATURE_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tipo: "assinatura_confirmada", ...payload }),
