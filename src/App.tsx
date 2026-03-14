@@ -10,6 +10,7 @@ import Dashboard from "@/pages/Dashboard";
 import NovaEntrega from "@/pages/NovaEntrega";
 import Funcionarios from "@/pages/Funcionarios";
 import Epis from "@/pages/Epis";
+import Integracoes from "@/pages/Integracoes";
 import Assinar from "@/pages/Assinar";
 import Login from "@/pages/Login";
 import Cadastro from "@/pages/Cadastro";
