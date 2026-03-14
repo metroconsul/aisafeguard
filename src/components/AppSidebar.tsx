@@ -36,6 +36,10 @@ const cadastroItems = [
   { title: "Setores", url: "/setores", icon: Building2 },
 ];
 
+const integrationItems = [
+  { title: "WhatsApp", url: "/integracoes", icon: MessageCircle },
+];
+
 const supportItems = [
   { title: "Configurações", url: "/configuracoes", icon: Settings },
   { title: "Segurança", url: "/seguranca", icon: ShieldCheck },
