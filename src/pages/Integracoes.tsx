@@ -61,7 +61,6 @@ export default function Integracoes() {
       setShowCreate(false);
       setNome("");
       setNumero("");
-      setQrTarget(result);
     }
   };
 
