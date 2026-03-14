@@ -19,12 +19,12 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { nome_equipamento, numero_ca, dias_validade, quantidade_estoque } =
+    const { nome_equipamento, numero_ca, dias_validade, quantidade_estoque, empresa_id } =
       await req.json();
 
-    if (!nome_equipamento || !numero_ca || dias_validade == null) {
+    if (!nome_equipamento || !numero_ca || dias_validade == null || !empresa_id) {
       return new Response(
-        JSON.stringify({ error: "Campos obrigatórios: nome_equipamento, numero_ca, dias_validade" }),
+        JSON.stringify({ error: "Campos obrigatórios: nome_equipamento, numero_ca, dias_validade, empresa_id" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
