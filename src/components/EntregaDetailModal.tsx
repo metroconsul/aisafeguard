@@ -15,6 +15,7 @@ interface EntregaDetail {
   id: string;
   funcionario_nome: string;
   funcionario_matricula: string;
+  funcionario_telefone: string;
   epi_nome: string;
   epi_ca: string;
   data_entrega: string | null;
