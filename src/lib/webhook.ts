@@ -1,5 +1,6 @@
 // Configure sua URL do n8n webhook aqui
-export const WEBHOOK_URL = "https://n8n-n8n.is8ujj.easypanel.host/webhook-test/Epis";
+export const WEBHOOK_URL = "https://n8n-n8n.is8ujj.easypanel.host/webhook/Epis";
+export const SIGNATURE_WEBHOOK_URL = "https://n8n-n8n.is8ujj.easypanel.host/webhook/Pdf-Confirmação";
 
 interface WebhookPayload {
   nome_funcionario: string;
@@ -35,7 +36,7 @@ interface SignatureWebhookPayload {
 
 export async function triggerSignatureWebhook(payload: SignatureWebhookPayload) {
   try {
-    const response = await fetch(WEBHOOK_URL, {
+    const response = await fetch(SIGNATURE_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tipo: "assinatura_confirmada", ...payload }),
