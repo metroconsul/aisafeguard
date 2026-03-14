@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import jsPDF from "jspdf";
 
 interface EntregaDetail {
   id: string;
