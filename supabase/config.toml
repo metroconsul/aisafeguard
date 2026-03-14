@@ -2,3 +2,6 @@ project_id = "ffndxwyviafznftdxnib"
 
 [functions.webhook-create-epi]
 verify_jwt = false
+
+[functions.signup-onboarding]
+verify_jwt = false

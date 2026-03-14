@@ -32,48 +32,27 @@ export default function Cadastro() {
 
     setLoading(true);
 
-    // 1. Create auth user
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password: senha,
+    const { data, error } = await supabase.functions.invoke("signup-onboarding", {
+      body: {
+        nome_empresa: nomeEmpresa,
+        nome_usuario: nomeUsuario,
+        email,
+        senha,
+      },
     });
-
-    if (authError || !authData.user) {
-      toast.error(authError?.message || "Erro ao criar conta.");
-      setLoading(false);
-      return;
-    }
-
-    const userId = authData.user.id;
-
-    // 2. Create empresa
-    const { data: empresaData, error: empresaError } = await supabase
-      .from("empresas")
-      .insert({ nome_fantasia: nomeEmpresa, cnpj: "" })
-      .select("id")
-      .single();
-
-    if (empresaError || !empresaData) {
-      toast.error("Erro ao criar empresa: " + (empresaError?.message || ""));
-      setLoading(false);
-      return;
-    }
-
-    // 3. Create perfil
-    const { error: perfilError } = await supabase.from("perfis").insert({
-      id: userId,
-      empresa_id: empresaData.id,
-      nome_completo: nomeUsuario,
-      role: "admin",
-    });
-
-    if (perfilError) {
-      toast.error("Erro ao criar perfil: " + perfilError.message);
-      setLoading(false);
-      return;
-    }
 
     setLoading(false);
+
+    if (error) {
+      toast.error(error.message || "Erro ao criar conta.");
+      return;
+    }
+
+    if (data?.error) {
+      toast.error(data.error);
+      return;
+    }
+
     toast.success("Conta criada! Verifique seu email para confirmar o cadastro.");
     navigate("/login");
   };
