@@ -180,7 +180,7 @@ export default function Integracoes() {
             <Button variant="outline" onClick={() => setShowCreate(false)}>Cancelar</Button>
             <Button onClick={handleCreate} disabled={creating || !nome.trim() || !numero.trim()}>
               {creating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Criar e Conectar
+              Criar Integração
             </Button>
           </DialogFooter>
         </DialogContent>
