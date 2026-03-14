@@ -10,7 +10,7 @@ import { Download, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
-import { WEBHOOK_URL } from "@/lib/webhook";
+
 
 interface EntregaDetail {
   id: string;
