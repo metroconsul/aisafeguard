@@ -41,17 +41,18 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
     setLoading(true);
     supabase
       .from("entregas")
-      .select("id, data_entrega, status_assinatura, imagem_assinatura, funcionarios(nome, matricula), epis(nome_equipamento, numero_ca)")
+      .select("id, data_entrega, status_assinatura, imagem_assinatura, funcionarios(nome, matricula, telefone_whatsapp), epis(nome_equipamento, numero_ca)")
       .eq("id", entregaId)
       .maybeSingle()
       .then(({ data: row }) => {
         if (row) {
-          const func = row.funcionarios as unknown as { nome: string; matricula: string };
+          const func = row.funcionarios as unknown as { nome: string; matricula: string; telefone_whatsapp: string | null };
           const epi = row.epis as unknown as { nome_equipamento: string; numero_ca: string };
           setData({
             id: row.id,
             funcionario_nome: func?.nome ?? "—",
             funcionario_matricula: func?.matricula ?? "—",
+            funcionario_telefone: func?.telefone_whatsapp ?? "",
             epi_nome: epi?.nome_equipamento ?? "—",
             epi_ca: epi?.numero_ca ?? "—",
             data_entrega: row.data_entrega,
