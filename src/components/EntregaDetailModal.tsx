@@ -129,7 +129,26 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
     doc.setTextColor(150);
     doc.text(`Documento gerado em ${new Date().toLocaleDateString("pt-BR")} — SafeGuard EPI`, margin, y);
 
+    const pdfBase64 = doc.output("datauristring");
+
     doc.save(`ficha-epi-${data.funcionario_nome.replace(/\s+/g, "-").toLowerCase()}.pdf`);
+
+    // Disparar webhook com o PDF em base64
+    fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tipo: "ficha_pdf",
+        id_entrega: data.id,
+        nome_funcionario: data.funcionario_nome,
+        matricula: data.funcionario_matricula,
+        telefone_whatsapp: data.funcionario_telefone,
+        nome_epi: data.epi_nome,
+        numero_ca: data.epi_ca,
+        data_entrega: data.data_entrega,
+        pdf_base64: pdfBase64,
+      }),
+    }).catch((err) => console.error("Webhook PDF error:", err));
   };
 
   return (
