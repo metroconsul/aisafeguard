@@ -9,6 +9,7 @@ import {
   HelpCircle,
   ChevronUp,
   Zap,
+  MessageCircle,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -33,6 +34,10 @@ const cadastroItems = [
   { title: "Funcionários", url: "/funcionarios", icon: Users },
   { title: "EPIs", url: "/epis", icon: HardHat },
   { title: "Setores", url: "/setores", icon: Building2 },
+];
+
+const integrationItems = [
+  { title: "WhatsApp", url: "/integracoes", icon: MessageCircle },
 ];
 
 const supportItems = [
@@ -94,6 +99,31 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {cadastroItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className="text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      activeClassName="bg-primary/10 text-primary font-medium"
+                    >
+                      <item.icon className="mr-2 h-4 w-4" strokeWidth={1.5} />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Integrações */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            Integrações
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {integrationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink

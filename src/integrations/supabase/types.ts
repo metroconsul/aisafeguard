@@ -172,6 +172,56 @@ export type Database = {
           },
         ]
       }
+      integracao_whatsapp: {
+        Row: {
+          created_at: string
+          email: string | null
+          empresa_id: string
+          id: string
+          instance_id: string | null
+          instancia: string | null
+          nome: string
+          numero: string
+          status: string | null
+          updated_at: string
+          vinculado_em: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          empresa_id: string
+          id?: string
+          instance_id?: string | null
+          instancia?: string | null
+          nome: string
+          numero: string
+          status?: string | null
+          updated_at?: string
+          vinculado_em?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          empresa_id?: string
+          id?: string
+          instance_id?: string | null
+          instancia?: string | null
+          nome?: string
+          numero?: string
+          status?: string | null
+          updated_at?: string
+          vinculado_em?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integracao_whatsapp_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       perfis: {
         Row: {
           created_at: string | null
