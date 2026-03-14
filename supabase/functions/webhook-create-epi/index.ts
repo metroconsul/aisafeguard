@@ -39,6 +39,7 @@ Deno.serve(async (req) => {
       numero_ca,
       dias_validade: Number(dias_validade),
       quantidade_estoque: Number(quantidade_estoque) || 0,
+      empresa_id,
     }).select("id").single();
 
     if (error) {
