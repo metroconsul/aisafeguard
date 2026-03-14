@@ -6,8 +6,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const N8N_WEBHOOK_URL = "https://n8n-n8n.is8ujj.easypanel.host/webhook-test/integracao_whatsapp";
-const N8N_STATUS_URL = "https://n8n-n8n.is8ujj.easypanel.host/webhook-test/status_integracao_whatsapp";
+const N8N_WEBHOOK_URL = "https://n8n-n8n.is8ujj.easypanel.host/webhook/integracao_whatsapp";
+const N8N_STATUS_URL = "https://n8n-n8n.is8ujj.easypanel.host/webhook/status_integracao_whatsapp";
 const WHATSAPP_API_URL = "https://api.lernow.com";
 
 Deno.serve(async (req) => {
