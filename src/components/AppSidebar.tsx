@@ -9,6 +9,7 @@ import {
   HelpCircle,
   ChevronUp,
   Zap,
+  MessageCircle,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
