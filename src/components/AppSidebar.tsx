@@ -116,6 +116,31 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Integrações */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            Integrações
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {integrationItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className="text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      activeClassName="bg-primary/10 text-primary font-medium"
+                    >
+                      <item.icon className="mr-2 h-4 w-4" strokeWidth={1.5} />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         {/* Support */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
