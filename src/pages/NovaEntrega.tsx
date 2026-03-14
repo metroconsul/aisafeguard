@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { triggerWebhook } from "@/lib/webhook";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,7 @@ interface Epi {
 
 export default function NovaEntrega() {
   const navigate = useNavigate();
+  const { perfil } = useAuth();
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [epis, setEpis] = useState<Epi[]>([]);
   const [funcId, setFuncId] = useState("");
@@ -42,6 +44,10 @@ export default function NovaEntrega() {
       toast.error("Selecione funcionário e EPI.");
       return;
     }
+    if (!perfil?.empresa_id) {
+      toast.error("Perfil não carregado. Tente recarregar a página.");
+      return;
+    }
     setLoading(true);
 
     const selectedEpi = epis.find((e) => e.id === epiId)!;
@@ -55,6 +61,7 @@ export default function NovaEntrega() {
         funcionario_id: funcId,
         epi_id: epiId,
         data_vencimento: dataVencimento.toISOString(),
+        empresa_id: perfil.empresa_id,
       })
       .select()
       .single();
@@ -65,7 +72,6 @@ export default function NovaEntrega() {
       return;
     }
 
-    // Trigger webhook
     await triggerWebhook({
       nome_funcionario: selectedFunc.nome,
       telefone_whatsapp: selectedFunc.telefone_whatsapp || "",
