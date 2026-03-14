@@ -1,1 +1,4 @@
 project_id = "ffndxwyviafznftdxnib"
+
+[functions.webhook-create-epi]
+verify_jwt = false
