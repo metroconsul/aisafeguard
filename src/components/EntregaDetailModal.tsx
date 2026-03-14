@@ -10,11 +10,13 @@ import { Download, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
+import { WEBHOOK_URL } from "@/lib/webhook";
 
 interface EntregaDetail {
   id: string;
   funcionario_nome: string;
   funcionario_matricula: string;
+  funcionario_telefone: string;
   epi_nome: string;
   epi_ca: string;
   data_entrega: string | null;
@@ -40,17 +42,18 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
     setLoading(true);
     supabase
       .from("entregas")
-      .select("id, data_entrega, status_assinatura, imagem_assinatura, funcionarios(nome, matricula), epis(nome_equipamento, numero_ca)")
+      .select("id, data_entrega, status_assinatura, imagem_assinatura, funcionarios(nome, matricula, telefone_whatsapp), epis(nome_equipamento, numero_ca)")
       .eq("id", entregaId)
       .maybeSingle()
       .then(({ data: row }) => {
         if (row) {
-          const func = row.funcionarios as unknown as { nome: string; matricula: string };
+          const func = row.funcionarios as unknown as { nome: string; matricula: string; telefone_whatsapp: string | null };
           const epi = row.epis as unknown as { nome_equipamento: string; numero_ca: string };
           setData({
             id: row.id,
             funcionario_nome: func?.nome ?? "—",
             funcionario_matricula: func?.matricula ?? "—",
+            funcionario_telefone: func?.telefone_whatsapp ?? "",
             epi_nome: epi?.nome_equipamento ?? "—",
             epi_ca: epi?.numero_ca ?? "—",
             data_entrega: row.data_entrega,
@@ -127,7 +130,26 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
     doc.setTextColor(150);
     doc.text(`Documento gerado em ${new Date().toLocaleDateString("pt-BR")} — SafeGuard EPI`, margin, y);
 
+    const pdfBase64 = doc.output("datauristring");
+
     doc.save(`ficha-epi-${data.funcionario_nome.replace(/\s+/g, "-").toLowerCase()}.pdf`);
+
+    // Disparar webhook com o PDF em base64
+    fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tipo: "ficha_pdf",
+        id_entrega: data.id,
+        nome_funcionario: data.funcionario_nome,
+        matricula: data.funcionario_matricula,
+        telefone_whatsapp: data.funcionario_telefone,
+        nome_epi: data.epi_nome,
+        numero_ca: data.epi_ca,
+        data_entrega: data.data_entrega,
+        pdf_base64: pdfBase64,
+      }),
+    }).catch((err) => console.error("Webhook PDF error:", err));
   };
 
   return (
