@@ -69,6 +69,67 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
 
   const signed = data?.status_assinatura === "Assinado";
 
+  const downloadPdf = () => {
+    if (!data) return;
+    const doc = new jsPDF();
+    const margin = 20;
+    let y = margin;
+
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("Ficha de Entrega de EPI", margin, y);
+    y += 14;
+
+    doc.setDrawColor(200);
+    doc.line(margin, y, 190, y);
+    y += 10;
+
+    const addField = (label: string, value: string) => {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(120);
+      doc.text(label, margin, y);
+      y += 5;
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(30);
+      doc.text(value, margin, y);
+      y += 10;
+    };
+
+    addField("Funcionário", data.funcionario_nome);
+    addField("Matrícula", data.funcionario_matricula);
+    addField("EPI Recebido", data.epi_nome);
+    addField("Número CA", data.epi_ca);
+    addField("Data da Entrega", formatDate(data.data_entrega));
+    addField("Status", data.status_assinatura ?? "Pendente");
+
+    if (data.imagem_assinatura) {
+      y += 5;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(120);
+      doc.text("Assinatura Digital", margin, y);
+      y += 5;
+      doc.setDrawColor(200);
+      doc.rect(margin, y, 100, 50);
+      try {
+        doc.addImage(data.imagem_assinatura, "PNG", margin + 2, y + 2, 96, 46);
+      } catch {
+        // ignore image errors
+      }
+      y += 55;
+    }
+
+    y += 10;
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(150);
+    doc.text(`Documento gerado em ${new Date().toLocaleDateString("pt-BR")} — SafeGuard EPI`, margin, y);
+
+    doc.save(`ficha-epi-${data.funcionario_nome.replace(/\s+/g, "-").toLowerCase()}.pdf`);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
