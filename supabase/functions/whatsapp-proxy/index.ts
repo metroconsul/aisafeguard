@@ -73,10 +73,26 @@ Deno.serve(async (req) => {
       }
 
       case "qrcode": {
-        response = await fetch(`${WHATSAPP_API_URL}/instance/connect/${instancia}`, {
-          headers: { apikey: apiKey },
+        response = await fetch(N8N_WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            event: "whatsapp.integration.connect",
+            instancia,
+          }),
         });
-        const qrData = await response.json();
+        const qrText = await response.text();
+        let qrData: any = {};
+        try {
+          const parsed = JSON.parse(qrText);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            qrData = parsed[0];
+          } else {
+            qrData = parsed;
+          }
+        } catch {
+          qrData = { raw: qrText };
+        }
         return new Response(JSON.stringify(qrData), {
           status: response.status,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
