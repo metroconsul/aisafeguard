@@ -135,7 +135,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
     doc.save(`ficha-epi-${data.funcionario_nome.replace(/\s+/g, "-").toLowerCase()}.pdf`);
 
     // Disparar webhook com o PDF em base64
-    fetch(WEBHOOK_URL, {
+    fetch("https://n8n-n8n.is8ujj.easypanel.host/webhook-test/Pdf-Confirmação", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
