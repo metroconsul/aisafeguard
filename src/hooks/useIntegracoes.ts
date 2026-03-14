@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
+import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -39,6 +40,34 @@ function sanitizeInstanceName(name: string): string {
 function generateInstanceId(email: string, numero: string): string {
   const emailPrefix = email.split("@")[0];
   return `${sanitizeInstanceName(emailPrefix)}_${sanitizePhoneNumber(numero)}`;
+}
+
+function sanitizeDataUrl(dataUrl: string): string {
+  return dataUrl.replace(/\s+/g, "").replace(/data:image\/png;base64,data:image\/png;base64,/i, "data:image/png;base64,");
+}
+
+async function buildQrDataUrl(data: any): Promise<string | null> {
+  const code = typeof data?.code === "string" ? data.code.trim() : "";
+  if (code) {
+    try {
+      return await QRCode.toDataURL(code, {
+        errorCorrectionLevel: "M",
+        margin: 1,
+        width: 512,
+      });
+    } catch {
+      // fallback para base64 vindo do backend
+    }
+  }
+
+  const rawQr = data?.base64 ?? data?.qrcode ?? null;
+  if (!rawQr || typeof rawQr !== "string") return null;
+
+  if (rawQr.startsWith("data:image")) {
+    return sanitizeDataUrl(rawQr);
+  }
+
+  return sanitizeDataUrl(`data:image/png;base64,${rawQr}`);
 }
 
 export function formatPhoneNumber(value: string): string {
@@ -200,14 +229,7 @@ export function useIntegracoes() {
         return "ALREADY_CONNECTED";
       }
 
-      const rawQr = data?.base64 ?? data?.qrcode ?? null;
-      if (!rawQr || typeof rawQr !== "string") return null;
-
-      if (rawQr.startsWith("data:image")) {
-        return rawQr;
-      }
-
-      return `data:image/png;base64,${rawQr}`;
+      return await buildQrDataUrl(data);
     } catch {
       return null;
     }
