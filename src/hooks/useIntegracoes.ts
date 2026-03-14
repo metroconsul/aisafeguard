@@ -199,7 +199,15 @@ export function useIntegracoes() {
       if (data?.instance?.state === "open" || data?.instance?.state === "connected") {
         return "ALREADY_CONNECTED";
       }
-      return data?.base64 ? `data:image/png;base64,${data.base64}` : null;
+
+      const rawQr = data?.base64 ?? data?.qrcode ?? null;
+      if (!rawQr || typeof rawQr !== "string") return null;
+
+      if (rawQr.startsWith("data:image")) {
+        return rawQr;
+      }
+
+      return `data:image/png;base64,${rawQr}`;
     } catch {
       return null;
     }
