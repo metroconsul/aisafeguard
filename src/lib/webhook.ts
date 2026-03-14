@@ -1,5 +1,5 @@
 // Configure sua URL do n8n webhook aqui
-export const WEBHOOK_URL = "https://n8n.your-domain.com/webhook/epi-delivery";
+export const WEBHOOK_URL = "https://n8n-n8n.is8ujj.easypanel.host/webhook-test/Epi";
 
 interface WebhookPayload {
   nome_funcionario: string;
