@@ -72,7 +72,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
 
   const signed = data?.status_assinatura === "Assinado";
 
-  const downloadPdf = () => {
+  const downloadPdf = async () => {
     if (!data) return;
     const doc = new jsPDF();
     const margin = 20;
@@ -130,26 +130,45 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
     doc.setTextColor(150);
     doc.text(`Documento gerado em ${new Date().toLocaleDateString("pt-BR")} — SafeGuard EPI`, margin, y);
 
-    const pdfBase64 = doc.output("datauristring");
-
+    // Salvar localmente
     doc.save(`ficha-epi-${data.funcionario_nome.replace(/\s+/g, "-").toLowerCase()}.pdf`);
 
-    // Disparar webhook com o PDF em base64
-    fetch("https://n8n-n8n.is8ujj.easypanel.host/webhook-test/Pdf-Confirmação", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        tipo: "ficha_pdf",
-        id_entrega: data.id,
-        nome_funcionario: data.funcionario_nome,
-        matricula: data.funcionario_matricula,
-        telefone_whatsapp: data.funcionario_telefone,
-        nome_epi: data.epi_nome,
-        numero_ca: data.epi_ca,
-        data_entrega: data.data_entrega,
-        pdf_base64: pdfBase64,
-      }),
-    }).catch((err) => console.error("Webhook PDF error:", err));
+    // Upload para storage e enviar URL no webhook
+    try {
+      const pdfBlob = doc.output("blob");
+      const fileName = `ficha-${data.id}-${Date.now()}.pdf`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("fichas-pdf")
+        .upload(fileName, pdfBlob, { contentType: "application/pdf", upsert: true });
+
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("fichas-pdf")
+        .getPublicUrl(fileName);
+
+      await fetch("https://n8n-n8n.is8ujj.easypanel.host/webhook-test/Pdf-Confirmação", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tipo: "ficha_pdf",
+          id_entrega: data.id,
+          nome_funcionario: data.funcionario_nome,
+          matricula: data.funcionario_matricula,
+          telefone_whatsapp: data.funcionario_telefone,
+          nome_epi: data.epi_nome,
+          numero_ca: data.epi_ca,
+          data_entrega: data.data_entrega,
+          pdf_url: urlData.publicUrl,
+        }),
+      });
+    } catch (err) {
+      console.error("Webhook PDF error:", err);
+    }
   };
 
   return (
