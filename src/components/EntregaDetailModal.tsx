@@ -191,7 +191,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
                     className="max-h-40 w-auto"
                   />
                 </div>
-                <Button variant="outline" className="w-full gap-2" disabled>
+                <Button variant="outline" className="w-full gap-2" onClick={downloadPdf}>
                   <Download className="h-4 w-4" />
                   Baixar Ficha PDF
                 </Button>
