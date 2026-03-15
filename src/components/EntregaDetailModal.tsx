@@ -257,7 +257,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
             {signed && data.imagem_assinatura && (
               <div className="space-y-2">
                 <p className="text-xs font-medium text-muted-foreground">Assinatura Digital</p>
-                <div className="rounded-lg border border-border bg-muted/20 p-4 flex items-center justify-center">
+                <div className="rounded-lg border border-border bg-muted/20 p-3 flex items-center justify-center">
                   <img
                     src={data.imagem_assinatura}
                     alt="Assinatura do funcionário"
