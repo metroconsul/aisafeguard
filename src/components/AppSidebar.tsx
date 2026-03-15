@@ -43,7 +43,6 @@ const integrationItems = [
 const supportItems = [
   { title: "Configurações", url: "/configuracoes", icon: Settings },
   { title: "Segurança", url: "/seguranca", icon: ShieldCheck },
-  { title: "Ajuda", url: "/ajuda", icon: HelpCircle },
 ];
 
 export function AppSidebar() {
