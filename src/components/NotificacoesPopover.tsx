@@ -130,10 +130,11 @@ export function NotificacoesPopover() {
                 const config = tipoConfig[n.tipo] ?? tipoConfig.info;
                 const Icon = config.icon;
                 return (
-                  <div
+                  <button
                     key={n.id}
+                    onClick={() => marcarComoLida(n)}
                     className={cn(
-                      "flex gap-3 px-4 py-3 transition-colors",
+                      "flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/50 cursor-pointer",
                       !n.lida && "bg-accent/40"
                     )}
                   >
@@ -154,7 +155,7 @@ export function NotificacoesPopover() {
                     {!n.lida && (
                       <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>
