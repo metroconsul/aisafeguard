@@ -42,6 +42,7 @@ export type Database = {
           data_vencimento: string
           empresa_id: string | null
           epi_id: string
+          foto_assinatura: string | null
           funcionario_id: string
           id: string
           imagem_assinatura: string | null
@@ -53,6 +54,7 @@ export type Database = {
           data_vencimento: string
           empresa_id?: string | null
           epi_id: string
+          foto_assinatura?: string | null
           funcionario_id: string
           id?: string
           imagem_assinatura?: string | null
@@ -64,6 +66,7 @@ export type Database = {
           data_vencimento?: string
           empresa_id?: string | null
           epi_id?: string
+          foto_assinatura?: string | null
           funcionario_id?: string
           id?: string
           imagem_assinatura?: string | null
@@ -134,6 +137,7 @@ export type Database = {
       funcionarios: {
         Row: {
           cargo: string
+          cpf: string | null
           created_at: string | null
           empresa_id: string | null
           id: string
@@ -144,6 +148,7 @@ export type Database = {
         }
         Insert: {
           cargo: string
+          cpf?: string | null
           created_at?: string | null
           empresa_id?: string | null
           id?: string
@@ -154,6 +159,7 @@ export type Database = {
         }
         Update: {
           cargo?: string
+          cpf?: string | null
           created_at?: string | null
           empresa_id?: string | null
           id?: string
