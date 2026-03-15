@@ -42,7 +42,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
     setLoading(true);
     supabase
       .from("entregas")
-      .select("id, data_entrega, status_assinatura, imagem_assinatura, funcionarios(nome, matricula, telefone_whatsapp), epis(nome_equipamento, numero_ca)")
+      .select("id, data_entrega, status_assinatura, imagem_assinatura, foto_assinatura, funcionarios(nome, matricula, telefone_whatsapp), epis(nome_equipamento, numero_ca)")
       .eq("id", entregaId)
       .maybeSingle()
       .then(({ data: row }) => {
