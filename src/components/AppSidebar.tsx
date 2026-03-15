@@ -10,6 +10,9 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
 import {
   Sidebar,
   SidebarContent,
