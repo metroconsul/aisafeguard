@@ -248,7 +248,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
                   <img
                     src={data.foto_assinatura}
                     alt="Foto do funcionário"
-                    className="max-h-40 w-auto rounded-md"
+                    className="max-h-28 w-auto rounded-md"
                   />
                 </div>
               </div>
