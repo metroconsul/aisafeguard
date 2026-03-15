@@ -36,7 +36,7 @@ export default function Funcionarios() {
     });
     if (error) { toast.error("Erro: " + error.message); return; }
     toast.success("Funcionário adicionado!");
-    setForm({ nome: "", matricula: "", cargo: "", setor: "", telefone_whatsapp: "" });
+    setForm({ nome: "", matricula: "", cargo: "", setor: "", telefone_whatsapp: "", cpf: "" });
     setOpen(false);
     load();
   };
