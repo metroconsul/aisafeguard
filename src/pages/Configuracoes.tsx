@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,13 +9,15 @@ import { toast } from "@/components/ui/sonner";
 import { Building2, Upload, Loader2 } from "lucide-react";
 
 export default function Configuracoes() {
-  const { perfil } = useAuth();
+  const { perfil, refreshEmpresa } = useAuth();
   const [nomeFantasia, setNomeFantasia] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!perfil?.empresa_id) return;
@@ -35,37 +37,68 @@ export default function Configuracoes() {
       });
   }, [perfil?.empresa_id]);
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Cleanup preview URL on unmount
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !perfil?.empresa_id) return;
-    setUploading(true);
-    const path = `${perfil.empresa_id}/logo-${Date.now()}.${file.name.split(".").pop()}`;
-    const { error: uploadError } = await supabase.storage.from("logos").upload(path, file, { upsert: true });
-    if (uploadError) {
-      toast.error("Erro ao enviar logo");
-      setUploading(false);
-      return;
-    }
-    const { data: publicData } = supabase.storage.from("logos").getPublicUrl(path);
-    setLogoUrl(publicData.publicUrl);
-    setUploading(false);
-    toast.success("Logo enviada com sucesso");
+    if (!file) return;
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+    setLogoFile(file);
   };
 
   const handleSave = async () => {
     if (!perfil?.empresa_id) return;
     setSaving(true);
+
+    let finalLogoUrl = logoUrl;
+
+    // Upload logo if a new file was selected
+    if (logoFile) {
+      const ext = logoFile.name.split(".").pop();
+      const path = `${perfil.empresa_id}/logo-${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("logos")
+        .upload(path, logoFile, { upsert: true });
+
+      if (uploadError) {
+        toast.error("Erro ao enviar logo: " + uploadError.message);
+        setSaving(false);
+        return;
+      }
+
+      const { data: publicData } = supabase.storage.from("logos").getPublicUrl(path);
+      finalLogoUrl = publicData.publicUrl;
+    }
+
     const { error } = await supabase
       .from("empresas")
-      .update({ nome_fantasia: nomeFantasia, cnpj, logo_url: logoUrl } as any)
+      .update({ nome_fantasia: nomeFantasia, cnpj, logo_url: finalLogoUrl } as any)
       .eq("id", perfil.empresa_id);
+
     setSaving(false);
+
     if (error) {
       toast.error("Erro ao salvar alterações");
     } else {
+      setLogoUrl(finalLogoUrl);
+      setLogoFile(null);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+      refreshEmpresa();
       toast.success("Dados da empresa atualizados!");
     }
   };
+
+  const displayImage = previewUrl || logoUrl;
 
   if (loading) {
     return (
@@ -96,21 +129,27 @@ export default function Configuracoes() {
             <Label>Logo da Empresa</Label>
             <div className="flex items-center gap-4">
               <div className="h-16 w-16 rounded-lg border border-border bg-muted flex items-center justify-center overflow-hidden">
-                {logoUrl ? (
-                  <img src={logoUrl} alt="Logo" className="h-full w-full object-contain" />
+                {displayImage ? (
+                  <img src={displayImage} alt="Logo" className="h-full w-full object-contain" />
                 ) : (
                   <Building2 className="h-6 w-6 text-muted-foreground" />
                 )}
               </div>
-              <label className="cursor-pointer">
-                <Button variant="outline" size="sm" asChild disabled={uploading}>
-                  <span>
-                    {uploading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Upload className="h-4 w-4 mr-1" />}
-                    {uploading ? "Enviando..." : "Enviar Logo"}
-                  </span>
-                </Button>
-                <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-              </label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="h-4 w-4 mr-1" />
+                Enviar Logo
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileSelect}
+              />
             </div>
           </div>
 
@@ -128,7 +167,7 @@ export default function Configuracoes() {
 
           <Button onClick={handleSave} disabled={saving} className="w-full">
             {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
-            Salvar Alterações
+            {saving ? "Salvando..." : "Salvar Alterações"}
           </Button>
         </CardContent>
       </Card>

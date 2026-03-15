@@ -10,6 +10,8 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
   SidebarContent,
@@ -45,6 +47,7 @@ const supportItems = [
 
 export function AppSidebar() {
   const { state } = useSidebar();
+  const { empresa } = useAuth();
   const collapsed = state === "collapsed";
 
   return (
@@ -167,11 +170,18 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-sidebar-border p-3">
         {!collapsed && (
           <div className="flex items-center gap-2 rounded-lg bg-accent p-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
-              <Building2 className="h-4 w-4 text-primary" strokeWidth={1.5} />
-            </div>
+            <Avatar className="h-8 w-8 rounded-md">
+              {empresa?.logo_url ? (
+                <AvatarImage src={empresa.logo_url} alt="Logo" className="object-contain" />
+              ) : null}
+              <AvatarFallback className="rounded-md bg-primary/10">
+                <Building2 className="h-4 w-4 text-primary" strokeWidth={1.5} />
+              </AvatarFallback>
+            </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-foreground truncate">Equipe</p>
+              <p className="text-xs font-medium text-foreground truncate">
+                {empresa?.nome_fantasia || "Equipe"}
+              </p>
               <p className="text-[11px] text-muted-foreground truncate">Seg. do Trabalho</p>
             </div>
             <ChevronUp className="h-4 w-4 text-muted-foreground" />
