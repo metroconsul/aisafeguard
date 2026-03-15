@@ -202,7 +202,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : data ? (
-          <div className="space-y-5">
+          <div className="space-y-4">
             {/* Structured data */}
             <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
               <div>
