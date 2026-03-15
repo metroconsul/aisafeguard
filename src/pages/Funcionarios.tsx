@@ -4,22 +4,41 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
-import type { Tables } from "@/integrations/supabase/types";
 
-type Funcionario = Tables<"funcionarios">;
+interface Funcionario {
+  id: string;
+  nome: string;
+  matricula: string;
+  cargo: string;
+  setor: string;
+  setor_id: string | null;
+  telefone_whatsapp: string | null;
+  cpf: string | null;
+  setor_obj?: { nome: string } | null;
+}
+
+interface Setor {
+  id: string;
+  nome: string;
+}
 
 export default function Funcionarios() {
   const { perfil } = useAuth();
   const [data, setData] = useState<Funcionario[]>([]);
+  const [setores, setSetores] = useState<Setor[]>([]);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ nome: "", matricula: "", cargo: "", setor: "", telefone_whatsapp: "", cpf: "" });
+  const [form, setForm] = useState({ nome: "", matricula: "", cargo: "", setor: "", setor_id: "", telefone_whatsapp: "", cpf: "" });
 
   const load = () => {
-    supabase.from("funcionarios").select("*").order("nome").then(({ data }) => {
-      if (data) setData(data);
+    supabase.from("funcionarios").select("*, setores:setor_id(nome)").order("nome").then(({ data }) => {
+      if (data) setData(data.map((f: any) => ({ ...f, setor_obj: f.setores })));
+    });
+    supabase.from("setores").select("id, nome").order("nome").then(({ data }) => {
+      if (data) setSetores(data);
     });
   };
 
@@ -30,13 +49,15 @@ export default function Funcionarios() {
       toast.error("Perfil não carregado.");
       return;
     }
+    const { setor_id, ...rest } = form;
     const { error } = await supabase.from("funcionarios").insert({
-      ...form,
+      ...rest,
+      setor_id: setor_id || null,
       empresa_id: perfil.empresa_id,
     });
     if (error) { toast.error("Erro: " + error.message); return; }
     toast.success("Funcionário adicionado!");
-    setForm({ nome: "", matricula: "", cargo: "", setor: "", telefone_whatsapp: "", cpf: "" });
+    setForm({ nome: "", matricula: "", cargo: "", setor: "", setor_id: "", telefone_whatsapp: "", cpf: "" });
     setOpen(false);
     load();
   };
@@ -55,15 +76,26 @@ export default function Funcionarios() {
           <DialogContent>
             <DialogHeader><DialogTitle>Novo Funcionário</DialogTitle></DialogHeader>
             <div className="space-y-3">
-              {(["nome", "matricula", "cargo", "setor", "telefone_whatsapp", "cpf"] as const).map((field) => (
+              {(["nome", "matricula", "cargo", "telefone_whatsapp", "cpf"] as const).map((field) => (
                 <div key={field} className="space-y-1">
-                  <Label className="capitalize">{field.replace("_", " ")}</Label>
+                  <Label className="capitalize">{field.replace(/_/g, " ")}</Label>
                   <Input
                     value={form[field]}
                     onChange={(e) => setForm({ ...form, [field]: e.target.value })}
                   />
                 </div>
               ))}
+              <div className="space-y-1">
+                <Label>Setor</Label>
+                <Select value={form.setor_id} onValueChange={(v) => setForm({ ...form, setor_id: v })}>
+                  <SelectTrigger><SelectValue placeholder="Selecione o setor" /></SelectTrigger>
+                  <SelectContent>
+                    {setores.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>{s.nome}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <Button onClick={handleAdd} className="w-full">Salvar</Button>
             </div>
           </DialogContent>
@@ -88,9 +120,9 @@ export default function Funcionarios() {
                 <td className="px-4 py-3 font-medium text-foreground">{f.nome}</td>
                 <td className="px-4 py-3 tabular-nums text-muted-foreground">{f.matricula}</td>
                 <td className="px-4 py-3 text-foreground">{f.cargo}</td>
-                <td className="px-4 py-3 text-foreground">{f.setor}</td>
+                <td className="px-4 py-3 text-foreground">{f.setor_obj?.nome || f.setor || "—"}</td>
                 <td className="px-4 py-3 tabular-nums text-muted-foreground">{f.telefone_whatsapp || "—"}</td>
-                <td className="px-4 py-3 tabular-nums text-muted-foreground">{(f as any).cpf || "—"}</td>
+                <td className="px-4 py-3 tabular-nums text-muted-foreground">{f.cpf || "—"}</td>
               </tr>
             ))}
             {data.length === 0 && (
