@@ -55,7 +55,7 @@ export default function Funcionarios() {
           <DialogContent>
             <DialogHeader><DialogTitle>Novo Funcionário</DialogTitle></DialogHeader>
             <div className="space-y-3">
-              {(["nome", "matricula", "cargo", "setor", "telefone_whatsapp"] as const).map((field) => (
+              {(["nome", "matricula", "cargo", "setor", "telefone_whatsapp", "cpf"] as const).map((field) => (
                 <div key={field} className="space-y-1">
                   <Label className="capitalize">{field.replace("_", " ")}</Label>
                   <Input
