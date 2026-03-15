@@ -63,17 +63,17 @@ export default function Funcionarios() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Funcionários</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Funcionários</h1>
           <p className="text-sm text-muted-foreground">{data.length} registros</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button><Plus className="mr-1.5 h-4 w-4" /> Adicionar</Button>
+            <Button className="w-full sm:w-auto"><Plus className="mr-1.5 h-4 w-4" /> Adicionar</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-[95vw] sm:max-w-lg">
             <DialogHeader><DialogTitle>Novo Funcionário</DialogTitle></DialogHeader>
             <div className="space-y-3">
               {(["nome", "matricula", "cargo", "telefone_whatsapp", "cpf"] as const).map((field) => (
@@ -102,34 +102,55 @@ export default function Funcionarios() {
         </Dialog>
       </div>
 
-      <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border bg-muted/50">
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Nome</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Matrícula</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Cargo</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Setor</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">WhatsApp</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">CPF</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {data.map((f) => (
-              <tr key={f.id} className="hover:bg-muted/30 transition-colors">
-                <td className="px-4 py-3 font-medium text-foreground">{f.nome}</td>
-                <td className="px-4 py-3 tabular-nums text-muted-foreground">{f.matricula}</td>
-                <td className="px-4 py-3 text-foreground">{f.cargo}</td>
-                <td className="px-4 py-3 text-foreground">{f.setor_obj?.nome || f.setor || "—"}</td>
-                <td className="px-4 py-3 tabular-nums text-muted-foreground">{f.telefone_whatsapp || "—"}</td>
-                <td className="px-4 py-3 tabular-nums text-muted-foreground">{f.cpf || "—"}</td>
+      {/* Mobile: card layout */}
+      <div className="block sm:hidden space-y-3">
+        {data.map((f) => (
+          <div key={f.id} className="rounded-xl border border-border bg-card p-4 shadow-card space-y-1">
+            <p className="font-medium text-foreground">{f.nome}</p>
+            <p className="text-xs text-muted-foreground">{f.cargo} • {f.setor_obj?.nome || f.setor || "—"}</p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground pt-1">
+              <span>Mat: {f.matricula}</span>
+              {f.telefone_whatsapp && <span>Tel: {f.telefone_whatsapp}</span>}
+              {f.cpf && <span>CPF: {f.cpf}</span>}
+            </div>
+          </div>
+        ))}
+        {data.length === 0 && (
+          <p className="text-center text-sm text-muted-foreground py-8">Nenhum funcionário cadastrado</p>
+        )}
+      </div>
+
+      {/* Desktop: table layout */}
+      <div className="hidden sm:block rounded-xl border border-border bg-card shadow-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[600px]">
+            <thead>
+              <tr className="border-b border-border bg-muted/50">
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Nome</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Matrícula</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Cargo</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Setor</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground hidden lg:table-cell">WhatsApp</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground hidden lg:table-cell">CPF</th>
               </tr>
-            ))}
-            {data.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">Nenhum funcionário cadastrado</td></tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {data.map((f) => (
+                <tr key={f.id} className="hover:bg-muted/30 transition-colors">
+                  <td className="px-4 py-3 font-medium text-foreground">{f.nome}</td>
+                  <td className="px-4 py-3 tabular-nums text-muted-foreground">{f.matricula}</td>
+                  <td className="px-4 py-3 text-foreground">{f.cargo}</td>
+                  <td className="px-4 py-3 text-foreground">{f.setor_obj?.nome || f.setor || "—"}</td>
+                  <td className="px-4 py-3 tabular-nums text-muted-foreground hidden lg:table-cell">{f.telefone_whatsapp || "—"}</td>
+                  <td className="px-4 py-3 tabular-nums text-muted-foreground hidden lg:table-cell">{f.cpf || "—"}</td>
+                </tr>
+              ))}
+              {data.length === 0 && (
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">Nenhum funcionário cadastrado</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

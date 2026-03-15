@@ -19,10 +19,10 @@ export function AppHeader() {
     : "??";
 
   return (
-    <header className="flex h-14 items-center gap-4 border-b border-border bg-card px-4">
+    <header className="flex h-14 items-center gap-2 sm:gap-4 border-b border-border bg-card px-3 sm:px-4">
       <SidebarTrigger className="text-muted-foreground" />
 
-      <div className="flex flex-1 items-center justify-center">
+      <div className="hidden sm:flex flex-1 items-center justify-center">
         <div className="relative w-full max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
           <Input
@@ -32,11 +32,13 @@ export function AppHeader() {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex-1 sm:flex-none" />
+
+      <div className="flex items-center gap-2 sm:gap-3">
         <NotificacoesPopover />
 
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
             {initials}
           </div>
           <div className="hidden md:block">

@@ -37,11 +37,8 @@ export default function Configuracoes() {
       });
   }, [perfil?.empresa_id]);
 
-  // Cleanup preview URL on unmount
   useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
+    return () => { if (previewUrl) URL.revokeObjectURL(previewUrl); };
   }, [previewUrl]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,10 +53,8 @@ export default function Configuracoes() {
   const handleSave = async () => {
     if (!perfil?.empresa_id) return;
     setSaving(true);
-
     let finalLogoUrl = logoUrl;
 
-    // Upload logo if a new file was selected
     if (logoFile) {
       const ext = logoFile.name.split(".").pop();
       const path = `${perfil.empresa_id}/logo-${Date.now()}.${ext}`;
@@ -89,10 +84,7 @@ export default function Configuracoes() {
     } else {
       setLogoUrl(finalLogoUrl);
       setLogoFile(null);
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
-      }
+      if (previewUrl) { URL.revokeObjectURL(previewUrl); setPreviewUrl(null); }
       refreshEmpresa();
       toast.success("Dados da empresa atualizados!");
     }
@@ -109,57 +101,45 @@ export default function Configuracoes() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">Configurações</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Configurações</h1>
         <p className="text-sm text-muted-foreground">Gerencie os dados da sua empresa</p>
       </div>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="px-4 sm:px-6">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Building2 className="h-5 w-5 text-primary" />
             Dados da Empresa
           </CardTitle>
           <CardDescription>Informações visíveis nos documentos e relatórios gerados pelo sistema.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-5">
+        <CardContent className="space-y-5 px-4 sm:px-6">
           {/* Logo */}
           <div className="space-y-2">
             <Label>Logo da Empresa</Label>
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded-lg border border-border bg-muted flex items-center justify-center overflow-hidden">
+              <div className="h-16 w-16 shrink-0 rounded-lg border border-border bg-muted flex items-center justify-center overflow-hidden">
                 {displayImage ? (
                   <img src={displayImage} alt="Logo" className="h-full w-full object-contain" />
                 ) : (
                   <Building2 className="h-6 w-6 text-muted-foreground" />
                 )}
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-              >
+              <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
                 <Upload className="h-4 w-4 mr-1" />
                 Enviar Logo
               </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileSelect}
-              />
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
             </div>
           </div>
 
-          {/* Nome Fantasia */}
           <div className="space-y-2">
             <Label htmlFor="nome_fantasia">Nome Fantasia</Label>
             <Input id="nome_fantasia" value={nomeFantasia} onChange={(e) => setNomeFantasia(e.target.value)} />
           </div>
 
-          {/* CNPJ */}
           <div className="space-y-2">
             <Label htmlFor="cnpj">CNPJ</Label>
             <Input id="cnpj" value={cnpj} onChange={(e) => setCnpj(e.target.value)} />

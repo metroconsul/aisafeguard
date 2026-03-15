@@ -34,21 +34,14 @@ const statusConfig: Record<string, { label: string; variant: "default" | "outlin
 
 export default function Integracoes() {
   const {
-    integracoes,
-    loading,
-    createIntegracao,
-    disconnectIntegracao,
-    deleteIntegracao,
-    getQRCode,
-    checkConnectionStatus,
-    updateStatus,
+    integracoes, loading, createIntegracao, disconnectIntegracao,
+    deleteIntegracao, getQRCode, checkConnectionStatus, updateStatus,
   } = useIntegracoes();
 
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);
   const [nome, setNome] = useState("");
   const [numero, setNumero] = useState("");
-
   const [qrTarget, setQrTarget] = useState<IntegracaoWhatsApp | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<IntegracaoWhatsApp | null>(null);
 
@@ -57,11 +50,7 @@ export default function Integracoes() {
     setCreating(true);
     const result = await createIntegracao({ nome: nome.trim(), numero });
     setCreating(false);
-    if (result) {
-      setShowCreate(false);
-      setNome("");
-      setNumero("");
-    }
+    if (result) { setShowCreate(false); setNome(""); setNumero(""); }
   };
 
   const handleDelete = async () => {
@@ -79,15 +68,15 @@ export default function Integracoes() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Integrações WhatsApp</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Integrações WhatsApp</h1>
           <p className="text-sm text-muted-foreground">
             Conecte até 3 números para automação ({integracoes.length}/3)
           </p>
         </div>
-        <Button onClick={() => setShowCreate(true)} disabled={integracoes.length >= 3}>
+        <Button onClick={() => setShowCreate(true)} disabled={integracoes.length >= 3} className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
           Nova Integração
         </Button>
@@ -95,10 +84,10 @@ export default function Integracoes() {
 
       {integracoes.length === 0 ? (
         <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12">
+          <CardContent className="flex flex-col items-center justify-center py-12 px-4">
             <Smartphone className="mb-3 h-10 w-10 text-muted-foreground" />
             <p className="text-sm font-medium text-foreground">Nenhuma integração configurada</p>
-            <p className="mt-1 text-xs text-muted-foreground">Adicione um número de WhatsApp para começar</p>
+            <p className="mt-1 text-xs text-muted-foreground text-center">Adicione um número de WhatsApp para começar</p>
             <Button className="mt-4" onClick={() => setShowCreate(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Adicionar WhatsApp
@@ -106,24 +95,24 @@ export default function Integracoes() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {integracoes.map((integ) => {
             const config = statusConfig[integ.status] || statusConfig.pendente;
             return (
               <Card key={integ.id}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-base">{integ.nome}</CardTitle>
+                <CardHeader className="pb-3 px-4 sm:px-6">
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="text-base truncate">{integ.nome}</CardTitle>
                     <Badge variant={config.variant} className={config.className}>
                       {config.label}
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3 px-4 sm:px-6">
                   <p className="text-sm tabular-nums text-muted-foreground">
                     +{formatPhoneNumber(integ.numero)}
                   </p>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {(integ.status === "pendente" || integ.status === "desconectado") && (
                       <Button size="sm" variant="outline" onClick={() => setQrTarget(integ)}>
                         <QrCode className="mr-1.5 h-3.5 w-3.5" />
@@ -131,11 +120,7 @@ export default function Integracoes() {
                       </Button>
                     )}
                     {integ.status === "conectado" && integ.instancia && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => disconnectIntegracao(integ.id, integ.instancia!)}
-                      >
+                      <Button size="sm" variant="outline" onClick={() => disconnectIntegracao(integ.id, integ.instancia!)}>
                         <Unplug className="mr-1.5 h-3.5 w-3.5" />
                         Desconectar
                       </Button>
@@ -151,34 +136,23 @@ export default function Integracoes() {
         </div>
       )}
 
-      {/* Create Modal */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Nova Integração WhatsApp</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-[95vw] sm:max-w-md">
+          <DialogHeader><DialogTitle>Nova Integração WhatsApp</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Nome de identificação</Label>
-              <Input
-                placeholder="Ex: Linha Principal"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-              />
+              <Input placeholder="Ex: Linha Principal" value={nome} onChange={(e) => setNome(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label>Número do WhatsApp</Label>
-              <Input
-                placeholder="5511999999999"
-                value={numero}
-                onChange={(e) => setNumero(e.target.value.replace(/\D/g, ""))}
-              />
+              <Input placeholder="5511999999999" value={numero} onChange={(e) => setNumero(e.target.value.replace(/\D/g, ""))} />
               <p className="text-xs text-muted-foreground">Inclua código do país (55) + DDD + número</p>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreate(false)}>Cancelar</Button>
-            <Button onClick={handleCreate} disabled={creating || !nome.trim() || !numero.trim()}>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setShowCreate(false)} className="w-full sm:w-auto">Cancelar</Button>
+            <Button onClick={handleCreate} disabled={creating || !nome.trim() || !numero.trim()} className="w-full sm:w-auto">
               {creating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Criar Integração
             </Button>
@@ -186,28 +160,22 @@ export default function Integracoes() {
         </DialogContent>
       </Dialog>
 
-      {/* QR Code Modal */}
       <QRCodeModal
-        open={!!qrTarget}
-        onClose={() => setQrTarget(null)}
-        integracao={qrTarget}
-        getQRCode={getQRCode}
-        checkConnectionStatus={checkConnectionStatus}
-        updateStatus={updateStatus}
+        open={!!qrTarget} onClose={() => setQrTarget(null)} integracao={qrTarget}
+        getQRCode={getQRCode} checkConnectionStatus={checkConnectionStatus} updateStatus={updateStatus}
       />
 
-      {/* Delete Confirmation */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[95vw] sm:max-w-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>Remover integração?</AlertDialogTitle>
             <AlertDialogDescription>
               A integração "{deleteTarget?.nome}" será removida permanentemente. Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="w-full sm:w-auto">Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="w-full sm:w-auto bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Remover
             </AlertDialogAction>
           </AlertDialogFooter>

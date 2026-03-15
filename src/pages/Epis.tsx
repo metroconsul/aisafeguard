@@ -58,17 +58,17 @@ export default function Epis() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">EPIs</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold text-foreground">EPIs</h1>
           <p className="text-sm text-muted-foreground">{data.length} equipamentos cadastrados</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button><Plus className="mr-1.5 h-4 w-4" /> Adicionar</Button>
+            <Button className="w-full sm:w-auto"><Plus className="mr-1.5 h-4 w-4" /> Adicionar</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-[95vw] sm:max-w-lg">
             <DialogHeader><DialogTitle>Novo EPI</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div className="space-y-1">
@@ -79,13 +79,15 @@ export default function Epis() {
                 <Label>Número CA</Label>
                 <Input value={form.numero_ca} onChange={(e) => setForm({ ...form, numero_ca: e.target.value })} />
               </div>
-              <div className="space-y-1">
-                <Label>Dias de Validade</Label>
-                <Input type="number" value={form.dias_validade} onChange={(e) => setForm({ ...form, dias_validade: e.target.value })} />
-              </div>
-              <div className="space-y-1">
-                <Label>Quantidade em Estoque</Label>
-                <Input type="number" value={form.quantidade_estoque} onChange={(e) => setForm({ ...form, quantidade_estoque: e.target.value })} />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label>Dias de Validade</Label>
+                  <Input type="number" value={form.dias_validade} onChange={(e) => setForm({ ...form, dias_validade: e.target.value })} />
+                </div>
+                <div className="space-y-1">
+                  <Label>Estoque</Label>
+                  <Input type="number" value={form.quantidade_estoque} onChange={(e) => setForm({ ...form, quantidade_estoque: e.target.value })} />
+                </div>
               </div>
               <Button onClick={handleAdd} className="w-full">Salvar</Button>
             </div>
@@ -93,30 +95,50 @@ export default function Epis() {
         </Dialog>
       </div>
 
-      <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border bg-muted/50">
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Equipamento</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">CA</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Validade (dias)</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Estoque</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {data.map((e) => (
-              <tr key={e.id} className="hover:bg-muted/30 transition-colors">
-                <td className="px-4 py-3 font-medium text-foreground">{e.nome_equipamento}</td>
-                <td className="px-4 py-3 tabular-nums text-muted-foreground">{e.numero_ca}</td>
-                <td className="px-4 py-3 tabular-nums text-foreground">{e.dias_validade}</td>
-                <td className="px-4 py-3 tabular-nums text-foreground">{e.quantidade_estoque}</td>
+      {/* Mobile: card layout */}
+      <div className="block sm:hidden space-y-3">
+        {data.map((e) => (
+          <div key={e.id} className="rounded-xl border border-border bg-card p-4 shadow-card">
+            <p className="font-medium text-foreground">{e.nome_equipamento}</p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mt-1">
+              <span>CA: {e.numero_ca}</span>
+              <span>Validade: {e.dias_validade} dias</span>
+              <span>Estoque: {e.quantidade_estoque}</span>
+            </div>
+          </div>
+        ))}
+        {data.length === 0 && (
+          <p className="text-center text-sm text-muted-foreground py-8">Nenhum EPI cadastrado</p>
+        )}
+      </div>
+
+      {/* Desktop: table layout */}
+      <div className="hidden sm:block rounded-xl border border-border bg-card shadow-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[500px]">
+            <thead>
+              <tr className="border-b border-border bg-muted/50">
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Equipamento</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">CA</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Validade (dias)</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Estoque</th>
               </tr>
-            ))}
-            {data.length === 0 && (
-              <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">Nenhum EPI cadastrado</td></tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {data.map((e) => (
+                <tr key={e.id} className="hover:bg-muted/30 transition-colors">
+                  <td className="px-4 py-3 font-medium text-foreground">{e.nome_equipamento}</td>
+                  <td className="px-4 py-3 tabular-nums text-muted-foreground">{e.numero_ca}</td>
+                  <td className="px-4 py-3 tabular-nums text-foreground">{e.dias_validade}</td>
+                  <td className="px-4 py-3 tabular-nums text-foreground">{e.quantidade_estoque}</td>
+                </tr>
+              ))}
+              {data.length === 0 && (
+                <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">Nenhum EPI cadastrado</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

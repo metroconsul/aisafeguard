@@ -21,7 +21,6 @@ export default function Dashboard() {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-    // Entregas no mês
     supabase
       .from("entregas")
       .select("id", { count: "exact", head: true })
@@ -29,7 +28,6 @@ export default function Dashboard() {
       .gte("data_entrega", startOfMonth)
       .then(({ count }) => setEntregasMes(count ?? 0));
 
-    // EPIs vencidos / a vencer (dias_validade já passou baseado no created_at)
     supabase
       .from("epis")
       .select("id, dias_validade, created_at")
@@ -45,7 +43,6 @@ export default function Dashboard() {
         setEpisVencidos(vencidos.length);
       });
 
-    // Taxa de assinaturas
     supabase
       .from("entregas")
       .select("id, status_assinatura")
@@ -59,13 +56,13 @@ export default function Dashboard() {
   }, [perfil?.empresa_id]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Dashboard</h1>
         <p className="text-sm text-muted-foreground">Gestão de Conformidade em Tempo Real</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-3">
         <KpiCard title="Entregas no Mês" value={entregasMes} icon={Package} />
         <KpiCard
           title="EPIs Vencidos / A Vencer"
@@ -76,7 +73,7 @@ export default function Dashboard() {
         <KpiCard title="Taxa de Assinaturas" value={taxaAssinaturas} icon={CheckCircle2} />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <EntregasSetorChart />
         </div>
@@ -85,7 +82,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5">
         <div className="lg:col-span-2">
           <DistribuicaoEpiChart />
         </div>
