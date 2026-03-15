@@ -22,6 +22,7 @@ interface EntregaDetail {
   data_entrega: string | null;
   status_assinatura: string | null;
   imagem_assinatura: string | null;
+  foto_assinatura: string | null;
 }
 
 interface EntregaDetailModalProps {
