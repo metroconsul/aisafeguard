@@ -1,8 +1,9 @@
-import { Search, Bell, LogOut } from "lucide-react";
+import { Search, LogOut } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { NotificacoesPopover } from "@/components/NotificacoesPopover";
 
 export function AppHeader() {
   const { perfil, signOut } = useAuth();
