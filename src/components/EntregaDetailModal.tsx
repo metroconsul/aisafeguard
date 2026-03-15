@@ -60,6 +60,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
             data_entrega: row.data_entrega,
             status_assinatura: row.status_assinatura,
             imagem_assinatura: row.imagem_assinatura,
+            foto_assinatura: (row as any).foto_assinatura ?? null,
           });
         }
         setLoading(false);
