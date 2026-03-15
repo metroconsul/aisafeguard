@@ -144,6 +144,7 @@ export type Database = {
           matricula: string
           nome: string
           setor: string
+          setor_id: string | null
           telefone_whatsapp: string | null
         }
         Insert: {
@@ -155,6 +156,7 @@ export type Database = {
           matricula: string
           nome: string
           setor: string
+          setor_id?: string | null
           telefone_whatsapp?: string | null
         }
         Update: {
@@ -166,6 +168,7 @@ export type Database = {
           matricula?: string
           nome?: string
           setor?: string
+          setor_id?: string | null
           telefone_whatsapp?: string | null
         }
         Relationships: [
@@ -174,6 +177,13 @@ export type Database = {
             columns: ["empresa_id"]
             isOneToOne: false
             referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funcionarios_setor_id_fkey"
+            columns: ["setor_id"]
+            isOneToOne: false
+            referencedRelation: "setores"
             referencedColumns: ["id"]
           },
         ]
@@ -256,6 +266,84 @@ export type Database = {
             columns: ["empresa_id"]
             isOneToOne: false
             referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      setores: {
+        Row: {
+          created_at: string | null
+          descricao: string | null
+          empresa_id: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string | null
+          descricao?: string | null
+          empresa_id: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          created_at?: string | null
+          descricao?: string | null
+          empresa_id?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "setores_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      setores_epis: {
+        Row: {
+          created_at: string | null
+          empresa_id: string
+          epi_id: string
+          id: string
+          setor_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          empresa_id: string
+          epi_id: string
+          id?: string
+          setor_id: string
+        }
+        Update: {
+          created_at?: string | null
+          empresa_id?: string
+          epi_id?: string
+          id?: string
+          setor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "setores_epis_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "setores_epis_epi_id_fkey"
+            columns: ["epi_id"]
+            isOneToOne: false
+            referencedRelation: "epis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "setores_epis_setor_id_fkey"
+            columns: ["setor_id"]
+            isOneToOne: false
+            referencedRelation: "setores"
             referencedColumns: ["id"]
           },
         ]
