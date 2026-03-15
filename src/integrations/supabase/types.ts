@@ -19,18 +19,21 @@ export type Database = {
           cnpj: string
           created_at: string | null
           id: string
+          logo_url: string | null
           nome_fantasia: string
         }
         Insert: {
           cnpj: string
           created_at?: string | null
           id?: string
+          logo_url?: string | null
           nome_fantasia: string
         }
         Update: {
           cnpj?: string
           created_at?: string | null
           id?: string
+          logo_url?: string | null
           nome_fantasia?: string
         }
         Relationships: []
