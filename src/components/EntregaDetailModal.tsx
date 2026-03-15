@@ -192,7 +192,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Detalhes da Ficha de EPI</DialogTitle>
         </DialogHeader>
