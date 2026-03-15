@@ -15,7 +15,7 @@ export default function Funcionarios() {
   const { perfil } = useAuth();
   const [data, setData] = useState<Funcionario[]>([]);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ nome: "", matricula: "", cargo: "", setor: "", telefone_whatsapp: "" });
+  const [form, setForm] = useState({ nome: "", matricula: "", cargo: "", setor: "", telefone_whatsapp: "", cpf: "" });
 
   const load = () => {
     supabase.from("funcionarios").select("*").order("nome").then(({ data }) => {
