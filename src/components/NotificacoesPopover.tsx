@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Bell, AlertTriangle, CheckCircle, Info, CheckCheck } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -35,8 +36,21 @@ const tipoConfig: Record<string, { icon: typeof AlertTriangle; color: string; bg
 
 export function NotificacoesPopover() {
   const { perfil } = useAuth();
+  const navigate = useNavigate();
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [open, setOpen] = useState(false);
+
+  const marcarComoLida = async (notificacao: Notificacao) => {
+    if (!notificacao.lida) {
+      await supabase.from("notificacoes").update({ lida: true }).eq("id", notificacao.id);
+      setNotificacoes((prev) => prev.map((n) => n.id === notificacao.id ? { ...n, lida: true } : n));
+    }
+    setOpen(false);
+    // Navigate to setores page for EPI alerts
+    if (notificacao.tipo === "alerta") {
+      navigate("/setores");
+    }
+  };
 
   const fetchNotificacoes = async () => {
     const { data } = await supabase
@@ -116,10 +130,11 @@ export function NotificacoesPopover() {
                 const config = tipoConfig[n.tipo] ?? tipoConfig.info;
                 const Icon = config.icon;
                 return (
-                  <div
+                  <button
                     key={n.id}
+                    onClick={() => marcarComoLida(n)}
                     className={cn(
-                      "flex gap-3 px-4 py-3 transition-colors",
+                      "flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/50 cursor-pointer",
                       !n.lida && "bg-accent/40"
                     )}
                   >
@@ -140,7 +155,7 @@ export function NotificacoesPopover() {
                     {!n.lida && (
                       <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>
