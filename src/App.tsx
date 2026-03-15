@@ -44,6 +44,7 @@ const App = () => (
                       <Route path="/funcionarios" element={<Funcionarios />} />
                       <Route path="/epis" element={<Epis />} />
                       <Route path="/integracoes" element={<Integracoes />} />
+                      <Route path="/setores" element={<Setores />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>
