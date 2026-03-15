@@ -79,6 +79,7 @@ export default function Funcionarios() {
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Cargo</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Setor</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">WhatsApp</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">CPF</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
