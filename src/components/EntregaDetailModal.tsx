@@ -109,6 +109,23 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
     addField("Data da Entrega", formatDate(data.data_entrega));
     addField("Status", data.status_assinatura ?? "Pendente");
 
+    if (data.foto_assinatura) {
+      y += 5;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(120);
+      doc.text("Foto do Funcionário", margin, y);
+      y += 5;
+      doc.setDrawColor(200);
+      doc.rect(margin, y, 40, 50);
+      try {
+        doc.addImage(data.foto_assinatura, "JPEG", margin + 1, y + 1, 38, 48);
+      } catch {
+        // ignore image errors
+      }
+      y += 55;
+    }
+
     if (data.imagem_assinatura) {
       y += 5;
       doc.setFontSize(10);
