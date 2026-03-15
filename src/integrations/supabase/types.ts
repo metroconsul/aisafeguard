@@ -241,6 +241,44 @@ export type Database = {
           },
         ]
       }
+      notificacoes: {
+        Row: {
+          created_at: string | null
+          empresa_id: string
+          id: string
+          lida: boolean
+          mensagem: string
+          tipo: string
+          titulo: string
+        }
+        Insert: {
+          created_at?: string | null
+          empresa_id: string
+          id?: string
+          lida?: boolean
+          mensagem: string
+          tipo?: string
+          titulo: string
+        }
+        Update: {
+          created_at?: string | null
+          empresa_id?: string
+          id?: string
+          lida?: boolean
+          mensagem?: string
+          tipo?: string
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notificacoes_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       perfis: {
         Row: {
           created_at: string | null

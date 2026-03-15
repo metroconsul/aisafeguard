@@ -1,8 +1,9 @@
-import { Search, Bell, LogOut } from "lucide-react";
+import { Search, LogOut } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { NotificacoesPopover } from "@/components/NotificacoesPopover";
 
 export function AppHeader() {
   const { perfil, signOut } = useAuth();
@@ -32,10 +33,7 @@ export function AppHeader() {
       </div>
 
       <div className="flex items-center gap-3">
-        <button className="relative rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent">
-          <Bell className="h-4 w-4" strokeWidth={1.5} />
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
-        </button>
+        <NotificacoesPopover />
 
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
