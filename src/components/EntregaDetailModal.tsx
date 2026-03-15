@@ -192,7 +192,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Detalhes da Ficha de EPI</DialogTitle>
         </DialogHeader>
@@ -202,7 +202,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : data ? (
-          <div className="space-y-5">
+          <div className="space-y-4">
             {/* Structured data */}
             <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
               <div>
@@ -248,7 +248,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
                   <img
                     src={data.foto_assinatura}
                     alt="Foto do funcionário"
-                    className="max-h-40 w-auto rounded-md"
+                    className="max-h-28 w-auto rounded-md"
                   />
                 </div>
               </div>
@@ -257,11 +257,11 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
             {signed && data.imagem_assinatura && (
               <div className="space-y-2">
                 <p className="text-xs font-medium text-muted-foreground">Assinatura Digital</p>
-                <div className="rounded-lg border border-border bg-muted/20 p-4 flex items-center justify-center">
+                <div className="rounded-lg border border-border bg-muted/20 p-3 flex items-center justify-center">
                   <img
                     src={data.imagem_assinatura}
                     alt="Assinatura do funcionário"
-                    className="max-h-40 w-auto"
+                    className="max-h-28 w-auto"
                   />
                 </div>
                 <Button variant="outline" className="w-full gap-2" onClick={downloadPdf}>
