@@ -90,6 +90,7 @@ export default function Funcionarios() {
                 <td className="px-4 py-3 text-foreground">{f.cargo}</td>
                 <td className="px-4 py-3 text-foreground">{f.setor}</td>
                 <td className="px-4 py-3 tabular-nums text-muted-foreground">{f.telefone_whatsapp || "—"}</td>
+                <td className="px-4 py-3 tabular-nums text-muted-foreground">{(f as any).cpf || "—"}</td>
               </tr>
             ))}
             {data.length === 0 && (
