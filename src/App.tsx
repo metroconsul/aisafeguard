@@ -12,6 +12,8 @@ import Funcionarios from "@/pages/Funcionarios";
 import Epis from "@/pages/Epis";
 import Integracoes from "@/pages/Integracoes";
 import Setores from "@/pages/Setores";
+import Configuracoes from "@/pages/Configuracoes";
+import Seguranca from "@/pages/Seguranca";
 import Assinar from "@/pages/Assinar";
 import Login from "@/pages/Login";
 import Cadastro from "@/pages/Cadastro";
@@ -45,6 +47,8 @@ const App = () => (
                       <Route path="/epis" element={<Epis />} />
                       <Route path="/integracoes" element={<Integracoes />} />
                       <Route path="/setores" element={<Setores />} />
+                      <Route path="/configuracoes" element={<Configuracoes />} />
+                      <Route path="/seguranca" element={<Seguranca />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>

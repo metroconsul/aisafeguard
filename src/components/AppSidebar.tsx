@@ -6,9 +6,7 @@ import {
   Building2,
   Settings,
   ShieldCheck,
-  HelpCircle,
   ChevronUp,
-  Zap,
   MessageCircle,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
@@ -43,7 +41,6 @@ const integrationItems = [
 const supportItems = [
   { title: "Configurações", url: "/configuracoes", icon: Settings },
   { title: "Segurança", url: "/seguranca", icon: ShieldCheck },
-  { title: "Ajuda", url: "/ajuda", icon: HelpCircle },
 ];
 
 export function AppSidebar() {
@@ -169,22 +166,16 @@ export function AppSidebar() {
 
       <SidebarFooter className="border-t border-sidebar-border p-3">
         {!collapsed && (
-          <>
-            <div className="flex items-center gap-2 rounded-lg bg-accent p-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
-                <Building2 className="h-4 w-4 text-primary" strokeWidth={1.5} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-foreground truncate">Equipe</p>
-                <p className="text-[11px] text-muted-foreground truncate">Seg. do Trabalho</p>
-              </div>
-              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 rounded-lg bg-accent p-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
+              <Building2 className="h-4 w-4 text-primary" strokeWidth={1.5} />
             </div>
-            <button className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-primary/10">
-              <Zap className="h-3.5 w-3.5" strokeWidth={1.5} />
-              Upgrade Plan
-            </button>
-          </>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-foreground truncate">Equipe</p>
+              <p className="text-[11px] text-muted-foreground truncate">Seg. do Trabalho</p>
+            </div>
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          </div>
         )}
       </SidebarFooter>
     </Sidebar>
