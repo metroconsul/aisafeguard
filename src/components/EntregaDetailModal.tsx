@@ -22,6 +22,7 @@ interface EntregaDetail {
   data_entrega: string | null;
   status_assinatura: string | null;
   imagem_assinatura: string | null;
+  foto_assinatura: string | null;
 }
 
 interface EntregaDetailModalProps {
@@ -42,7 +43,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
     setLoading(true);
     supabase
       .from("entregas")
-      .select("id, data_entrega, status_assinatura, imagem_assinatura, funcionarios(nome, matricula, telefone_whatsapp), epis(nome_equipamento, numero_ca)")
+      .select("id, data_entrega, status_assinatura, imagem_assinatura, foto_assinatura, funcionarios(nome, matricula, telefone_whatsapp), epis(nome_equipamento, numero_ca)")
       .eq("id", entregaId)
       .maybeSingle()
       .then(({ data: row }) => {
@@ -59,6 +60,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
             data_entrega: row.data_entrega,
             status_assinatura: row.status_assinatura,
             imagem_assinatura: row.imagem_assinatura,
+            foto_assinatura: (row as any).foto_assinatura ?? null,
           });
         }
         setLoading(false);
@@ -222,8 +224,21 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
             </div>
 
             {/* Signature image */}
+            {signed && data.foto_assinatura && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">Foto do Funcionário</p>
+                <div className="rounded-lg border border-border bg-muted/20 p-2 flex items-center justify-center">
+                  <img
+                    src={data.foto_assinatura}
+                    alt="Foto do funcionário"
+                    className="max-h-40 w-auto rounded-md"
+                  />
+                </div>
+              </div>
+            )}
+
             {signed && data.imagem_assinatura && (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <p className="text-xs font-medium text-muted-foreground">Assinatura Digital</p>
                 <div className="rounded-lg border border-border bg-muted/20 p-4 flex items-center justify-center">
                   <img
