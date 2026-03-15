@@ -15,7 +15,7 @@ export default function Funcionarios() {
   const { perfil } = useAuth();
   const [data, setData] = useState<Funcionario[]>([]);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ nome: "", matricula: "", cargo: "", setor: "", telefone_whatsapp: "" });
+  const [form, setForm] = useState({ nome: "", matricula: "", cargo: "", setor: "", telefone_whatsapp: "", cpf: "" });
 
   const load = () => {
     supabase.from("funcionarios").select("*").order("nome").then(({ data }) => {
@@ -36,7 +36,7 @@ export default function Funcionarios() {
     });
     if (error) { toast.error("Erro: " + error.message); return; }
     toast.success("Funcionário adicionado!");
-    setForm({ nome: "", matricula: "", cargo: "", setor: "", telefone_whatsapp: "" });
+    setForm({ nome: "", matricula: "", cargo: "", setor: "", telefone_whatsapp: "", cpf: "" });
     setOpen(false);
     load();
   };
@@ -55,7 +55,7 @@ export default function Funcionarios() {
           <DialogContent>
             <DialogHeader><DialogTitle>Novo Funcionário</DialogTitle></DialogHeader>
             <div className="space-y-3">
-              {(["nome", "matricula", "cargo", "setor", "telefone_whatsapp"] as const).map((field) => (
+              {(["nome", "matricula", "cargo", "setor", "telefone_whatsapp", "cpf"] as const).map((field) => (
                 <div key={field} className="space-y-1">
                   <Label className="capitalize">{field.replace("_", " ")}</Label>
                   <Input
@@ -79,6 +79,7 @@ export default function Funcionarios() {
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Cargo</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Setor</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">WhatsApp</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">CPF</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -89,10 +90,11 @@ export default function Funcionarios() {
                 <td className="px-4 py-3 text-foreground">{f.cargo}</td>
                 <td className="px-4 py-3 text-foreground">{f.setor}</td>
                 <td className="px-4 py-3 tabular-nums text-muted-foreground">{f.telefone_whatsapp || "—"}</td>
+                <td className="px-4 py-3 tabular-nums text-muted-foreground">{(f as any).cpf || "—"}</td>
               </tr>
             ))}
             {data.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">Nenhum funcionário cadastrado</td></tr>
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">Nenhum funcionário cadastrado</td></tr>
             )}
           </tbody>
         </table>

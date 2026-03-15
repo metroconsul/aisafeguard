@@ -32,6 +32,7 @@ interface SignatureWebhookPayload {
   nome_epi: string;
   data_assinatura: string;
   imagem_assinatura: string;
+  foto_assinatura: string;
 }
 
 export async function triggerSignatureWebhook(payload: SignatureWebhookPayload) {
