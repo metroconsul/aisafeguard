@@ -206,7 +206,6 @@ export default function Assinar() {
       nome_epi: entrega.epi.nome_equipamento,
       data_assinatura: now,
       imagem_assinatura: signatureDataUrl,
-      foto_assinatura: photoData!,
     });
 
     setSaving(false);
