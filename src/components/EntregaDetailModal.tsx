@@ -224,8 +224,21 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
             </div>
 
             {/* Signature image */}
+            {signed && data.foto_assinatura && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">Foto do Funcionário</p>
+                <div className="rounded-lg border border-border bg-muted/20 p-2 flex items-center justify-center">
+                  <img
+                    src={data.foto_assinatura}
+                    alt="Foto do funcionário"
+                    className="max-h-40 w-auto rounded-md"
+                  />
+                </div>
+              </div>
+            )}
+
             {signed && data.imagem_assinatura && (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <p className="text-xs font-medium text-muted-foreground">Assinatura Digital</p>
                 <div className="rounded-lg border border-border bg-muted/20 p-4 flex items-center justify-center">
                   <img
