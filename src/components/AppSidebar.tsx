@@ -6,9 +6,7 @@ import {
   Building2,
   Settings,
   ShieldCheck,
-  HelpCircle,
   ChevronUp,
-  Zap,
   MessageCircle,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
