@@ -47,6 +47,7 @@ const supportItems = [
 
 export function AppSidebar() {
   const { state } = useSidebar();
+  const { empresa } = useAuth();
   const collapsed = state === "collapsed";
 
   return (
