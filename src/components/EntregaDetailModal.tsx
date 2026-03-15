@@ -261,7 +261,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
                   <img
                     src={data.imagem_assinatura}
                     alt="Assinatura do funcionário"
-                    className="max-h-40 w-auto"
+                    className="max-h-28 w-auto"
                   />
                 </div>
                 <Button variant="outline" className="w-full gap-2" onClick={downloadPdf}>
