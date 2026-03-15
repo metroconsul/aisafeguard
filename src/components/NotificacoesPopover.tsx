@@ -36,8 +36,21 @@ const tipoConfig: Record<string, { icon: typeof AlertTriangle; color: string; bg
 
 export function NotificacoesPopover() {
   const { perfil } = useAuth();
+  const navigate = useNavigate();
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [open, setOpen] = useState(false);
+
+  const marcarComoLida = async (notificacao: Notificacao) => {
+    if (!notificacao.lida) {
+      await supabase.from("notificacoes").update({ lida: true }).eq("id", notificacao.id);
+      setNotificacoes((prev) => prev.map((n) => n.id === notificacao.id ? { ...n, lida: true } : n));
+    }
+    setOpen(false);
+    // Navigate to setores page for EPI alerts
+    if (notificacao.tipo === "alerta") {
+      navigate("/setores");
+    }
+  };
 
   const fetchNotificacoes = async () => {
     const { data } = await supabase
