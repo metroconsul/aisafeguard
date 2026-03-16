@@ -212,7 +212,7 @@ export default function LandingPage() {
               {[40, 65, 50, 80, 55, 72].map((h, i) => (
                 <div
                   key={i}
-                  className="w-4 rounded-sm bg-gradient-to-t from-orange-300 to-amber-200"
+                  className="w-4 rounded-sm bg-gradient-to-t from-blue-400 to-blue-200"
                   style={{ height: `${h * 0.5}px` }}
                 />
               ))}
