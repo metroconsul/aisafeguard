@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, type Easing } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   LayoutDashboard,
