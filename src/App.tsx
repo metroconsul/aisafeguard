@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
+import LandingPage from "@/pages/LandingPage";
 import Dashboard from "@/pages/Dashboard";
 import NovaEntrega from "@/pages/NovaEntrega";
 import Funcionarios from "@/pages/Funcionarios";
@@ -30,6 +31,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             {/* Public routes */}
+            <Route path="/site" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
             <Route path="/assinar/:id" element={<Assinar />} />
