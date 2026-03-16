@@ -22,9 +22,12 @@ import {
 import { useState } from "react";
 
 /* ───────── animation helpers ───────── */
+const easeOut: Easing = "easeOut";
+const easeInOut: Easing = "easeInOut";
+
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: easeOut } },
 };
 
 const stagger = {
@@ -33,7 +36,7 @@ const stagger = {
 
 const floatY = (d: number) => ({
   y: [0, -10, 0],
-  transition: { duration: d, repeat: Infinity, ease: "easeInOut" },
+  transition: { duration: d, repeat: Infinity, ease: easeInOut },
 });
 
 /* ───────── data ───────── */
