@@ -282,7 +282,7 @@ export default function LandingPage() {
                   variants={fadeUp}
                   className={`group rounded-3xl border p-7 transition-shadow hover:shadow-lg ${
                     f.highlight
-                      ? "border-orange-200/60 bg-gradient-to-br from-orange-50 to-amber-50"
+                      ? "border-blue-200/60 bg-gradient-to-br from-blue-50 to-sky-50"
                       : "border-gray-100 bg-white"
                   }`}
                 >
