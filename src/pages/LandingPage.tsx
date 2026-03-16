@@ -87,9 +87,9 @@ export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen font-sans antialiased" style={{ background: "#FAF7F2" }}>
+    <div className="min-h-screen font-sans antialiased" style={{ background: "#F5F7FA" }}>
       {/* ─── Navbar ─── */}
-      <nav className="sticky top-0 z-50 backdrop-blur-md bg-[#FAF7F2]/80 border-b border-gray-200/50">
+      <nav className="sticky top-0 z-50 backdrop-blur-md bg-[#F5F7FA]/80 border-b border-gray-200/50">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5">
           <Link to="/" className="flex items-center gap-2 text-xl font-bold text-gray-900">
             <ShieldCheck className="h-6 w-6" />
@@ -126,7 +126,7 @@ export default function LandingPage() {
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="md:hidden border-t border-gray-200/50 bg-[#FAF7F2] px-5 pb-4"
+            className="md:hidden border-t border-gray-200/50 bg-[#F5F7FA] px-5 pb-4"
           >
             <div className="flex flex-col gap-3 pt-3">
               <a href="#features" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>Funcionalidades</a>
@@ -157,7 +157,7 @@ export default function LandingPage() {
               className="mt-4 text-4xl font-extrabold leading-[1.1] tracking-tight text-gray-900 sm:text-5xl lg:text-6xl"
             >
               Gerencie seus EPIs e{" "}
-              <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-500 to-blue-400 bg-clip-text text-transparent">
                 Segurança do Trabalho
               </span>{" "}
               em um só lugar
@@ -191,7 +191,7 @@ export default function LandingPage() {
         >
           <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-md w-56">
             <div className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-              <Package className="h-4 w-4 text-orange-500" /> Estoque Atualizado
+              <Package className="h-4 w-4 text-blue-500" /> Estoque Atualizado
             </div>
             <div className="mt-2 space-y-1 text-[11px] text-gray-500">
               <p>Luva Nitrílica · CA: 12345</p>
@@ -212,7 +212,7 @@ export default function LandingPage() {
               {[40, 65, 50, 80, 55, 72].map((h, i) => (
                 <div
                   key={i}
-                  className="w-4 rounded-sm bg-gradient-to-t from-orange-300 to-amber-200"
+                  className="w-4 rounded-sm bg-gradient-to-t from-blue-400 to-blue-200"
                   style={{ height: `${h * 0.5}px` }}
                 />
               ))}
@@ -232,26 +232,23 @@ export default function LandingPage() {
           </div>
         </motion.div>
 
-        {/* social proof */}
+      </section>
+
+      {/* ─── Social Proof ─── */}
+      <section className="px-5 py-16">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeUp}
-          className="mx-auto mt-20 max-w-3xl text-center"
+          className="mx-auto max-w-3xl text-center"
         >
           <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">
             Confiado por empresas inovadoras
           </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-8 opacity-40">
-            {["Indústria Alfa", "Construtora Beta", "Siderúrgica Gama", "Logística Delta", "Mineração Épsilon"].map(
-              (name) => (
-                <span key={name} className="text-sm font-bold text-gray-500 tracking-wide">
-                  {name}
-                </span>
-              )
-            )}
-          </div>
+          <p className="mt-4 text-sm text-gray-400">
+            Em breve, as empresas que confiam no SafeGuard aparecerão aqui.
+          </p>
         </motion.div>
       </section>
 
@@ -285,7 +282,7 @@ export default function LandingPage() {
                   variants={fadeUp}
                   className={`group rounded-3xl border p-7 transition-shadow hover:shadow-lg ${
                     f.highlight
-                      ? "border-orange-200/60 bg-gradient-to-br from-orange-50 to-amber-50"
+                      ? "border-blue-200/60 bg-gradient-to-br from-blue-50 to-sky-50"
                       : "border-gray-100 bg-white"
                   }`}
                 >
@@ -294,7 +291,7 @@ export default function LandingPage() {
                       f.highlight ? "bg-white shadow-sm" : "bg-gray-100"
                     }`}
                   >
-                    <Icon className={`h-5 w-5 ${f.highlight ? "text-orange-500" : "text-gray-600"}`} />
+                    <Icon className={`h-5 w-5 ${f.highlight ? "text-blue-500" : "text-gray-600"}`} />
                   </div>
                   <h3 className="mt-5 text-lg font-bold text-gray-900">{f.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-gray-500">{f.desc}</p>
@@ -364,7 +361,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Feature Highlight B ─── */}
-      <section className="px-5 py-20 md:py-28" style={{ background: "#F5F0EA" }}>
+      <section className="px-5 py-20 md:py-28" style={{ background: "#EFF4FA" }}>
         <div className="mx-auto max-w-6xl">
           <motion.div
             initial="hidden"
@@ -376,7 +373,7 @@ export default function LandingPage() {
             <motion.div variants={fadeUp} className="flex-1">
               <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-lg">
                 <div className="flex items-center gap-4 border-b border-gray-100 pb-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-orange-100 to-amber-100 text-lg font-bold text-orange-600">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-sky-100 text-lg font-bold text-blue-600">
                     JS
                   </div>
                   <div>
@@ -391,7 +388,7 @@ export default function LandingPage() {
                   </div>
                   <div className="flex justify-between rounded-lg bg-gray-50 p-2.5">
                     <span>Luva Nitrílica</span>
-                    <span className="text-xs font-semibold text-orange-500">Vence em 15 dias</span>
+                    <span className="text-xs font-semibold text-amber-500">Vence em 15 dias</span>
                   </div>
                   <div className="flex justify-between rounded-lg bg-gray-50 p-2.5">
                     <span>Óculos de Proteção</span>
@@ -487,7 +484,7 @@ export default function LandingPage() {
                 variants={fadeUp}
                 className={`relative rounded-3xl border p-8 transition-shadow hover:shadow-xl ${
                   plan.popular
-                    ? "border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 shadow-lg"
+                    ? "border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50 shadow-lg"
                     : "border-gray-100 bg-white"
                 }`}
               >
@@ -542,11 +539,11 @@ export default function LandingPage() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeUp}
-          className="mx-auto max-w-5xl rounded-[2rem] bg-gradient-to-br from-orange-100 via-amber-50 to-orange-50 p-10 text-center shadow-sm sm:p-16"
+          className="mx-auto max-w-5xl rounded-[2rem] bg-gradient-to-br from-blue-100 via-sky-50 to-blue-50 p-10 text-center shadow-sm sm:p-16"
         >
           {/* avatars */}
           <div className="mb-6 flex items-center justify-center -space-x-2">
-            {["bg-orange-400", "bg-blue-400", "bg-green-400", "bg-purple-400"].map((bg, i) => (
+            {["bg-blue-400", "bg-blue-500", "bg-gray-700", "bg-blue-300"].map((bg, i) => (
               <div
                 key={i}
                 className={`flex h-9 w-9 items-center justify-center rounded-full border-2 border-white text-xs font-bold text-white ${bg}`}
