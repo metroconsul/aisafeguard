@@ -87,7 +87,7 @@ export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen font-sans antialiased" style={{ background: "#FAF7F2" }}>
+    <div className="min-h-screen font-sans antialiased" style={{ background: "#F5F7FA" }}>
       {/* ─── Navbar ─── */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-[#FAF7F2]/80 border-b border-gray-200/50">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5">
