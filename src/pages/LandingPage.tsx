@@ -487,8 +487,6 @@ export default function LandingPage() {
                     ? "border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50 shadow-lg"
                     : "border-gray-100 bg-white"
                 }`}
-                    : "border-gray-100 bg-white"
-                }`}
               >
                 {plan.popular && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gray-900 px-4 py-1 text-[11px] font-bold text-white tracking-wide">
