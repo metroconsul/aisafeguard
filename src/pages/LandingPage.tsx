@@ -157,7 +157,7 @@ export default function LandingPage() {
               className="mt-4 text-4xl font-extrabold leading-[1.1] tracking-tight text-gray-900 sm:text-5xl lg:text-6xl"
             >
               Gerencie seus EPIs e{" "}
-              <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-500 to-blue-400 bg-clip-text text-transparent">
                 Segurança do Trabalho
               </span>{" "}
               em um só lugar
