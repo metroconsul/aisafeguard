@@ -388,7 +388,7 @@ export default function LandingPage() {
                   </div>
                   <div className="flex justify-between rounded-lg bg-gray-50 p-2.5">
                     <span>Luva Nitrílica</span>
-                    <span className="text-xs font-semibold text-orange-500">Vence em 15 dias</span>
+                    <span className="text-xs font-semibold text-amber-500">Vence em 15 dias</span>
                   </div>
                   <div className="flex justify-between rounded-lg bg-gray-50 p-2.5">
                     <span>Óculos de Proteção</span>
