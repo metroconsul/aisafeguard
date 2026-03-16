@@ -31,6 +31,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             {/* Public routes */}
+            <Route path="/site" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
             <Route path="/assinar/:id" element={<Assinar />} />
