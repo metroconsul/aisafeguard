@@ -291,7 +291,7 @@ export default function LandingPage() {
                       f.highlight ? "bg-white shadow-sm" : "bg-gray-100"
                     }`}
                   >
-                    <Icon className={`h-5 w-5 ${f.highlight ? "text-orange-500" : "text-gray-600"}`} />
+                    <Icon className={`h-5 w-5 ${f.highlight ? "text-blue-500" : "text-gray-600"}`} />
                   </div>
                   <h3 className="mt-5 text-lg font-bold text-gray-900">{f.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-gray-500">{f.desc}</p>
