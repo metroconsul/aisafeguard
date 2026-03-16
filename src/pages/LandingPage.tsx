@@ -361,7 +361,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Feature Highlight B ─── */}
-      <section className="px-5 py-20 md:py-28" style={{ background: "#F5F0EA" }}>
+      <section className="px-5 py-20 md:py-28" style={{ background: "#EFF4FA" }}>
         <div className="mx-auto max-w-6xl">
           <motion.div
             initial="hidden"
