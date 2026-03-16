@@ -7,7 +7,6 @@ import {
   Clock,
   Smartphone,
   ShieldCheck,
-  Check,
   ArrowRight,
   BarChart3,
   Bell,
@@ -18,8 +17,11 @@ import {
   MessageSquare,
   Menu,
   X,
+  Loader2,
 } from "lucide-react";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 /* ───────── animation helpers ───────── */
 const easeOut: Easing = "easeOut";
@@ -49,57 +51,136 @@ const features = [
   { icon: ShieldCheck, title: "Conformidade Legal", desc: "Mantenha sua empresa em dia com as normas regulamentadoras.", highlight: false },
 ];
 
-const plans = [
-  {
-    name: "Básico",
-    price: "149",
-    desc: "Até 50 funcionários",
-    items: ["Gestão de Estoque", "Fichas em PDF", "Alertas de Validade"],
-    cta: "Começar Teste",
-    popular: false,
-  },
-  {
-    name: "Pro",
-    price: "299",
-    desc: "Até 150 funcionários",
-    items: ["Tudo do Básico", "Assinatura Digital", "WhatsApp Automático", "Logo Personalizada"],
-    cta: "Começar Agora",
-    popular: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Sob consulta",
-    desc: "Acima de 150 funcionários",
-    items: ["Funcionários Ilimitados", "Múltiplos Usuários", "Suporte Prioritário"],
-    cta: "Falar com Vendas",
-    popular: false,
-  },
+const footerCols = [
+  { title: "Produto", links: ["Funcionalidades", "Integrações", "Changelog"] },
+  { title: "Recursos", links: ["Blog", "Central de Ajuda", "Guia do Usuário"] },
+  { title: "Empresa", links: ["Sobre Nós", "Contato", "Políticas"] },
 ];
 
-const footerCols = [
-  { title: "Produto", links: ["Funcionalidades", "Planos", "Integrações", "Changelog"] },
-  { title: "Recursos", links: ["Blog", "Central de Ajuda", "Guia do Usuário", "API Docs"] },
-  { title: "Empresa", links: ["Sobre Nós", "Carreiras", "Contato", "Políticas"] },
-];
+/* ───────── modal form ───────── */
+function AgendarCallModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [nome, setNome] = useState("");
+  const [empresa, setEmpresa] = useState("");
+  const [instaSite, setInstaSite] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  if (!open) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nome.trim() || !empresa.trim()) {
+      toast.error("Preencha nome e empresa.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.functions.invoke("send-lead-email", {
+        body: {
+          nome_pessoa: nome.trim(),
+          nome_empresa: empresa.trim(),
+          insta_site: instaSite.trim() || "Não informado",
+        },
+      });
+      if (error) throw error;
+    } catch (err) {
+      console.error("Email error:", err);
+    }
+
+    // Redirect to Calendly regardless
+    window.open("https://calendly.com/metroaienterprise/30min", "_blank");
+    toast.success("Redirecionando para o agendamento!");
+    setLoading(false);
+    onClose();
+    setNome("");
+    setEmpresa("");
+    setInstaSite("");
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative z-10 w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl"
+      >
+        <button onClick={onClose} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
+          <X className="h-5 w-5" />
+        </button>
+
+        <h3 className="text-2xl font-extrabold text-gray-900">Agendar uma Call</h3>
+        <p className="mt-2 text-sm text-gray-500">Preencha seus dados e você será redirecionado para escolher o melhor horário.</p>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label className="text-sm font-semibold text-gray-700">Seu Nome</label>
+            <input
+              type="text"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder="João Silva"
+              className="mt-1 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+              required
+            />
+          </div>
+          <div>
+            <label className="text-sm font-semibold text-gray-700">Nome da Empresa</label>
+            <input
+              type="text"
+              value={empresa}
+              onChange={(e) => setEmpresa(e.target.value)}
+              placeholder="Construtora ABC"
+              className="mt-1 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+              required
+            />
+          </div>
+          <div>
+            <label className="text-sm font-semibold text-gray-700">Instagram / Site da Empresa</label>
+            <input
+              type="text"
+              value={instaSite}
+              onChange={(e) => setInstaSite(e.target.value)}
+              placeholder="@empresa ou www.empresa.com.br"
+              className="mt-1 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-full bg-gray-900 py-3.5 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-all"
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            {loading ? "Enviando..." : "Agendar Call"}
+          </button>
+        </form>
+      </motion.div>
+    </div>
+  );
+}
 
 /* ───────── component ───────── */
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const openModal = () => setModalOpen(true);
 
   return (
     <div className="min-h-screen font-sans antialiased" style={{ background: "#F5F7FA" }}>
+      {/* Modal */}
+      <AgendarCallModal open={modalOpen} onClose={() => setModalOpen(false)} />
+
       {/* ─── Navbar ─── */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-[#F5F7FA]/80 border-b border-gray-200/50">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5">
-          <Link to="/" className="flex items-center gap-2 text-xl font-bold text-gray-900">
+          <Link to="/site" className="flex items-center gap-2 text-xl font-bold text-gray-900">
             <ShieldCheck className="h-6 w-6" />
             SafeGuard
           </Link>
 
-          {/* desktop links */}
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
             <a href="#features" className="hover:text-gray-900 transition-colors">Funcionalidades</a>
-            <a href="#pricing" className="hover:text-gray-900 transition-colors">Planos</a>
             <a href="#about" className="hover:text-gray-900 transition-colors">Sobre</a>
           </div>
 
@@ -107,21 +188,19 @@ export default function LandingPage() {
             <Link to="/login" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
               Login
             </Link>
-            <Link
-              to="/cadastro"
+            <button
+              onClick={openModal}
               className="rounded-full bg-gray-900 px-5 py-2 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
             >
-              Começar Grátis
-            </Link>
+              Agendar Call
+            </button>
           </div>
 
-          {/* mobile toggle */}
           <button className="md:hidden text-gray-700" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
 
-        {/* mobile menu */}
         {menuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
@@ -130,12 +209,14 @@ export default function LandingPage() {
           >
             <div className="flex flex-col gap-3 pt-3">
               <a href="#features" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>Funcionalidades</a>
-              <a href="#pricing" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>Planos</a>
               <a href="#about" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>Sobre</a>
               <Link to="/login" className="text-sm font-medium text-gray-600">Login</Link>
-              <Link to="/cadastro" className="rounded-full bg-gray-900 px-5 py-2.5 text-center text-sm font-semibold text-white">
-                Começar Grátis
-              </Link>
+              <button
+                onClick={() => { setMenuOpen(false); openModal(); }}
+                className="rounded-full bg-gray-900 px-5 py-2.5 text-center text-sm font-semibold text-white"
+              >
+                Agendar Call
+              </button>
             </div>
           </motion.div>
         )}
@@ -149,7 +230,7 @@ export default function LandingPage() {
               variants={fadeUp}
               className="mb-4 inline-block rounded-full bg-gray-900/5 px-4 py-1.5 text-xs font-semibold text-gray-700 tracking-wide"
             >
-              ✨ +200 empresas já confiam no SafeGuard
+              ✨ Plataforma completa de gestão de EPIs
             </motion.span>
 
             <motion.h1
@@ -168,12 +249,12 @@ export default function LandingPage() {
             </motion.p>
 
             <motion.div variants={fadeUp} className="mt-8 flex flex-wrap justify-center gap-3">
-              <Link
-                to="/cadastro"
+              <button
+                onClick={openModal}
                 className="rounded-full bg-gray-900 px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-gray-900/20 hover:bg-gray-800 transition-all"
               >
-                Teste Grátis
-              </Link>
+                Agendar Call
+              </button>
               <a
                 href="#features"
                 className="rounded-full border border-gray-300 bg-white px-7 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-all"
@@ -185,10 +266,7 @@ export default function LandingPage() {
         </div>
 
         {/* floating cards */}
-        <motion.div
-          animate={floatY(4)}
-          className="absolute top-24 left-4 md:left-[8%] z-0 hidden sm:block"
-        >
+        <motion.div animate={floatY(4)} className="absolute top-24 left-4 md:left-[8%] z-0 hidden sm:block">
           <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-md w-56">
             <div className="flex items-center gap-2 text-xs font-semibold text-gray-700">
               <Package className="h-4 w-4 text-blue-500" /> Estoque Atualizado
@@ -200,30 +278,20 @@ export default function LandingPage() {
           </div>
         </motion.div>
 
-        <motion.div
-          animate={floatY(5)}
-          className="absolute top-16 right-4 md:right-[8%] z-0 hidden sm:block"
-        >
+        <motion.div animate={floatY(5)} className="absolute top-16 right-4 md:right-[8%] z-0 hidden sm:block">
           <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-md w-48">
             <div className="flex items-center gap-2 text-xs font-semibold text-gray-700">
               <BarChart3 className="h-4 w-4 text-blue-500" /> Entregas do Mês
             </div>
             <div className="mt-3 flex items-end gap-1.5">
               {[40, 65, 50, 80, 55, 72].map((h, i) => (
-                <div
-                  key={i}
-                  className="w-4 rounded-sm bg-gradient-to-t from-blue-400 to-blue-200"
-                  style={{ height: `${h * 0.5}px` }}
-                />
+                <div key={i} className="w-4 rounded-sm bg-gradient-to-t from-blue-400 to-blue-200" style={{ height: `${h * 0.5}px` }} />
               ))}
             </div>
           </div>
         </motion.div>
 
-        <motion.div
-          animate={floatY(3.5)}
-          className="absolute bottom-20 right-8 md:right-[15%] z-0 hidden sm:block"
-        >
+        <motion.div animate={floatY(3.5)} className="absolute bottom-20 right-8 md:right-[15%] z-0 hidden sm:block">
           <div className="rounded-2xl border border-gray-100 bg-white p-3.5 shadow-md w-52">
             <div className="flex items-center gap-2 text-xs font-semibold text-green-600">
               <PenTool className="h-4 w-4" /> Assinatura Digital Coletada
@@ -231,18 +299,11 @@ export default function LandingPage() {
             <p className="mt-1 text-[11px] text-gray-400">João Silva · há 2 minutos</p>
           </div>
         </motion.div>
-
       </section>
 
       {/* ─── Social Proof ─── */}
       <section className="px-5 py-16">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeUp}
-          className="mx-auto max-w-3xl text-center"
-        >
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">
             Confiado por empresas inovadoras
           </p>
@@ -267,13 +328,7 @@ export default function LandingPage() {
             </motion.p>
           </motion.div>
 
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={stagger}
-            className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
-          >
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f) => {
               const Icon = f.icon;
               return (
@@ -281,16 +336,10 @@ export default function LandingPage() {
                   key={f.title}
                   variants={fadeUp}
                   className={`group rounded-3xl border p-7 transition-shadow hover:shadow-lg ${
-                    f.highlight
-                      ? "border-blue-200/60 bg-gradient-to-br from-blue-50 to-sky-50"
-                      : "border-gray-100 bg-white"
+                    f.highlight ? "border-blue-200/60 bg-gradient-to-br from-blue-50 to-sky-50" : "border-gray-100 bg-white"
                   }`}
                 >
-                  <div
-                    className={`flex h-11 w-11 items-center justify-center rounded-xl ${
-                      f.highlight ? "bg-white shadow-sm" : "bg-gray-100"
-                    }`}
-                  >
+                  <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${f.highlight ? "bg-white shadow-sm" : "bg-gray-100"}`}>
                     <Icon className={`h-5 w-5 ${f.highlight ? "text-blue-500" : "text-gray-600"}`} />
                   </div>
                   <h3 className="mt-5 text-lg font-bold text-gray-900">{f.title}</h3>
@@ -305,54 +354,34 @@ export default function LandingPage() {
       {/* ─── Feature Highlight A ─── */}
       <section className="px-5 py-20 md:py-28">
         <div className="mx-auto max-w-6xl">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={stagger}
-            className="flex flex-col items-center gap-12 lg:flex-row"
-          >
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="flex flex-col items-center gap-12 lg:flex-row">
             <motion.div variants={fadeUp} className="flex-1 space-y-5">
-              <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">
-                Rastreabilidade
-              </span>
+              <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">Rastreabilidade</span>
               <h2 className="text-3xl font-extrabold leading-tight text-gray-900 sm:text-4xl">
                 Rastreabilidade que acompanha o seu ritmo
               </h2>
               <p className="max-w-md text-gray-500 leading-relaxed">
-                Assine digitalmente e proteja sua empresa contra processos trabalhistas. Cada entrega é registrada,
-                assinada e armazenada com segurança na nuvem.
+                Assine digitalmente e proteja sua empresa contra processos trabalhistas. Cada entrega é registrada, assinada e armazenada com segurança na nuvem.
               </p>
-              <Link
-                to="/cadastro"
+              <button
+                onClick={openModal}
                 className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
               >
-                Saiba Mais <ArrowRight className="h-4 w-4" />
-              </Link>
+                Agendar Call <ArrowRight className="h-4 w-4" />
+              </button>
             </motion.div>
 
             <motion.div variants={fadeUp} className="flex-1">
               <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-lg">
                 <div className="space-y-4">
-                  {["Selecionar Funcionário", "Escolher EPI", "Assinatura Digital", "Entrega Concluída ✓"].map(
-                    (step, i) => (
-                      <div
-                        key={step}
-                        className={`flex items-center gap-3 rounded-xl p-3 text-sm font-medium ${
-                          i === 3 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-700"
-                        }`}
-                      >
-                        <div
-                          className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white ${
-                            i === 3 ? "bg-green-500" : "bg-gray-400"
-                          }`}
-                        >
-                          {i + 1}
-                        </div>
-                        {step}
+                  {["Selecionar Funcionário", "Escolher EPI", "Assinatura Digital", "Entrega Concluída ✓"].map((step, i) => (
+                    <div key={step} className={`flex items-center gap-3 rounded-xl p-3 text-sm font-medium ${i === 3 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-700"}`}>
+                      <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white ${i === 3 ? "bg-green-500" : "bg-gray-400"}`}>
+                        {i + 1}
                       </div>
-                    )
-                  )}
+                      {step}
+                    </div>
+                  ))}
                 </div>
               </div>
             </motion.div>
@@ -363,19 +392,11 @@ export default function LandingPage() {
       {/* ─── Feature Highlight B ─── */}
       <section className="px-5 py-20 md:py-28" style={{ background: "#EFF4FA" }}>
         <div className="mx-auto max-w-6xl">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={stagger}
-            className="flex flex-col-reverse items-center gap-12 lg:flex-row"
-          >
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="flex flex-col-reverse items-center gap-12 lg:flex-row">
             <motion.div variants={fadeUp} className="flex-1">
               <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-lg">
                 <div className="flex items-center gap-4 border-b border-gray-100 pb-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-sky-100 text-lg font-bold text-blue-600">
-                    JS
-                  </div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-sky-100 text-lg font-bold text-blue-600">JS</div>
                   <div>
                     <p className="font-bold text-gray-900">João Silva</p>
                     <p className="text-xs text-gray-400">Operador · Setor: Produção</p>
@@ -399,22 +420,19 @@ export default function LandingPage() {
             </motion.div>
 
             <motion.div variants={fadeUp} className="flex-1 space-y-5">
-              <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">
-                Tempo real
-              </span>
+              <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">Tempo real</span>
               <h2 className="text-3xl font-extrabold leading-tight text-gray-900 sm:text-4xl">
                 Acompanhe cada entrega em tempo real
               </h2>
               <p className="max-w-md text-gray-500 leading-relaxed">
-                Saiba exatamente quem recebeu o quê, e quando. Visualize o histórico completo de EPIs de cada
-                colaborador com apenas alguns cliques.
+                Saiba exatamente quem recebeu o quê, e quando. Visualize o histórico completo de EPIs de cada colaborador com apenas alguns cliques.
               </p>
-              <Link
-                to="/cadastro"
+              <button
+                onClick={openModal}
                 className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
               >
-                Saiba Mais <ArrowRight className="h-4 w-4" />
-              </Link>
+                Agendar Call <ArrowRight className="h-4 w-4" />
+              </button>
             </motion.div>
           </motion.div>
         </div>
@@ -432,13 +450,7 @@ export default function LandingPage() {
             </motion.p>
           </motion.div>
 
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            className="mx-auto mt-12 max-w-2xl rounded-3xl border border-gray-100 bg-white p-10 shadow-sm"
-          >
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mx-auto mt-12 max-w-2xl rounded-3xl border border-gray-100 bg-white p-10 shadow-sm">
             <div className="flex flex-wrap items-center justify-center gap-8">
               {[
                 { icon: MessageSquare, label: "WhatsApp", color: "text-green-500" },
@@ -459,79 +471,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Pricing ─── */}
-      <section id="pricing" className="px-5 py-20 md:py-28">
-        <div className="mx-auto max-w-6xl">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="text-center">
-            <motion.h2 variants={fadeUp} className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-              Preços Simples e Transparentes
-            </motion.h2>
-            <motion.p variants={fadeUp} className="mx-auto mt-4 max-w-xl text-gray-500">
-              Escolha o plano ideal para o tamanho da sua operação.
-            </motion.p>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={stagger}
-            className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-          >
-            {plans.map((plan) => (
-              <motion.div
-                key={plan.name}
-                variants={fadeUp}
-                className={`relative rounded-3xl border p-8 transition-shadow hover:shadow-xl ${
-                  plan.popular
-                    ? "border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50 shadow-lg"
-                    : "border-gray-100 bg-white"
-                }`}
-              >
-                {plan.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gray-900 px-4 py-1 text-[11px] font-bold text-white tracking-wide">
-                    Mais Escolhido ✦
-                  </span>
-                )}
-
-                <h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
-                <div className="mt-4 flex items-baseline gap-1">
-                  {plan.price === "Sob consulta" ? (
-                    <span className="text-2xl font-extrabold text-gray-900">Personalizado</span>
-                  ) : (
-                    <>
-                      <span className="text-sm font-semibold text-gray-500">R$</span>
-                      <span className="text-4xl font-extrabold text-gray-900">{plan.price}</span>
-                      <span className="text-sm font-semibold text-gray-500">/mês</span>
-                    </>
-                  )}
-                </div>
-                <p className="mt-1 text-sm text-gray-500">{plan.desc}</p>
-
-                <ul className="mt-7 space-y-3">
-                  {plan.items.map((item) => (
-                    <li key={item} className="flex items-center gap-2.5 text-sm text-gray-600">
-                      <Check className="h-4 w-4 shrink-0 text-green-500" /> {item}
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  to="/cadastro"
-                  className={`mt-8 block w-full rounded-full py-3 text-center text-sm font-semibold transition-colors ${
-                    plan.popular
-                      ? "bg-gray-900 text-white hover:bg-gray-800"
-                      : "border border-gray-300 text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
       {/* ─── CTA Final ─── */}
       <section className="px-5 py-16 md:py-24">
         <motion.div
@@ -541,13 +480,9 @@ export default function LandingPage() {
           variants={fadeUp}
           className="mx-auto max-w-5xl rounded-[2rem] bg-gradient-to-br from-blue-100 via-sky-50 to-blue-50 p-10 text-center shadow-sm sm:p-16"
         >
-          {/* avatars */}
           <div className="mb-6 flex items-center justify-center -space-x-2">
             {["bg-blue-400", "bg-blue-500", "bg-gray-700", "bg-blue-300"].map((bg, i) => (
-              <div
-                key={i}
-                className={`flex h-9 w-9 items-center justify-center rounded-full border-2 border-white text-xs font-bold text-white ${bg}`}
-              >
+              <div key={i} className={`flex h-9 w-9 items-center justify-center rounded-full border-2 border-white text-xs font-bold text-white ${bg}`}>
                 {["AS", "MR", "PL", "KJ"][i]}
               </div>
             ))}
@@ -557,25 +492,19 @@ export default function LandingPage() {
           </div>
 
           <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-            Comece seu teste gratuito hoje
+            Pronto para transformar sua gestão de EPIs?
           </h2>
           <p className="mx-auto mt-3 max-w-md text-gray-500">
-            Junte-se a centenas de empresas que já simplificaram sua gestão de EPIs.
+            Agende uma conversa com nosso time e descubra como o SafeGuard pode ajudar sua empresa.
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link
-              to="/cadastro"
+            <button
+              onClick={openModal}
               className="rounded-full bg-gray-900 px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-gray-900/20 hover:bg-gray-800 transition-all"
             >
-              Começar Grátis
-            </Link>
-            <a
-              href="#pricing"
-              className="rounded-full border border-gray-300 bg-white px-7 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-all"
-            >
-              Falar com Vendas
-            </a>
+              Agendar Call
+            </button>
           </div>
         </motion.div>
       </section>
@@ -585,7 +514,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col gap-10 md:flex-row md:justify-between">
             <div className="max-w-xs">
-              <Link to="/" className="flex items-center gap-2 text-lg font-bold text-gray-900">
+              <Link to="/site" className="flex items-center gap-2 text-lg font-bold text-gray-900">
                 <ShieldCheck className="h-5 w-5" />
                 SafeGuard
               </Link>
@@ -601,9 +530,7 @@ export default function LandingPage() {
                   <ul className="mt-3 space-y-2">
                     {col.links.map((link) => (
                       <li key={link}>
-                        <a href="#" className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
-                          {link}
-                        </a>
+                        <a href="#" className="text-sm text-gray-500 hover:text-gray-700 transition-colors">{link}</a>
                       </li>
                     ))}
                   </ul>
