@@ -89,7 +89,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen font-sans antialiased" style={{ background: "#F5F7FA" }}>
       {/* ─── Navbar ─── */}
-      <nav className="sticky top-0 z-50 backdrop-blur-md bg-[#FAF7F2]/80 border-b border-gray-200/50">
+      <nav className="sticky top-0 z-50 backdrop-blur-md bg-[#F5F7FA]/80 border-b border-gray-200/50">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5">
           <Link to="/" className="flex items-center gap-2 text-xl font-bold text-gray-900">
             <ShieldCheck className="h-6 w-6" />
