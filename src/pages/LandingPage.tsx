@@ -541,7 +541,7 @@ export default function LandingPage() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeUp}
-          className="mx-auto max-w-5xl rounded-[2rem] bg-gradient-to-br from-orange-100 via-amber-50 to-orange-50 p-10 text-center shadow-sm sm:p-16"
+          className="mx-auto max-w-5xl rounded-[2rem] bg-gradient-to-br from-blue-100 via-sky-50 to-blue-50 p-10 text-center shadow-sm sm:p-16"
         >
           {/* avatars */}
           <div className="mb-6 flex items-center justify-center -space-x-2">
