@@ -191,7 +191,7 @@ export default function LandingPage() {
         >
           <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-md w-56">
             <div className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-              <Package className="h-4 w-4 text-orange-500" /> Estoque Atualizado
+              <Package className="h-4 w-4 text-blue-500" /> Estoque Atualizado
             </div>
             <div className="mt-2 space-y-1 text-[11px] text-gray-500">
               <p>Luva Nitrílica · CA: 12345</p>
