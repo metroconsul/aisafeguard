@@ -484,7 +484,9 @@ export default function LandingPage() {
                 variants={fadeUp}
                 className={`relative rounded-3xl border p-8 transition-shadow hover:shadow-xl ${
                   plan.popular
-                    ? "border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 shadow-lg"
+                    ? "border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50 shadow-lg"
+                    : "border-gray-100 bg-white"
+                }`}
                     : "border-gray-100 bg-white"
                 }`}
               >
