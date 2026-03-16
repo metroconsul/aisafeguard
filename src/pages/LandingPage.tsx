@@ -373,7 +373,7 @@ export default function LandingPage() {
             <motion.div variants={fadeUp} className="flex-1">
               <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-lg">
                 <div className="flex items-center gap-4 border-b border-gray-100 pb-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-orange-100 to-amber-100 text-lg font-bold text-orange-600">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-sky-100 text-lg font-bold text-blue-600">
                     JS
                   </div>
                   <div>
