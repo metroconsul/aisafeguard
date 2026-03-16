@@ -545,7 +545,7 @@ export default function LandingPage() {
         >
           {/* avatars */}
           <div className="mb-6 flex items-center justify-center -space-x-2">
-            {["bg-orange-400", "bg-blue-400", "bg-green-400", "bg-purple-400"].map((bg, i) => (
+            {["bg-blue-400", "bg-blue-500", "bg-gray-700", "bg-blue-300"].map((bg, i) => (
               <div
                 key={i}
                 className={`flex h-9 w-9 items-center justify-center rounded-full border-2 border-white text-xs font-bold text-white ${bg}`}
