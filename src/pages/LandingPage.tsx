@@ -126,7 +126,7 @@ export default function LandingPage() {
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="md:hidden border-t border-gray-200/50 bg-[#FAF7F2] px-5 pb-4"
+            className="md:hidden border-t border-gray-200/50 bg-[#F5F7FA] px-5 pb-4"
           >
             <div className="flex flex-col gap-3 pt-3">
               <a href="#features" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>Funcionalidades</a>
