@@ -232,26 +232,23 @@ export default function LandingPage() {
           </div>
         </motion.div>
 
-        {/* social proof */}
+      </section>
+
+      {/* ─── Social Proof ─── */}
+      <section className="px-5 py-16">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeUp}
-          className="mx-auto mt-20 max-w-3xl text-center"
+          className="mx-auto max-w-3xl text-center"
         >
           <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">
             Confiado por empresas inovadoras
           </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-8 opacity-40">
-            {["Indústria Alfa", "Construtora Beta", "Siderúrgica Gama", "Logística Delta", "Mineração Épsilon"].map(
-              (name) => (
-                <span key={name} className="text-sm font-bold text-gray-500 tracking-wide">
-                  {name}
-                </span>
-              )
-            )}
-          </div>
+          <p className="mt-4 text-sm text-gray-400">
+            Em breve, as empresas que confiam no SafeGuard aparecerão aqui.
+          </p>
         </motion.div>
       </section>
 
