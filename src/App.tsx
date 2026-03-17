@@ -39,7 +39,7 @@ const App = () => (
 
             {/* Protected admin routes */}
             <Route
-              path="/*"
+              path="/app/*"
               element={
                 <ProtectedRoute>
                   <AppLayout>
