@@ -26,23 +26,23 @@ import {
 } from "@/components/ui/sidebar";
 
 const generalItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Nova Entrega", url: "/nova-entrega", icon: PackagePlus },
+  { title: "Dashboard", url: "/app", icon: LayoutDashboard },
+  { title: "Nova Entrega", url: "/app/nova-entrega", icon: PackagePlus },
 ];
 
 const cadastroItems = [
-  { title: "Funcionários", url: "/funcionarios", icon: Users },
-  { title: "EPIs", url: "/epis", icon: HardHat },
-  { title: "Setores", url: "/setores", icon: Building2 },
+  { title: "Funcionários", url: "/app/funcionarios", icon: Users },
+  { title: "EPIs", url: "/app/epis", icon: HardHat },
+  { title: "Setores", url: "/app/setores", icon: Building2 },
 ];
 
 const integrationItems = [
-  { title: "WhatsApp", url: "/integracoes", icon: MessageCircle },
+  { title: "WhatsApp", url: "/app/integracoes", icon: MessageCircle },
 ];
 
 const supportItems = [
-  { title: "Configurações", url: "/configuracoes", icon: Settings },
-  { title: "Segurança", url: "/seguranca", icon: ShieldCheck },
+  { title: "Configurações", url: "/app/configuracoes", icon: Settings },
+  { title: "Segurança", url: "/app/seguranca", icon: ShieldCheck },
 ];
 
 export function AppSidebar() {

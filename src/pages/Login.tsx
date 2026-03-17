@@ -28,7 +28,7 @@ export default function Login() {
         : error.message);
       return;
     }
-    navigate("/");
+    navigate("/app");
   };
 
   return (
