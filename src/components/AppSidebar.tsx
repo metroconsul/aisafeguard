@@ -8,6 +8,8 @@ import {
   ShieldCheck,
   ChevronUp,
   MessageCircle,
+  FolderLock,
+  GraduationCap,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,11 +30,13 @@ import {
 const generalItems = [
   { title: "Dashboard", url: "/app", icon: LayoutDashboard },
   { title: "Nova Entrega", url: "/app/nova-entrega", icon: PackagePlus },
+  { title: "Cofre da Empresa", url: "/app/documentos", icon: FolderLock },
 ];
 
 const cadastroItems = [
   { title: "Funcionários", url: "/app/funcionarios", icon: Users },
   { title: "EPIs", url: "/app/epis", icon: HardHat },
+  { title: "Treinamentos (NRs)", url: "/app/treinamentos", icon: GraduationCap },
   { title: "Setores", url: "/app/setores", icon: Building2 },
 ];
 
@@ -77,7 +81,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      end={item.url === "/"}
+                      end={item.url === "/app"}
                       className="text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                       activeClassName="bg-primary/10 text-primary font-medium"
                     >
