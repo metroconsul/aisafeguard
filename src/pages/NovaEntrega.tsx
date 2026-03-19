@@ -19,6 +19,7 @@ export default function NovaEntrega() {
   const [epis, setEpis] = useState<Epi[]>([]);
   const [funcId, setFuncId] = useState("");
   const [epiId, setEpiId] = useState("");
+  const [obraCentro, setObraCentro] = useState("");
   const [loading, setLoading] = useState(false);
   const [linkAssinatura, setLinkAssinatura] = useState<string | null>(null);
 
