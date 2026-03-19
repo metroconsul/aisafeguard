@@ -10,6 +10,7 @@ import LandingPage from "@/pages/LandingPage";
 import Dashboard from "@/pages/Dashboard";
 import NovaEntrega from "@/pages/NovaEntrega";
 import Funcionarios from "@/pages/Funcionarios";
+import PerfilFuncionario from "@/pages/PerfilFuncionario";
 import Epis from "@/pages/Epis";
 import Integracoes from "@/pages/Integracoes";
 import Setores from "@/pages/Setores";
@@ -18,6 +19,7 @@ import Seguranca from "@/pages/Seguranca";
 import Assinar from "@/pages/Assinar";
 import Login from "@/pages/Login";
 import Cadastro from "@/pages/Cadastro";
+import PortalColaborador from "@/pages/PortalColaborador";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
