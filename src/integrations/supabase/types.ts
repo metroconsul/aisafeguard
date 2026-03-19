@@ -23,6 +23,7 @@ export type Database = {
           file_url: string | null
           funcionario_id: string
           id: string
+          reference_period: string | null
           signature_status: string
           title: string
           zapsign_token: string | null
@@ -35,6 +36,7 @@ export type Database = {
           file_url?: string | null
           funcionario_id: string
           id?: string
+          reference_period?: string | null
           signature_status?: string
           title: string
           zapsign_token?: string | null
@@ -47,6 +49,7 @@ export type Database = {
           file_url?: string | null
           funcionario_id?: string
           id?: string
+          reference_period?: string | null
           signature_status?: string
           title?: string
           zapsign_token?: string | null
