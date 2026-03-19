@@ -141,7 +141,7 @@ export default function Funcionarios() {
             </thead>
             <tbody className="divide-y divide-border">
               {data.map((f) => (
-                <tr key={f.id} className="hover:bg-muted/30 transition-colors">
+                <tr key={f.id} onClick={() => navigate(`/app/funcionarios/${f.id}`)} className="hover:bg-muted/30 transition-colors cursor-pointer">
                   <td className="px-4 py-3 font-medium text-foreground">{f.nome}</td>
                   <td className="px-4 py-3 tabular-nums text-muted-foreground">{f.matricula}</td>
                   <td className="px-4 py-3 text-foreground">{f.cargo}</td>
