@@ -23,9 +23,13 @@ export type Database = {
           file_url: string | null
           funcionario_id: string
           id: string
+          issue_date: string | null
+          provider_or_lead: string | null
           reference_period: string | null
           signature_status: string
           title: string
+          workload_hours: number | null
+          worksite: string | null
           zapsign_token: string | null
         }
         Insert: {
@@ -36,9 +40,13 @@ export type Database = {
           file_url?: string | null
           funcionario_id: string
           id?: string
+          issue_date?: string | null
+          provider_or_lead?: string | null
           reference_period?: string | null
           signature_status?: string
           title: string
+          workload_hours?: number | null
+          worksite?: string | null
           zapsign_token?: string | null
         }
         Update: {
@@ -49,9 +57,13 @@ export type Database = {
           file_url?: string | null
           funcionario_id?: string
           id?: string
+          issue_date?: string | null
+          provider_or_lead?: string | null
           reference_period?: string | null
           signature_status?: string
           title?: string
+          workload_hours?: number | null
+          worksite?: string | null
           zapsign_token?: string | null
         }
         Relationships: [
