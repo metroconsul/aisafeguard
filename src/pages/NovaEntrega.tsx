@@ -114,7 +114,7 @@ export default function NovaEntrega() {
               </a>
             </Button>
           </div>
-          <Button variant="outline" className="w-full mt-2" onClick={() => { setLinkAssinatura(null); setFuncId(""); setEpiId(""); }}>
+          <Button variant="outline" className="w-full mt-2" onClick={() => { setLinkAssinatura(null); setFuncId(""); setEpiId(""); setObraCentro(""); }}>
             Registrar nova entrega
           </Button>
         </div>
