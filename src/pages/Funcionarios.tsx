@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Plus, ChevronRight } from "lucide-react";
 
 interface Funcionario {
   id: string;
@@ -28,6 +29,7 @@ interface Setor {
 
 export default function Funcionarios() {
   const { perfil } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState<Funcionario[]>([]);
   const [setores, setSetores] = useState<Setor[]>([]);
   const [open, setOpen] = useState(false);
@@ -105,8 +107,11 @@ export default function Funcionarios() {
       {/* Mobile: card layout */}
       <div className="block sm:hidden space-y-3">
         {data.map((f) => (
-          <div key={f.id} className="rounded-xl border border-border bg-card p-4 shadow-card space-y-1">
-            <p className="font-medium text-foreground">{f.nome}</p>
+          <div key={f.id} onClick={() => navigate(`/app/funcionarios/${f.id}`)} className="cursor-pointer rounded-xl border border-border bg-card p-4 shadow-card space-y-1 hover:border-primary/30 transition-colors">
+            <div className="flex items-center justify-between">
+              <p className="font-medium text-foreground">{f.nome}</p>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </div>
             <p className="text-xs text-muted-foreground">{f.cargo} • {f.setor_obj?.nome || f.setor || "—"}</p>
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground pt-1">
               <span>Mat: {f.matricula}</span>
@@ -136,7 +141,7 @@ export default function Funcionarios() {
             </thead>
             <tbody className="divide-y divide-border">
               {data.map((f) => (
-                <tr key={f.id} className="hover:bg-muted/30 transition-colors">
+                <tr key={f.id} onClick={() => navigate(`/app/funcionarios/${f.id}`)} className="hover:bg-muted/30 transition-colors cursor-pointer">
                   <td className="px-4 py-3 font-medium text-foreground">{f.nome}</td>
                   <td className="px-4 py-3 tabular-nums text-muted-foreground">{f.matricula}</td>
                   <td className="px-4 py-3 text-foreground">{f.cargo}</td>

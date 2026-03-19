@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      documents: {
+        Row: {
+          created_at: string | null
+          doc_category: string
+          empresa_id: string
+          expiration_date: string | null
+          file_url: string | null
+          funcionario_id: string
+          id: string
+          signature_status: string
+          title: string
+          zapsign_token: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          doc_category?: string
+          empresa_id: string
+          expiration_date?: string | null
+          file_url?: string | null
+          funcionario_id: string
+          id?: string
+          signature_status?: string
+          title: string
+          zapsign_token?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          doc_category?: string
+          empresa_id?: string
+          expiration_date?: string | null
+          file_url?: string | null
+          funcionario_id?: string
+          id?: string
+          signature_status?: string
+          title?: string
+          zapsign_token?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       empresas: {
         Row: {
           cnpj: string
@@ -148,6 +202,7 @@ export type Database = {
           nome: string
           setor: string
           setor_id: string | null
+          status: string
           telefone_whatsapp: string | null
         }
         Insert: {
@@ -160,6 +215,7 @@ export type Database = {
           nome: string
           setor: string
           setor_id?: string | null
+          status?: string
           telefone_whatsapp?: string | null
         }
         Update: {
@@ -172,6 +228,7 @@ export type Database = {
           nome?: string
           setor?: string
           setor_id?: string | null
+          status?: string
           telefone_whatsapp?: string | null
         }
         Relationships: [

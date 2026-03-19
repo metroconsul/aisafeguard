@@ -19,6 +19,7 @@ export default function NovaEntrega() {
   const [epis, setEpis] = useState<Epi[]>([]);
   const [funcId, setFuncId] = useState("");
   const [epiId, setEpiId] = useState("");
+  const [obraCentro, setObraCentro] = useState("");
   const [loading, setLoading] = useState(false);
   const [linkAssinatura, setLinkAssinatura] = useState<string | null>(null);
 
@@ -89,6 +90,18 @@ export default function NovaEntrega() {
           </Select>
         </div>
 
+        <div className="space-y-2">
+          <Label>Obra / Centro de Custo</Label>
+          <Select value={obraCentro} onValueChange={setObraCentro}>
+            <SelectTrigger><SelectValue placeholder="Selecione a obra" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="obra_sede">Sede</SelectItem>
+              <SelectItem value="obra_filial">Filial</SelectItem>
+              <SelectItem value="obra_campo">Campo / Obra Externa</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         <Button onClick={handleSubmit} disabled={loading || !!linkAssinatura} className="w-full">
           {loading ? "Registrando..." : "Gerar Entrega"}
         </Button>
@@ -113,7 +126,7 @@ export default function NovaEntrega() {
               </a>
             </Button>
           </div>
-          <Button variant="outline" className="w-full mt-2" onClick={() => { setLinkAssinatura(null); setFuncId(""); setEpiId(""); }}>
+          <Button variant="outline" className="w-full mt-2" onClick={() => { setLinkAssinatura(null); setFuncId(""); setEpiId(""); setObraCentro(""); }}>
             Registrar nova entrega
           </Button>
         </div>
