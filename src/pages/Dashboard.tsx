@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Package, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Package, AlertTriangle, CheckCircle2, Stethoscope, GraduationCap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { KpiCard } from "@/components/KpiCard";
 import { EntregasSetorChart } from "@/components/charts/EntregasSetorChart";
 import { EntregasSemanaChart } from "@/components/charts/EntregasSemanaChart";
 import { DistribuicaoEpiChart } from "@/components/charts/DistribuicaoEpiChart";
+import { CustoEpiObraChart } from "@/components/charts/CustoEpiObraChart";
 import { UltimasEntregasTable } from "@/components/UltimasEntregasTable";
 
 export default function Dashboard() {
@@ -13,6 +14,8 @@ export default function Dashboard() {
   const [entregasMes, setEntregasMes] = useState(0);
   const [episVencidos, setEpisVencidos] = useState(0);
   const [taxaAssinaturas, setTaxaAssinaturas] = useState("0%");
+  const [asosVencendo, setAsosVencendo] = useState(0);
+  const [nrsVencendo, setNrsVencendo] = useState(0);
 
   useEffect(() => {
     if (!perfil?.empresa_id) return;
@@ -20,6 +23,8 @@ export default function Dashboard() {
     const empresaId = perfil.empresa_id;
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const in30Days = new Date();
+    in30Days.setDate(in30Days.getDate() + 30);
 
     supabase
       .from("entregas")
@@ -53,6 +58,26 @@ export default function Dashboard() {
         const taxa = ((assinadas / data.length) * 100).toFixed(1);
         setTaxaAssinaturas(`${taxa}%`);
       });
+
+    // ASOs vencendo em 30 dias
+    supabase
+      .from("documents")
+      .select("id", { count: "exact", head: true })
+      .eq("empresa_id", empresaId)
+      .in("doc_category", ["aso_exames", "aso"])
+      .not("expiration_date", "is", null)
+      .lte("expiration_date", in30Days.toISOString().split("T")[0])
+      .then(({ count }) => setAsosVencendo(count ?? 0));
+
+    // NRs/Treinamentos vencendo em 30 dias
+    supabase
+      .from("documents")
+      .select("id", { count: "exact", head: true })
+      .eq("empresa_id", empresaId)
+      .eq("doc_category", "treinamento_nr")
+      .not("expiration_date", "is", null)
+      .lte("expiration_date", in30Days.toISOString().split("T")[0])
+      .then(({ count }) => setNrsVencendo(count ?? 0));
   }, [perfil?.empresa_id]);
 
   return (
@@ -73,6 +98,35 @@ export default function Dashboard() {
         <KpiCard title="Taxa de Assinaturas" value={taxaAssinaturas} icon={CheckCircle2} />
       </div>
 
+      {/* Alert Section */}
+      {(asosVencendo > 0 || nrsVencendo > 0) && (
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold text-destructive uppercase tracking-wider">
+            ⚠ Atenção Crítica — Vencimentos (30 dias)
+          </h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="rounded-xl border-2 border-destructive/30 bg-destructive/5 p-4 flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10">
+                <Stethoscope className="h-6 w-6 text-destructive" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-destructive tabular-nums">{asosVencendo}</p>
+                <p className="text-xs font-medium text-destructive/80">ASOs Vencendo</p>
+              </div>
+            </div>
+            <div className="rounded-xl border-2 border-destructive/30 bg-destructive/5 p-4 flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10">
+                <GraduationCap className="h-6 w-6 text-destructive" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-destructive tabular-nums">{nrsVencendo}</p>
+                <p className="text-xs font-medium text-destructive/80">NRs / Treinamentos Vencendo</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <EntregasSetorChart />
@@ -87,9 +141,11 @@ export default function Dashboard() {
           <DistribuicaoEpiChart />
         </div>
         <div className="lg:col-span-3">
-          <UltimasEntregasTable />
+          <CustoEpiObraChart />
         </div>
       </div>
+
+      <UltimasEntregasTable />
     </div>
   );
 }

@@ -20,6 +20,8 @@ import Assinar from "@/pages/Assinar";
 import Login from "@/pages/Login";
 import Cadastro from "@/pages/Cadastro";
 import PortalColaborador from "@/pages/PortalColaborador";
+import CofreEmpresa from "@/pages/CofreEmpresa";
+import Treinamentos from "@/pages/Treinamentos";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -56,6 +58,8 @@ const App = () => (
                       <Route path="/setores" element={<Setores />} />
                       <Route path="/configuracoes" element={<Configuracoes />} />
                       <Route path="/seguranca" element={<Seguranca />} />
+                      <Route path="/documentos" element={<CofreEmpresa />} />
+                      <Route path="/treinamentos" element={<Treinamentos />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>

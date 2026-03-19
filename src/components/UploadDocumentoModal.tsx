@@ -23,6 +23,7 @@ const CATEGORIAS = [
   { value: "aso_exames", label: "ASO / Exames" },
   { value: "holerite", label: "Holerite" },
   { value: "epi", label: "EPI" },
+  { value: "treinamento_nr", label: "Treinamento / NR" },
 ];
 
 export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId, onSuccess }: Props) {
@@ -30,6 +31,7 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [expirationDate, setExpirationDate] = useState("");
+  const [referencePeriod, setReferencePeriod] = useState("");
   const [requiresSignature, setRequiresSignature] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,6 +42,7 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
     setTitle("");
     setCategory("");
     setExpirationDate("");
+    setReferencePeriod("");
     setRequiresSignature(false);
     setFile(null);
   };
@@ -77,6 +80,7 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
         doc_category: category,
         file_url: urlData.publicUrl,
         expiration_date: expirationDate || null,
+        reference_period: referencePeriod || null,
         signature_status: requiresSignature ? "pendente" : "nao_aplicavel",
       });
 
@@ -92,7 +96,8 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
     }
   };
 
-  const showExpiration = category === "aso_exames";
+  const showExpiration = category === "aso_exames" || category === "treinamento_nr";
+  const showRefPeriod = category === "holerite";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -126,6 +131,13 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
             <div className="space-y-1.5">
               <Label>Data de Vencimento</Label>
               <Input type="date" value={expirationDate} onChange={(e) => setExpirationDate(e.target.value)} />
+            </div>
+          )}
+
+          {showRefPeriod && (
+            <div className="space-y-1.5">
+              <Label>Mês/Ano de Referência</Label>
+              <Input value={referencePeriod} onChange={(e) => setReferencePeriod(e.target.value)} placeholder="Ex: 03/2026" />
             </div>
           )}
 

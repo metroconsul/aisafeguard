@@ -4,10 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Upload, Eye, Pen, FileText, Loader2 } from "lucide-react";
+import { ArrowLeft, Upload, Eye, Pen, FileText, Loader2, Printer, GraduationCap } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import UploadDocumentoModal from "@/components/UploadDocumentoModal";
+import UploadTreinamentoModal from "@/components/UploadTreinamentoModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Funcionario {
   id: string;
@@ -23,13 +25,18 @@ interface Document {
   doc_category: string;
   file_url: string | null;
   expiration_date: string | null;
+  issue_date: string | null;
+  workload_hours: number | null;
+  provider_or_lead: string | null;
+  reference_period: string | null;
   signature_status: string;
   created_at: string | null;
 }
 
 const TABS = [
   { value: "admissao_rescisao", label: "Admissão / Rescisão", categories: ["admissao", "rescisao"] },
-  { value: "aso", label: "Saúde / ASO", categories: ["aso_exames"] },
+  { value: "aso", label: "Saúde / ASO", categories: ["aso_exames", "aso"] },
+  { value: "treinamento", label: "Treinamentos / NRs", categories: ["treinamento_nr"] },
   { value: "holerite", label: "Holerites", categories: ["holerite"] },
   { value: "epi", label: "Fichas de EPI", categories: ["epi"] },
 ];
@@ -54,13 +61,66 @@ function ExpirationCell({ date }: { date: string | null }) {
   );
 }
 
+function handlePrint(func: Funcionario, docs: Document[], category: string, empresa: any) {
+  const filtered = docs.filter((d) => {
+    if (category === "epi") return d.doc_category === "epi";
+    if (category === "holerite") return d.doc_category === "holerite";
+    return false;
+  });
+
+  const printWin = window.open("", "_blank");
+  if (!printWin) return;
+
+  const rows = filtered.map((d) => `
+    <tr>
+      <td style="padding:8px;border-bottom:1px solid #e5e7eb">${d.title}</td>
+      <td style="padding:8px;border-bottom:1px solid #e5e7eb">${d.created_at ? format(new Date(d.created_at), "dd/MM/yyyy") : "—"}</td>
+      <td style="padding:8px;border-bottom:1px solid #e5e7eb">${d.reference_period || "—"}</td>
+    </tr>
+  `).join("");
+
+  printWin.document.write(`
+    <html><head><title>Ficha - ${func.nome}</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 40px; color: #1a1a1a; }
+      h1 { font-size: 18px; margin-bottom: 4px; }
+      .subtitle { color: #6b7280; font-size: 13px; margin-bottom: 24px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+      th { text-align: left; padding: 8px; border-bottom: 2px solid #1a1a1a; font-size: 13px; }
+      td { font-size: 13px; }
+      .footer { margin-top: 60px; border-top: 1px solid #1a1a1a; padding-top: 8px; font-size: 12px; }
+      .sig-line { margin-top: 60px; border-top: 1px solid #1a1a1a; width: 300px; }
+      .sig-label { font-size: 11px; color: #6b7280; margin-top: 4px; }
+      @media print { body { margin: 20mm; } }
+    </style></head><body>
+    <h1>${empresa?.nome_fantasia || "SafeGuard"}</h1>
+    <p class="subtitle">Ficha de ${category === "epi" ? "EPIs Entregues" : "Holerites"}</p>
+    <p><strong>Funcionário:</strong> ${func.nome}</p>
+    <p><strong>CPF:</strong> ${func.cpf || "—"} &nbsp; <strong>Cargo:</strong> ${func.cargo}</p>
+    <table>
+      <thead><tr><th>Documento</th><th>Data</th><th>Referência</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="footer">
+      <p>Declaro que recebi e estou de posse dos itens acima listados.</p>
+      <div class="sig-line"></div>
+      <p class="sig-label">Assinatura do Colaborador — Data: ___/___/______</p>
+    </div>
+    <script>window.print();</script>
+    </body></html>
+  `);
+  printWin.document.close();
+}
+
 export default function PerfilFuncionario() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { empresa } = useAuth();
   const [func, setFunc] = useState<Funcionario | null>(null);
   const [docs, setDocs] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [treinamentoOpen, setTreinamentoOpen] = useState(false);
 
   const loadData = () => {
     if (!id) return;
@@ -79,10 +139,15 @@ export default function PerfilFuncionario() {
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   if (!func) return <div className="py-20 text-center text-muted-foreground">Funcionário não encontrado.</div>;
 
-  const renderTable = (categories: string[]) => {
+  const renderTable = (categories: string[], tabValue: string) => {
     const filtered = docs.filter((d) => categories.includes(d.doc_category));
     if (filtered.length === 0)
       return <p className="py-8 text-center text-sm text-muted-foreground">Nenhum documento nesta categoria.</p>;
+
+    const isTraining = tabValue === "treinamento";
+    const isHolerite = tabValue === "holerite";
+    const isEpi = tabValue === "epi";
+    const showPrint = isHolerite || isEpi;
 
     return (
       <div className="overflow-x-auto">
@@ -90,7 +155,9 @@ export default function PerfilFuncionario() {
           <thead>
             <tr className="border-b border-border bg-muted/50">
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Documento</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Inserido em</th>
+              {isTraining && <th className="px-4 py-3 text-left font-medium text-muted-foreground">Carga Horária</th>}
+              {isHolerite && <th className="px-4 py-3 text-left font-medium text-muted-foreground">Mês/Ano</th>}
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{isTraining ? "Data" : "Inserido em"}</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Vencimento</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Assinatura</th>
               <th className="px-4 py-3 text-right font-medium text-muted-foreground">Ações</th>
@@ -103,8 +170,10 @@ export default function PerfilFuncionario() {
                   <FileText className="h-4 w-4 text-primary shrink-0" />
                   {doc.title}
                 </td>
+                {isTraining && <td className="px-4 py-3 text-muted-foreground">{doc.workload_hours ? `${doc.workload_hours}h` : "—"}</td>}
+                {isHolerite && <td className="px-4 py-3 text-muted-foreground">{doc.reference_period || "—"}</td>}
                 <td className="px-4 py-3 text-muted-foreground">
-                  {doc.created_at ? format(new Date(doc.created_at), "dd/MM/yyyy", { locale: ptBR }) : "—"}
+                  {(doc.issue_date || doc.created_at) ? format(new Date(doc.issue_date || doc.created_at!), "dd/MM/yyyy", { locale: ptBR }) : "—"}
                 </td>
                 <td className="px-4 py-3"><ExpirationCell date={doc.expiration_date} /></td>
                 <td className="px-4 py-3"><SignatureBadge status={doc.signature_status} /></td>
@@ -118,6 +187,11 @@ export default function PerfilFuncionario() {
                     {doc.signature_status === "pendente" && (
                       <Button variant="ghost" size="sm" className="text-amber-600">
                         <Pen className="h-4 w-4 mr-1" /> Assinar
+                      </Button>
+                    )}
+                    {showPrint && (
+                      <Button variant="ghost" size="sm" onClick={() => handlePrint(func, docs, isEpi ? "epi" : "holerite", empresa)}>
+                        <Printer className="h-4 w-4 mr-1" /> Imprimir
                       </Button>
                     )}
                   </div>
@@ -155,33 +229,34 @@ export default function PerfilFuncionario() {
           <p className="text-sm text-muted-foreground">{func.cargo}</p>
           {func.cpf && <p className="text-sm text-muted-foreground">CPF: {func.cpf}</p>}
         </div>
-        <Button onClick={() => setUploadOpen(true)} className="w-full sm:w-auto">
-          <Upload className="mr-2 h-4 w-4" /> Adicionar Documento
-        </Button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button onClick={() => setUploadOpen(true)} className="flex-1 sm:flex-initial">
+            <Upload className="mr-2 h-4 w-4" /> Documento
+          </Button>
+          <Button onClick={() => setTreinamentoOpen(true)} variant="outline" className="flex-1 sm:flex-initial">
+            <GraduationCap className="mr-2 h-4 w-4" /> Treinamento
+          </Button>
+        </div>
       </div>
 
       {/* Tabs */}
       <Tabs defaultValue="admissao_rescisao">
         <TabsList className="w-full flex overflow-x-auto">
           {TABS.map((t) => (
-            <TabsTrigger key={t.value} value={t.value} className="flex-1 min-w-[120px]">{t.label}</TabsTrigger>
+            <TabsTrigger key={t.value} value={t.value} className="flex-1 min-w-[100px] text-xs sm:text-sm">{t.label}</TabsTrigger>
           ))}
         </TabsList>
         {TABS.map((t) => (
           <TabsContent key={t.value} value={t.value}>
             <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
-              {renderTable(t.categories)}
+              {renderTable(t.categories, t.value)}
             </div>
           </TabsContent>
         ))}
       </Tabs>
 
-      <UploadDocumentoModal
-        open={uploadOpen}
-        onOpenChange={setUploadOpen}
-        funcionarioId={func.id}
-        onSuccess={loadData}
-      />
+      <UploadDocumentoModal open={uploadOpen} onOpenChange={setUploadOpen} funcionarioId={func.id} onSuccess={loadData} />
+      <UploadTreinamentoModal open={treinamentoOpen} onOpenChange={setTreinamentoOpen} funcionarioId={func.id} onSuccess={loadData} />
     </div>
   );
 }

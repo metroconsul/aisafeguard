@@ -21,11 +21,15 @@ export type Database = {
           empresa_id: string
           expiration_date: string | null
           file_url: string | null
-          funcionario_id: string
+          funcionario_id: string | null
           id: string
+          issue_date: string | null
+          provider_or_lead: string | null
           reference_period: string | null
           signature_status: string
           title: string
+          workload_hours: number | null
+          worksite: string | null
           zapsign_token: string | null
         }
         Insert: {
@@ -34,11 +38,15 @@ export type Database = {
           empresa_id: string
           expiration_date?: string | null
           file_url?: string | null
-          funcionario_id: string
+          funcionario_id?: string | null
           id?: string
+          issue_date?: string | null
+          provider_or_lead?: string | null
           reference_period?: string | null
           signature_status?: string
           title: string
+          workload_hours?: number | null
+          worksite?: string | null
           zapsign_token?: string | null
         }
         Update: {
@@ -47,11 +55,15 @@ export type Database = {
           empresa_id?: string
           expiration_date?: string | null
           file_url?: string | null
-          funcionario_id?: string
+          funcionario_id?: string | null
           id?: string
+          issue_date?: string | null
+          provider_or_lead?: string | null
           reference_period?: string | null
           signature_status?: string
           title?: string
+          workload_hours?: number | null
+          worksite?: string | null
           zapsign_token?: string | null
         }
         Relationships: [
