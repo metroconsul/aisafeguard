@@ -80,6 +80,7 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
         doc_category: category,
         file_url: urlData.publicUrl,
         expiration_date: expirationDate || null,
+        reference_period: referencePeriod || null,
         signature_status: requiresSignature ? "pendente" : "nao_aplicavel",
       });
 
