@@ -38,6 +38,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
             <Route path="/assinar/:id" element={<Assinar />} />
+            <Route path="/portal" element={<PortalColaborador />} />
 
             {/* Protected admin routes */}
             <Route
