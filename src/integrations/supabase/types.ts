@@ -21,7 +21,7 @@ export type Database = {
           empresa_id: string
           expiration_date: string | null
           file_url: string | null
-          funcionario_id: string
+          funcionario_id: string | null
           id: string
           issue_date: string | null
           provider_or_lead: string | null
@@ -38,7 +38,7 @@ export type Database = {
           empresa_id: string
           expiration_date?: string | null
           file_url?: string | null
-          funcionario_id: string
+          funcionario_id?: string | null
           id?: string
           issue_date?: string | null
           provider_or_lead?: string | null
@@ -55,7 +55,7 @@ export type Database = {
           empresa_id?: string
           expiration_date?: string | null
           file_url?: string | null
-          funcionario_id?: string
+          funcionario_id?: string | null
           id?: string
           issue_date?: string | null
           provider_or_lead?: string | null

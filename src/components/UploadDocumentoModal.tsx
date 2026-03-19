@@ -93,7 +93,8 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
     }
   };
 
-  const showExpiration = category === "aso_exames";
+  const showExpiration = category === "aso_exames" || category === "treinamento_nr";
+  const showRefPeriod = category === "holerite";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
