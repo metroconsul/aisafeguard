@@ -42,6 +42,7 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
     setTitle("");
     setCategory("");
     setExpirationDate("");
+    setReferencePeriod("");
     setRequiresSignature(false);
     setFile(null);
   };
