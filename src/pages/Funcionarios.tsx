@@ -29,6 +29,7 @@ interface Setor {
 
 export default function Funcionarios() {
   const { perfil } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState<Funcionario[]>([]);
   const [setores, setSetores] = useState<Setor[]>([]);
   const [open, setOpen] = useState(false);
