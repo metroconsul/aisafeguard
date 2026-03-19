@@ -23,6 +23,7 @@ const CATEGORIAS = [
   { value: "aso_exames", label: "ASO / Exames" },
   { value: "holerite", label: "Holerite" },
   { value: "epi", label: "EPI" },
+  { value: "treinamento_nr", label: "Treinamento / NR" },
 ];
 
 export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId, onSuccess }: Props) {
