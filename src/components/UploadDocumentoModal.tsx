@@ -31,6 +31,7 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [expirationDate, setExpirationDate] = useState("");
+  const [referencePeriod, setReferencePeriod] = useState("");
   const [requiresSignature, setRequiresSignature] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
