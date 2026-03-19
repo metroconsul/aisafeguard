@@ -134,6 +134,13 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
             </div>
           )}
 
+          {showRefPeriod && (
+            <div className="space-y-1.5">
+              <Label>Mês/Ano de Referência</Label>
+              <Input value={referencePeriod} onChange={(e) => setReferencePeriod(e.target.value)} placeholder="Ex: 03/2026" />
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <Label>Arquivo PDF</Label>
             <div
