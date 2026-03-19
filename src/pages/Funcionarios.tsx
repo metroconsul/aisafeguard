@@ -107,8 +107,11 @@ export default function Funcionarios() {
       {/* Mobile: card layout */}
       <div className="block sm:hidden space-y-3">
         {data.map((f) => (
-          <div key={f.id} className="rounded-xl border border-border bg-card p-4 shadow-card space-y-1">
-            <p className="font-medium text-foreground">{f.nome}</p>
+          <div key={f.id} onClick={() => navigate(`/app/funcionarios/${f.id}`)} className="cursor-pointer rounded-xl border border-border bg-card p-4 shadow-card space-y-1 hover:border-primary/30 transition-colors">
+            <div className="flex items-center justify-between">
+              <p className="font-medium text-foreground">{f.nome}</p>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </div>
             <p className="text-xs text-muted-foreground">{f.cargo} • {f.setor_obj?.nome || f.setor || "—"}</p>
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground pt-1">
               <span>Mat: {f.matricula}</span>
