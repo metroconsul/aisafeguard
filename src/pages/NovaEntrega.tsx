@@ -90,6 +90,18 @@ export default function NovaEntrega() {
           </Select>
         </div>
 
+        <div className="space-y-2">
+          <Label>Obra / Centro de Custo</Label>
+          <Select value={obraCentro} onValueChange={setObraCentro}>
+            <SelectTrigger><SelectValue placeholder="Selecione a obra" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="obra_sede">Sede</SelectItem>
+              <SelectItem value="obra_filial">Filial</SelectItem>
+              <SelectItem value="obra_campo">Campo / Obra Externa</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         <Button onClick={handleSubmit} disabled={loading || !!linkAssinatura} className="w-full">
           {loading ? "Registrando..." : "Gerar Entrega"}
         </Button>
