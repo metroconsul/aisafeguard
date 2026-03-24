@@ -103,8 +103,11 @@ Deno.serve(async (req) => {
         role,
       });
 
+      const responsePayload: any = { success: true, message: `Convite enviado para ${email}` };
+      if (passwordToShare) responsePayload.temp_password = passwordToShare;
+
       return new Response(
-        JSON.stringify({ success: true, message: `Convite enviado para ${email}`, temp_password: tempPassword }),
+        JSON.stringify(responsePayload),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
