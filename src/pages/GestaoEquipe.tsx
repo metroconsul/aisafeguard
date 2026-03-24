@@ -278,8 +278,14 @@ export default function GestaoEquipe() {
                                   size="icon"
                                   className="h-8 w-8 text-muted-foreground hover:text-primary"
                                   title="Reenviar convite"
+                                  disabled={resendingId === member.id}
+                                  onClick={() => handleResend(member)}
                                 >
-                                  <MailPlus className="h-4 w-4" />
+                                  {resendingId === member.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <MailPlus className="h-4 w-4" />
+                                  )}
                                 </Button>
                               )}
                               {!isSelf && (
