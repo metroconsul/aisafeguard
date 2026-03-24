@@ -26,7 +26,9 @@ export type Database = {
           issue_date: string | null
           provider_or_lead: string | null
           reference_period: string | null
+          signature_ip: string | null
           signature_status: string
+          signed_at: string | null
           title: string
           workload_hours: number | null
           worksite: string | null
@@ -43,7 +45,9 @@ export type Database = {
           issue_date?: string | null
           provider_or_lead?: string | null
           reference_period?: string | null
+          signature_ip?: string | null
           signature_status?: string
+          signed_at?: string | null
           title: string
           workload_hours?: number | null
           worksite?: string | null
@@ -60,7 +64,9 @@ export type Database = {
           issue_date?: string | null
           provider_or_lead?: string | null
           reference_period?: string | null
+          signature_ip?: string | null
           signature_status?: string
+          signed_at?: string | null
           title?: string
           workload_hours?: number | null
           worksite?: string | null
@@ -460,6 +466,50 @@ export type Database = {
             columns: ["setor_id"]
             isOneToOne: false
             referencedRelation: "setores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signature_logs: {
+        Row: {
+          action_type: string | null
+          created_at: string | null
+          document_id: string | null
+          empresa_id: string
+          funcionario_id: string
+          id: string
+          ip_address: string | null
+          signed_at: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action_type?: string | null
+          created_at?: string | null
+          document_id?: string | null
+          empresa_id: string
+          funcionario_id: string
+          id?: string
+          ip_address?: string | null
+          signed_at?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action_type?: string | null
+          created_at?: string | null
+          document_id?: string | null
+          empresa_id?: string
+          funcionario_id?: string
+          id?: string
+          ip_address?: string | null
+          signed_at?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signature_logs_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
             referencedColumns: ["id"]
           },
         ]
