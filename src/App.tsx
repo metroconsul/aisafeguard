@@ -23,6 +23,7 @@ import Cadastro from "@/pages/Cadastro";
 import PortalColaborador from "@/pages/PortalColaborador";
 import CofreEmpresa from "@/pages/CofreEmpresa";
 import Treinamentos from "@/pages/Treinamentos";
+import Unsubscribe from "@/pages/Unsubscribe";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
