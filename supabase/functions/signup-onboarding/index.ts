@@ -100,7 +100,7 @@ Deno.serve(async (req) => {
       await supabase.from("user_roles").upsert({
         user_id: userId,
         role,
-      });
+      }, { onConflict: "user_id,role" });
 
       const responsePayload: any = { success: true, message: `Convite enviado para ${email}` };
       if (passwordToShare) responsePayload.temp_password = passwordToShare;
