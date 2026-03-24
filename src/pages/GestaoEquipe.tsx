@@ -50,6 +50,7 @@ export default function GestaoEquipe() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [inviting, setInviting] = useState(false);
+  const [resendingId, setResendingId] = useState<string | null>(null);
   const [formName, setFormName] = useState("");
   const [formEmail, setFormEmail] = useState("");
   const [formRole, setFormRole] = useState("");
@@ -118,6 +119,29 @@ export default function GestaoEquipe() {
       toast.error(err.message || "Erro ao enviar convite");
     } finally {
       setInviting(false);
+    }
+  };
+
+  const handleResend = async (member: TeamMember) => {
+    if (!perfil?.empresa_id) return;
+    setResendingId(member.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("signup-onboarding", {
+        body: {
+          resend_user_id: member.id,
+          email: member.email || "",
+          nome: member.nome_completo,
+          empresa_id: perfil.empresa_id,
+          role: member.role,
+          is_invite: true,
+        },
+      });
+      if (error) throw error;
+      toast.success(`Convite reenviado para ${member.nome_completo}`);
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao reenviar convite");
+    } finally {
+      setResendingId(null);
     }
   };
 
@@ -255,8 +279,14 @@ export default function GestaoEquipe() {
                                   size="icon"
                                   className="h-8 w-8 text-muted-foreground hover:text-primary"
                                   title="Reenviar convite"
+                                  disabled={resendingId === member.id}
+                                  onClick={() => handleResend(member)}
                                 >
-                                  <MailPlus className="h-4 w-4" />
+                                  {resendingId === member.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <MailPlus className="h-4 w-4" />
+                                  )}
                                 </Button>
                               )}
                               {!isSelf && (

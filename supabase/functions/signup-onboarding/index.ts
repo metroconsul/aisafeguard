@@ -29,7 +29,17 @@ Deno.serve(async (req) => {
 
     // === INVITE FLOW ===
     if (isInvite) {
-      const { email, nome, empresa_id, role } = body;
+      let { email, nome, empresa_id, role } = body;
+      const resendUserId = body.resend_user_id;
+
+      // For resend: look up email from auth if not provided
+      if (resendUserId && !email) {
+        const { data: existingUsers } = await supabase.auth.admin.listUsers();
+        const found = existingUsers?.users?.find((u: any) => u.id === resendUserId);
+        if (found) {
+          email = found.email;
+        }
+      }
 
       if (!email || !nome || !empresa_id || !role) {
         return new Response(
