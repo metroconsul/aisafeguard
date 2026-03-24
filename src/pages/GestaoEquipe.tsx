@@ -100,7 +100,15 @@ export default function GestaoEquipe() {
 
       if (error) throw error;
 
-      toast.success(`Convite enviado para ${formEmail}`);
+      const responseData = data as any;
+      if (responseData?.temp_password) {
+        toast.success(
+          `Convite criado! Senha temporária: ${responseData.temp_password}`,
+          { duration: 15000 }
+        );
+      } else {
+        toast.success(`Convite enviado para ${formEmail}`);
+      }
       setModalOpen(false);
       setFormName("");
       setFormEmail("");
