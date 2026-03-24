@@ -41,7 +41,10 @@ Deno.serve(async (req) => {
       // Generate a temporary password
       const tempPassword = crypto.randomUUID().slice(0, 12);
 
-      // Create auth user with auto-confirm
+      // Try to create auth user, or find existing one
+      let userId: string;
+      let passwordToShare: string | null = tempPassword;
+
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email,
         password: tempPassword,
@@ -49,13 +52,33 @@ Deno.serve(async (req) => {
       });
 
       if (authError) {
-        return new Response(
-          JSON.stringify({ error: authError.message }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        if (authError.message.includes("already been registered")) {
+          // User exists — find their ID
+          const { data: existingUsers, error: listError } = await supabase.auth.admin.listUsers();
+          if (listError) {
+            return new Response(
+              JSON.stringify({ error: "Erro ao buscar usuário existente." }),
+              { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+          const found = existingUsers.users.find((u: any) => u.email === email);
+          if (!found) {
+            return new Response(
+              JSON.stringify({ error: "Usuário não encontrado." }),
+              { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+          userId = found.id;
+          passwordToShare = null; // don't reset their password
+        } else {
+          return new Response(
+            JSON.stringify({ error: authError.message }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      } else {
+        userId = authData.user.id;
       }
-
-      const userId = authData.user.id;
 
       // Create perfil linked to the same empresa
       const { error: perfilError } = await supabase.from("perfis").insert({
@@ -80,8 +103,11 @@ Deno.serve(async (req) => {
         role,
       });
 
+      const responsePayload: any = { success: true, message: `Convite enviado para ${email}` };
+      if (passwordToShare) responsePayload.temp_password = passwordToShare;
+
       return new Response(
-        JSON.stringify({ success: true, message: `Convite enviado para ${email}`, temp_password: tempPassword }),
+        JSON.stringify(responsePayload),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
