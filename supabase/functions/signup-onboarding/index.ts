@@ -80,28 +80,27 @@ Deno.serve(async (req) => {
         userId = authData.user.id;
       }
 
-      // Create perfil linked to the same empresa
-      const { error: perfilError } = await supabase.from("perfis").insert({
+      // Upsert perfil linked to the same empresa
+      const { error: perfilError } = await supabase.from("perfis").upsert({
         id: userId,
         empresa_id,
         nome_completo: nome,
         role,
         status: "pendente",
-      });
+      }, { onConflict: "id" });
 
       if (perfilError) {
-        await supabase.auth.admin.deleteUser(userId);
         return new Response(
           JSON.stringify({ error: "Erro ao criar perfil: " + perfilError.message }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // Insert role into user_roles table
-      await supabase.from("user_roles").insert({
+      // Upsert role into user_roles table
+      await supabase.from("user_roles").upsert({
         user_id: userId,
         role,
-      });
+      }, { onConflict: "user_id,role" });
 
       const responsePayload: any = { success: true, message: `Convite enviado para ${email}` };
       if (passwordToShare) responsePayload.temp_password = passwordToShare;
