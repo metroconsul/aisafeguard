@@ -42,8 +42,13 @@ const TABS = [
   { value: "epi", label: "Fichas de EPI", categories: ["epi"] },
 ];
 
-function SignatureBadge({ status }: { status: string }) {
-  if (status === "assinado") return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200">Assinado</Badge>;
+function SignatureBadge({ status, signedAt }: { status: string; signedAt?: string | null }) {
+  if (status === "assinado") return (
+    <div className="flex flex-col items-start">
+      <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200">✓ Assinado</Badge>
+      {signedAt && <span className="text-[10px] text-muted-foreground mt-0.5">{format(new Date(signedAt), "dd/MM/yyyy HH:mm", { locale: ptBR })}</span>}
+    </div>
+  );
   if (status === "pendente") return <Badge className="bg-amber-500/10 text-amber-600 border-amber-200">Pendente</Badge>;
   return <Badge variant="secondary">Não Aplicável</Badge>;
 }
