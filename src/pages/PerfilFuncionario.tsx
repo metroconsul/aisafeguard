@@ -30,6 +30,7 @@ interface Document {
   provider_or_lead: string | null;
   reference_period: string | null;
   signature_status: string;
+  signed_at: string | null;
   created_at: string | null;
 }
 
@@ -41,8 +42,13 @@ const TABS = [
   { value: "epi", label: "Fichas de EPI", categories: ["epi"] },
 ];
 
-function SignatureBadge({ status }: { status: string }) {
-  if (status === "assinado") return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200">Assinado</Badge>;
+function SignatureBadge({ status, signedAt }: { status: string; signedAt?: string | null }) {
+  if (status === "assinado") return (
+    <div className="flex flex-col items-start">
+      <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200">✓ Assinado</Badge>
+      {signedAt && <span className="text-[10px] text-muted-foreground mt-0.5">{format(new Date(signedAt), "dd/MM/yyyy HH:mm", { locale: ptBR })}</span>}
+    </div>
+  );
   if (status === "pendente") return <Badge className="bg-amber-500/10 text-amber-600 border-amber-200">Pendente</Badge>;
   return <Badge variant="secondary">Não Aplicável</Badge>;
 }
@@ -176,7 +182,7 @@ export default function PerfilFuncionario() {
                   {(doc.issue_date || doc.created_at) ? format(new Date(doc.issue_date || doc.created_at!), "dd/MM/yyyy", { locale: ptBR }) : "—"}
                 </td>
                 <td className="px-4 py-3"><ExpirationCell date={doc.expiration_date} /></td>
-                <td className="px-4 py-3"><SignatureBadge status={doc.signature_status} /></td>
+                <td className="px-4 py-3"><SignatureBadge status={doc.signature_status} signedAt={doc.signed_at} /></td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end gap-1">
                     {doc.file_url && (

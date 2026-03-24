@@ -7,12 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { ShieldCheck, FileText, HardHat, AlertTriangle, ArrowRightLeft, Loader2, LogOut, Download, GraduationCap } from "lucide-react";
+import { ShieldCheck, FileText, HardHat, AlertTriangle, ArrowRightLeft, Loader2, LogOut, Download, GraduationCap, CheckCircle2, Eye } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 
-interface Funcionario { id: string; nome: string; cargo: string; cpf: string | null; }
-interface Document { id: string; title: string; doc_category: string; file_url: string | null; expiration_date: string | null; signature_status: string; created_at: string | null; reference_period: string | null; workload_hours: number | null; }
+interface Funcionario { id: string; nome: string; cargo: string; cpf: string | null; empresa_id: string | null; }
+interface Document { id: string; title: string; doc_category: string; file_url: string | null; expiration_date: string | null; signature_status: string; created_at: string | null; reference_period: string | null; workload_hours: number | null; signed_at: string | null; empresa_id: string; }
 interface Entrega { id: string; data_entrega: string | null; data_vencimento: string; status_assinatura: string | null; epi: { nome_equipamento: string; numero_ca: string } | null; }
 
 export default function PortalColaborador() {
@@ -25,23 +26,77 @@ export default function PortalColaborador() {
   const [trocaMotivo, setTrocaMotivo] = useState("");
   const [trocaEpi, setTrocaEpi] = useState("");
 
+  // Signature flow state
+  const [signingDoc, setSigningDoc] = useState<Document | null>(null);
+  const [sigConfirm, setSigConfirm] = useState(false);
+  const [sigLoading, setSigLoading] = useState(false);
+  const [sigSuccess, setSigSuccess] = useState(false);
+
   const handleLogin = async () => {
     if (!cpf.trim()) { toast.error("Digite seu CPF."); return; }
     setLoading(true);
-    const { data } = await supabase.from("funcionarios").select("id, nome, cargo, cpf").eq("cpf", cpf.trim()).maybeSingle();
+    const { data } = await supabase.from("funcionarios").select("id, nome, cargo, cpf, empresa_id").eq("cpf", cpf.trim()).maybeSingle();
     if (!data) { toast.error("CPF não encontrado."); setLoading(false); return; }
     setFunc(data as Funcionario);
-
-    const [docsRes, episRes] = await Promise.all([
-      supabase.from("documents").select("*").eq("funcionario_id", data.id).order("created_at", { ascending: false }),
-      supabase.from("entregas").select("id, data_entrega, data_vencimento, status_assinatura, epis:epi_id(nome_equipamento, numero_ca)").eq("funcionario_id", data.id).order("data_entrega", { ascending: false }),
-    ]);
-    if (docsRes.data) setDocs(docsRes.data as Document[]);
-    if (episRes.data) setEpis(episRes.data.map((e: any) => ({ ...e, epi: e.epis })) as Entrega[]);
+    await loadDocs(data.id);
     setLoading(false);
   };
 
-  const handleLogout = () => { setFunc(null); setDocs([]); setEpis([]); setCpf(""); };
+  const loadDocs = async (funcId: string) => {
+    const [docsRes, episRes] = await Promise.all([
+      supabase.from("documents").select("*").eq("funcionario_id", funcId).order("created_at", { ascending: false }),
+      supabase.from("entregas").select("id, data_entrega, data_vencimento, status_assinatura, epis:epi_id(nome_equipamento, numero_ca)").eq("funcionario_id", funcId).order("data_entrega", { ascending: false }),
+    ]);
+    if (docsRes.data) setDocs(docsRes.data as Document[]);
+    if (episRes.data) setEpis(episRes.data.map((e: any) => ({ ...e, epi: e.epis })) as Entrega[]);
+  };
+
+  const handleLogout = () => { setFunc(null); setDocs([]); setEpis([]); setCpf(""); setSigSuccess(false); };
+
+  const handleSign = async () => {
+    if (!signingDoc || !func || !sigConfirm) return;
+    setSigLoading(true);
+
+    const now = new Date().toISOString();
+    const ua = navigator.userAgent;
+
+    // Update document status
+    const { error: updateErr } = await supabase
+      .from("documents")
+      .update({
+        signature_status: "assinado",
+        signed_at: now,
+      } as any)
+      .eq("id", signingDoc.id);
+
+    if (updateErr) {
+      toast.error("Erro ao assinar documento.");
+      setSigLoading(false);
+      return;
+    }
+
+    // Insert audit log
+    await supabase.from("signature_logs" as any).insert({
+      empresa_id: signingDoc.empresa_id,
+      document_id: signingDoc.id,
+      funcionario_id: func.id,
+      action_type: signingDoc.doc_category === "holerite" ? "assinatura_holerite" : "assinatura_documento",
+      signed_at: now,
+      user_agent: ua,
+    } as any);
+
+    setSigLoading(false);
+    setSigSuccess(true);
+
+    // Refresh docs
+    if (func) await loadDocs(func.id);
+  };
+
+  const closeSigning = () => {
+    setSigningDoc(null);
+    setSigConfirm(false);
+    setSigSuccess(false);
+  };
 
   const pendentes = docs.filter((d) => d.signature_status === "pendente");
   const holerites = docs.filter((d) => d.doc_category === "holerite");
@@ -83,7 +138,7 @@ export default function PortalColaborador() {
       </div>
 
       <div className="p-4 space-y-4 max-w-lg mx-auto">
-        {/* Pendentes */}
+        {/* Pendentes - Alerta Chamativo */}
         {pendentes.length > 0 && (
           <Card className="border-destructive/30 bg-destructive/5">
             <CardHeader className="pb-2">
@@ -94,8 +149,13 @@ export default function PortalColaborador() {
             <CardContent className="space-y-2">
               {pendentes.map((d) => (
                 <div key={d.id} className="flex items-center justify-between rounded-lg bg-card border border-border p-3">
-                  <span className="text-sm font-medium text-foreground">{d.title}</span>
-                  <Badge className="bg-amber-500/10 text-amber-600 border-amber-200">Pendente</Badge>
+                  <div>
+                    <span className="text-sm font-medium text-foreground">{d.title}</span>
+                    {d.reference_period && <p className="text-xs text-muted-foreground">{d.reference_period}</p>}
+                  </div>
+                  <Button size="sm" variant="destructive" onClick={() => { setSigningDoc(d); setSigSuccess(false); setSigConfirm(false); }}>
+                    Ver e Assinar
+                  </Button>
                 </div>
               ))}
             </CardContent>
@@ -115,11 +175,16 @@ export default function PortalColaborador() {
                   <p className="text-sm font-medium text-foreground">{d.title}</p>
                   <p className="text-xs text-muted-foreground">{d.reference_period || (d.created_at ? format(new Date(d.created_at), "dd/MM/yyyy") : "")}</p>
                 </div>
-                {d.file_url && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={d.file_url} target="_blank" rel="noopener noreferrer"><Download className="h-4 w-4" /></a>
-                  </Button>
-                )}
+                <div className="flex items-center gap-2">
+                  {d.signature_status === "assinado" && d.signed_at && (
+                    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200 text-[10px]">✓ {format(new Date(d.signed_at), "dd/MM HH:mm")}</Badge>
+                  )}
+                  {d.file_url && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={d.file_url} target="_blank" rel="noopener noreferrer"><Download className="h-4 w-4" /></a>
+                    </Button>
+                  )}
+                </div>
               </div>
             ))}
           </CardContent>
@@ -180,6 +245,7 @@ export default function PortalColaborador() {
         </Button>
       </div>
 
+      {/* Modal Troca EPI */}
       <Dialog open={trocaOpen} onOpenChange={setTrocaOpen}>
         <DialogContent className="max-w-[95vw] sm:max-w-sm">
           <DialogHeader><DialogTitle>Solicitar Troca de EPI</DialogTitle></DialogHeader>
@@ -206,6 +272,83 @@ export default function PortalColaborador() {
               Enviar Solicitação
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Assinatura Digital */}
+      <Dialog open={!!signingDoc} onOpenChange={(open) => { if (!open) closeSigning(); }}>
+        <DialogContent className="max-w-[95vw] sm:max-w-lg">
+          {sigSuccess ? (
+            /* Tela de Sucesso */
+            <div className="flex flex-col items-center justify-center py-8 space-y-4">
+              <div className="h-16 w-16 rounded-full bg-emerald-100 flex items-center justify-center">
+                <CheckCircle2 className="h-9 w-9 text-emerald-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground text-center">Holerite assinado com sucesso!</h3>
+              <p className="text-sm text-muted-foreground text-center">O RH já foi notificado. Você pode fechar esta tela.</p>
+              <Button onClick={closeSigning} className="w-full h-12 text-base mt-2">Fechar</Button>
+            </div>
+          ) : (
+            /* Fluxo de Assinatura */
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary" />
+                  Assinar Documento
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                {/* Doc info */}
+                <div className="rounded-lg border border-border bg-muted/50 p-4 space-y-1">
+                  <p className="font-medium text-foreground">{signingDoc?.title}</p>
+                  {signingDoc?.reference_period && (
+                    <p className="text-sm text-muted-foreground">Referência: {signingDoc.reference_period}</p>
+                  )}
+                </div>
+
+                {/* PDF preview link */}
+                {signingDoc?.file_url && (
+                  <Button variant="outline" className="w-full h-12 gap-2" asChild>
+                    <a href={signingDoc.file_url} target="_blank" rel="noopener noreferrer">
+                      <Eye className="h-4 w-4" /> Visualizar Documento (PDF)
+                    </a>
+                  </Button>
+                )}
+
+                {/* Confirmation checkbox */}
+                <div className="flex items-start gap-3 rounded-lg border border-border p-4 bg-card">
+                  <Checkbox
+                    id="sig-confirm"
+                    checked={sigConfirm}
+                    onCheckedChange={(checked) => setSigConfirm(checked === true)}
+                    className="mt-0.5"
+                  />
+                  <label htmlFor="sig-confirm" className="text-sm text-foreground leading-relaxed cursor-pointer">
+                    Li e confirmo o recebimento deste documento. Estou ciente do seu conteúdo e concordo com as informações apresentadas.
+                  </label>
+                </div>
+
+                {/* Sign button */}
+                <Button
+                  onClick={handleSign}
+                  disabled={!sigConfirm || sigLoading}
+                  className="w-full h-14 text-base gap-2"
+                >
+                  {sigLoading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <ShieldCheck className="h-5 w-5" />
+                  )}
+                  {sigLoading ? "Assinando..." : "Assinar Digitalmente"}
+                </Button>
+
+                <p className="text-[11px] text-muted-foreground text-center">
+                  Sua assinatura será registrada com data, hora e dispositivo para validade jurídica.
+                </p>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
