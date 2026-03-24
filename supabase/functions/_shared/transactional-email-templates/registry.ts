@@ -11,8 +11,10 @@ export interface TemplateEntry {
 
 import { template as holeriteDisponivel } from './holerite-disponivel.tsx'
 import { template as assinaturaConfirmada } from './assinatura-confirmada.tsx'
+import { template as conviteEquipe } from './convite-equipe.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'holerite-disponivel': holeriteDisponivel,
   'assinatura-confirmada': assinaturaConfirmada,
+  'convite-equipe': conviteEquipe,
 }
