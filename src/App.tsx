@@ -16,6 +16,7 @@ import Integracoes from "@/pages/Integracoes";
 import Setores from "@/pages/Setores";
 import Configuracoes from "@/pages/Configuracoes";
 import Seguranca from "@/pages/Seguranca";
+import GestaoEquipe from "@/pages/GestaoEquipe";
 import Assinar from "@/pages/Assinar";
 import Login from "@/pages/Login";
 import Cadastro from "@/pages/Cadastro";
