@@ -182,7 +182,7 @@ export default function PerfilFuncionario() {
                   {(doc.issue_date || doc.created_at) ? format(new Date(doc.issue_date || doc.created_at!), "dd/MM/yyyy", { locale: ptBR }) : "—"}
                 </td>
                 <td className="px-4 py-3"><ExpirationCell date={doc.expiration_date} /></td>
-                <td className="px-4 py-3"><SignatureBadge status={doc.signature_status} /></td>
+                <td className="px-4 py-3"><SignatureBadge status={doc.signature_status} signedAt={doc.signed_at} /></td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end gap-1">
                     {doc.file_url && (
