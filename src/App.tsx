@@ -23,6 +23,7 @@ import Cadastro from "@/pages/Cadastro";
 import PortalColaborador from "@/pages/PortalColaborador";
 import CofreEmpresa from "@/pages/CofreEmpresa";
 import Treinamentos from "@/pages/Treinamentos";
+import Unsubscribe from "@/pages/Unsubscribe";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/cadastro" element={<Cadastro />} />
             <Route path="/assinar/:id" element={<Assinar />} />
             <Route path="/portal" element={<PortalColaborador />} />
+            <Route path="/unsubscribe" element={<Unsubscribe />} />
 
             {/* Protected admin routes */}
             <Route
