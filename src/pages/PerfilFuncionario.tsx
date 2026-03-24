@@ -30,6 +30,7 @@ interface Document {
   provider_or_lead: string | null;
   reference_period: string | null;
   signature_status: string;
+  signed_at: string | null;
   created_at: string | null;
 }
 
