@@ -122,6 +122,28 @@ export default function GestaoEquipe() {
     }
   };
 
+  const handleResend = async (member: TeamMember) => {
+    if (!perfil?.empresa_id) return;
+    setResendingId(member.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("signup-onboarding", {
+        body: {
+          email: member.email || "",
+          nome: member.nome_completo,
+          empresa_id: perfil.empresa_id,
+          role: member.role,
+          is_invite: true,
+        },
+      });
+      if (error) throw error;
+      toast.success(`Convite reenviado para ${member.nome_completo}`);
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao reenviar convite");
+    } finally {
+      setResendingId(null);
+    }
+  };
+
   const handleRemove = async (memberId: string, memberName: string) => {
     if (memberId === perfil?.id) {
       toast.error("Você não pode remover a si mesmo");
