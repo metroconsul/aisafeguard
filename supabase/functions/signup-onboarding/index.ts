@@ -102,6 +102,43 @@ Deno.serve(async (req) => {
         role,
       }, { onConflict: "user_id,role" });
 
+      // Get empresa name for the email
+      let empresaNome = "";
+      const { data: empresaInfo } = await supabase
+        .from("empresas")
+        .select("nome_fantasia")
+        .eq("id", empresa_id)
+        .single();
+      if (empresaInfo) empresaNome = empresaInfo.nome_fantasia;
+
+      // Map role to display name
+      const roleLabels: Record<string, string> = {
+        admin: "Administrador",
+        tecnico_seguranca: "Técnico de Segurança",
+        rh: "RH",
+        almoxarifado: "Almoxarifado",
+      };
+
+      // Send invite email via transactional email system
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const loginUrl = "https://wear-and-sign.lovable.app/login";
+      
+      await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "convite-equipe",
+          recipientEmail: email,
+          idempotencyKey: `convite-${userId}-${empresa_id}`,
+          templateData: {
+            nome,
+            email,
+            senha: passwordToShare,
+            cargo: roleLabels[role] || role,
+            empresaNome,
+            loginUrl,
+          },
+        },
+      });
+
       const responsePayload: any = { success: true, message: `Convite enviado para ${email}` };
       if (passwordToShare) responsePayload.temp_password = passwordToShare;
 
