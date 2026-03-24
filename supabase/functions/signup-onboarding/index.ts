@@ -19,7 +19,75 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { nome_empresa, nome_usuario, email, senha } = await req.json();
+    const body = await req.json();
+    const isInvite = body.is_invite === true;
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    // === INVITE FLOW ===
+    if (isInvite) {
+      const { email, nome, empresa_id, role } = body;
+
+      if (!email || !nome || !empresa_id || !role) {
+        return new Response(
+          JSON.stringify({ error: "Todos os campos são obrigatórios." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Generate a temporary password
+      const tempPassword = crypto.randomUUID().slice(0, 12);
+
+      // Create auth user with auto-confirm
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email,
+        password: tempPassword,
+        email_confirm: true,
+      });
+
+      if (authError) {
+        return new Response(
+          JSON.stringify({ error: authError.message }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const userId = authData.user.id;
+
+      // Create perfil linked to the same empresa
+      const { error: perfilError } = await supabase.from("perfis").insert({
+        id: userId,
+        empresa_id,
+        nome_completo: nome,
+        role,
+        status: "pendente",
+      });
+
+      if (perfilError) {
+        await supabase.auth.admin.deleteUser(userId);
+        return new Response(
+          JSON.stringify({ error: "Erro ao criar perfil: " + perfilError.message }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Insert role into user_roles table
+      await supabase.from("user_roles").insert({
+        user_id: userId,
+        role,
+      });
+
+      return new Response(
+        JSON.stringify({ success: true, message: `Convite enviado para ${email}`, temp_password: tempPassword }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // === SIGNUP FLOW ===
+    const { nome_empresa, nome_usuario, email, senha } = body;
 
     if (!nome_empresa || !nome_usuario || !email || !senha) {
       return new Response(
@@ -34,11 +102,6 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
 
     // 1. Create auth user
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
@@ -64,7 +127,6 @@ Deno.serve(async (req) => {
       .single();
 
     if (empresaError) {
-      // Cleanup: delete the auth user
       await supabase.auth.admin.deleteUser(userId);
       return new Response(
         JSON.stringify({ error: "Erro ao criar empresa: " + empresaError.message }),
@@ -88,8 +150,14 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 4. Send confirmation email
-    const { error: inviteError } = await supabase.auth.resend({
+    // 4. Insert admin role
+    await supabase.from("user_roles").insert({
+      user_id: userId,
+      role: "admin",
+    });
+
+    // 5. Send confirmation email
+    await supabase.auth.resend({
       type: "signup",
       email,
     });
