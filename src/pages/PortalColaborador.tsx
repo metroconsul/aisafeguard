@@ -85,6 +85,25 @@ export default function PortalColaborador() {
       user_agent: ua,
     } as any);
 
+    // Send signature confirmation email to RH
+    try {
+      await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "assinatura-confirmada",
+          recipientEmail: "rh@episafe.com", // will be replaced by actual RH email when available
+          idempotencyKey: `assinatura-${signingDoc.id}`,
+          templateData: {
+            funcionarioNome: func.nome,
+            documentoTitulo: signingDoc.title,
+            dataAssinatura: new Date().toLocaleString("pt-BR"),
+          },
+        },
+      });
+    } catch (e) {
+      // Non-blocking — signature is already saved
+      console.warn("Failed to send confirmation email", e);
+    }
+
     setSigLoading(false);
     setSigSuccess(true);
 
