@@ -128,6 +128,7 @@ export default function GestaoEquipe() {
     try {
       const { data, error } = await supabase.functions.invoke("signup-onboarding", {
         body: {
+          resend_user_id: member.id,
           email: member.email || "",
           nome: member.nome_completo,
           empresa_id: perfil.empresa_id,
