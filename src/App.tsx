@@ -16,6 +16,7 @@ import Integracoes from "@/pages/Integracoes";
 import Setores from "@/pages/Setores";
 import Configuracoes from "@/pages/Configuracoes";
 import Seguranca from "@/pages/Seguranca";
+import GestaoEquipe from "@/pages/GestaoEquipe";
 import Assinar from "@/pages/Assinar";
 import Login from "@/pages/Login";
 import Cadastro from "@/pages/Cadastro";
@@ -57,6 +58,7 @@ const App = () => (
                       <Route path="/integracoes" element={<Integracoes />} />
                       <Route path="/setores" element={<Setores />} />
                       <Route path="/configuracoes" element={<Configuracoes />} />
+                      <Route path="/equipe" element={<GestaoEquipe />} />
                       <Route path="/seguranca" element={<Seguranca />} />
                       <Route path="/documentos" element={<CofreEmpresa />} />
                       <Route path="/treinamentos" element={<Treinamentos />} />

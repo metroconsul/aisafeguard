@@ -46,6 +46,7 @@ const integrationItems = [
 
 const supportItems = [
   { title: "Configurações", url: "/app/configuracoes", icon: Settings },
+  { title: "Equipe", url: "/app/equipe", icon: Users },
   { title: "Segurança", url: "/app/seguranca", icon: ShieldCheck },
 ];
 
