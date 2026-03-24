@@ -11,3 +11,5 @@ project_id = "ffndxwyviafznftdxnib"
     verify_jwt = false
   [functions.whatsapp-proxy]
     verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
