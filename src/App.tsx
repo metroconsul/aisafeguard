@@ -43,6 +43,7 @@ const App = () => (
             <Route path="/cadastro" element={<Cadastro />} />
             <Route path="/assinar/:id" element={<Assinar />} />
             <Route path="/portal" element={<PortalColaborador />} />
+            <Route path="/unsubscribe" element={<Unsubscribe />} />
 
             {/* Protected admin routes */}
             <Route
