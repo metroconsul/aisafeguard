@@ -314,7 +314,7 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+        from: `${SITE_NAME} <${FROM_EMAIL}>`,
         to: [effectiveRecipient],
         subject: resolvedSubject,
         html,
