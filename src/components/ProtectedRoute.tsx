@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [sessionCheckDone, setSessionCheckDone] = useState(false);
   const [hasSession, setHasSession] = useState(false);
 
@@ -30,6 +32,13 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     };
   }, [user, loading]);
 
+  useEffect(() => {
+    if (loading || !sessionCheckDone || user || hasSession) return;
+    if (location.pathname !== "/login") {
+      navigate("/login", { replace: true });
+    }
+  }, [loading, sessionCheckDone, user, hasSession, location.pathname, navigate]);
+
   if (loading || !sessionCheckDone) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -39,7 +48,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!user && !hasSession) {
-    return <Navigate to="/login" replace />;
+    return null;
   }
 
   return <>{children}</>;
