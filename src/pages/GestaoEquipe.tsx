@@ -160,8 +160,10 @@ export default function GestaoEquipe() {
       });
       if (error) throw error;
 
+      const resendData = data as any;
+
       // Dispara webhook para n8n no reenvio
-      await triggerInviteWebhook({ nome: member.nome_completo, email: member.email || "", empresa_nome: empresaNome });
+      await triggerInviteWebhook({ nome: member.nome_completo, email: member.email || "", empresa_nome: empresaNome, senha: resendData?.temp_password || "" });
 
       toast.success(`Convite reenviado para ${member.nome_completo}`);
     } catch (err: any) {
