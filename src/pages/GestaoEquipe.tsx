@@ -102,6 +102,9 @@ export default function GestaoEquipe() {
 
       if (error) throw error;
 
+      // Dispara webhook para n8n
+      await triggerInviteWebhook({ nome: formName, email: formEmail });
+
       const responseData = data as any;
       if (responseData?.temp_password) {
         toast.success(
