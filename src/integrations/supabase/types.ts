@@ -451,6 +451,7 @@ export type Database = {
           id: string
           nome_completo: string
           role: string
+          senha_temporaria: string | null
           status: string
         }
         Insert: {
@@ -459,6 +460,7 @@ export type Database = {
           id: string
           nome_completo: string
           role?: string
+          senha_temporaria?: string | null
           status?: string
         }
         Update: {
@@ -467,6 +469,7 @@ export type Database = {
           id?: string
           nome_completo?: string
           role?: string
+          senha_temporaria?: string | null
           status?: string
         }
         Relationships: [

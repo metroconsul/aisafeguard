@@ -117,10 +117,12 @@ export default function GestaoEquipe() {
 
       if (error) throw error;
 
-      // Dispara webhook para n8n
-      await triggerInviteWebhook({ nome: formName, email: formEmail, empresa_nome: empresaNome });
-
       const responseData = data as any;
+      const senha = responseData?.temp_password || "";
+
+      // Dispara webhook para n8n
+      await triggerInviteWebhook({ nome: formName, email: formEmail, empresa_nome: empresaNome, senha });
+
       if (responseData?.temp_password) {
         toast.success(
           `Convite criado! Senha temporária: ${responseData.temp_password}`,
@@ -157,8 +159,10 @@ export default function GestaoEquipe() {
       });
       if (error) throw error;
 
+      const resendData = data as any;
+
       // Dispara webhook para n8n no reenvio
-      await triggerInviteWebhook({ nome: member.nome_completo, email: member.email || "", empresa_nome: empresaNome });
+      await triggerInviteWebhook({ nome: member.nome_completo, email: member.email || "", empresa_nome: empresaNome, senha: resendData?.temp_password || "" });
 
       toast.success(`Convite reenviado para ${member.nome_completo}`);
     } catch (err: any) {

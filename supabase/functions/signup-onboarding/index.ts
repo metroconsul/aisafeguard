@@ -48,8 +48,13 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Generate a temporary password
-      const tempPassword = crypto.randomUUID().slice(0, 12);
+      // Generate a unique memorable password
+      const adjectives = ["Forte","Seguro","Rapido","Bravo","Firme","Alerta","Agil","Nobre"];
+      const nouns = ["Capacete","Luva","Oculos","Bota","Colete","Escudo","Cinto","Viseira"];
+      const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+      const noun = nouns[Math.floor(Math.random() * nouns.length)];
+      const num = Math.floor(Math.random() * 900) + 100; // 100-999
+      const tempPassword = `${adj}${noun}${num}`;
 
       // Try to create auth user, or find existing one
       let userId: string;
@@ -97,6 +102,7 @@ Deno.serve(async (req) => {
         nome_completo: nome,
         role,
         status: "pendente",
+        senha_temporaria: passwordToShare || undefined,
       }, { onConflict: "id" });
 
       if (perfilError) {
