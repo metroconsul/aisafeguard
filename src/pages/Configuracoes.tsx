@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +9,7 @@ import { toast } from "@/components/ui/sonner";
 import { Building2, Upload, Loader2 } from "lucide-react";
 
 export default function Configuracoes() {
-  const { perfil, refreshEmpresa } = useAuth();
+  const { user, perfil, loading: authLoading, refreshEmpresa, empresa } = useAuth();
   const [nomeFantasia, setNomeFantasia] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -19,23 +19,45 @@ export default function Configuracoes() {
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!perfil?.empresa_id) return;
-    supabase
+  const loadEmpresa = useCallback(async () => {
+    if (authLoading) return;
+
+    if (!user || !perfil?.empresa_id) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+
+    const { data, error } = await supabase
       .from("empresas")
       .select("nome_fantasia, cnpj, logo_url")
       .eq("id", perfil.empresa_id)
-      .single()
-      .then(({ data, error }) => {
-        if (data) {
-          setNomeFantasia(data.nome_fantasia);
-          setCnpj(data.cnpj);
-          setLogoUrl((data as any).logo_url ?? null);
-        }
-        if (error) toast.error("Erro ao carregar dados da empresa");
-        setLoading(false);
-      });
-  }, [perfil?.empresa_id]);
+      .maybeSingle();
+
+    if (error) {
+      toast.error("Erro ao carregar dados da empresa");
+      setLoading(false);
+      return;
+    }
+
+    if (!data) {
+      setNomeFantasia(empresa?.nome_fantasia ?? "");
+      setLogoUrl(empresa?.logo_url ?? null);
+      setCnpj("");
+      setLoading(false);
+      return;
+    }
+
+    setNomeFantasia(data.nome_fantasia);
+    setCnpj(data.cnpj);
+    setLogoUrl((data as any).logo_url ?? null);
+    setLoading(false);
+  }, [authLoading, user, perfil?.empresa_id, empresa?.nome_fantasia, empresa?.logo_url]);
+
+  useEffect(() => {
+    void loadEmpresa();
+  }, [loadEmpresa]);
 
   useEffect(() => {
     return () => { if (previewUrl) URL.revokeObjectURL(previewUrl); };
@@ -51,7 +73,10 @@ export default function Configuracoes() {
   };
 
   const handleSave = async () => {
-    if (!perfil?.empresa_id) return;
+    if (!user || !perfil?.empresa_id) {
+      toast.error("Sessão inválida. Faça login novamente.");
+      return;
+    }
     setSaving(true);
     let finalLogoUrl = logoUrl;
 
