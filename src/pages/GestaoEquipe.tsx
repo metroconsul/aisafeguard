@@ -118,7 +118,7 @@ export default function GestaoEquipe() {
       if (error) throw error;
 
       // Dispara webhook para n8n
-      await triggerInviteWebhook({ nome: formName, email: formEmail });
+      await triggerInviteWebhook({ nome: formName, email: formEmail, empresa_nome: empresaNome });
 
       const responseData = data as any;
       if (responseData?.temp_password) {
