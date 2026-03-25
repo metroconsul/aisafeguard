@@ -55,6 +55,7 @@ export const INVITE_WEBHOOK_URL = "https://n8n-n8n.is8ujj.easypanel.host/webhook
 interface InviteWebhookPayload {
   nome: string;
   email: string;
+  empresa_nome: string;
 }
 
 export async function triggerInviteWebhook(payload: InviteWebhookPayload) {

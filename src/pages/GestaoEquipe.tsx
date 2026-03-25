@@ -55,6 +55,21 @@ export default function GestaoEquipe() {
   const [formName, setFormName] = useState("");
   const [formEmail, setFormEmail] = useState("");
   const [formRole, setFormRole] = useState("");
+  const [empresaNome, setEmpresaNome] = useState("");
+
+  // Buscar nome da empresa
+  useEffect(() => {
+    const fetchEmpresa = async () => {
+      if (!perfil?.empresa_id) return;
+      const { data } = await supabase
+        .from("empresas")
+        .select("nome_fantasia")
+        .eq("id", perfil.empresa_id)
+        .maybeSingle();
+      if (data) setEmpresaNome(data.nome_fantasia);
+    };
+    fetchEmpresa();
+  }, [perfil?.empresa_id]);
 
   const fetchTeam = async () => {
     if (!perfil?.empresa_id) return;
