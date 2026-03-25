@@ -40,60 +40,77 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [empresa, setEmpresa] = useState<Empresa | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchEmpresa = useCallback((empresaId: string) => {
-    supabase
+  const fetchEmpresa = useCallback(async (empresaId: string) => {
+    const { data } = await supabase
       .from("empresas")
       .select("nome_fantasia, logo_url")
       .eq("id", empresaId)
-      .single()
-      .then(({ data }) => {
-        if (data) setEmpresa(data as Empresa);
-      });
+      .maybeSingle();
+
+    setEmpresa((data as Empresa | null) ?? null);
   }, []);
 
-  const fetchPerfil = useCallback((userId: string) => {
-    supabase
+  const fetchPerfil = useCallback(async (userId: string) => {
+    const { data } = await supabase
       .from("perfis")
       .select("id, empresa_id, nome_completo, role")
       .eq("id", userId)
-      .maybeSingle()
-      .then(({ data }) => {
-        const p = data as Perfil | null;
-        setPerfil(p);
-        if (p?.empresa_id) fetchEmpresa(p.empresa_id);
-      });
+      .maybeSingle();
+
+    const p = (data as Perfil | null) ?? null;
+    setPerfil(p);
+
+    if (p?.empresa_id) {
+      await fetchEmpresa(p.empresa_id);
+    } else {
+      setEmpresa(null);
+    }
   }, [fetchEmpresa]);
 
   const refreshEmpresa = useCallback(() => {
-    if (perfil?.empresa_id) fetchEmpresa(perfil.empresa_id);
+    if (perfil?.empresa_id) {
+      void fetchEmpresa(perfil.empresa_id);
+    }
   }, [perfil?.empresa_id, fetchEmpresa]);
 
   useEffect(() => {
-    // Set up listener FIRST to avoid missing events
+    let mounted = true;
+
+    // Listen first, but keep callback lean (no Supabase calls inside)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
-        const currentUser = session?.user ?? null;
-        setUser(currentUser);
-        if (currentUser) {
-          fetchPerfil(currentUser.id);
-        } else {
-          setPerfil(null);
-          setEmpresa(null);
-        }
-        setLoading(false);
+        if (!mounted) return;
+        setUser(session?.user ?? null);
       }
     );
 
-    // Then check existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      if (currentUser) fetchPerfil(currentUser.id);
-      setLoading(false);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (!mounted) return;
+        setUser(session?.user ?? null);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
+
+  useEffect(() => {
+    if (loading) return;
+
+    if (!user) {
+      setPerfil(null);
+      setEmpresa(null);
+      return;
+    }
+
+    void fetchPerfil(user.id);
+  }, [user, loading, fetchPerfil]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
