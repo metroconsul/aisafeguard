@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -12,31 +12,52 @@ import type { Tables } from "@/integrations/supabase/types";
 type Epi = Tables<"epis">;
 
 export default function Epis() {
-  const { perfil } = useAuth();
+  const { user, perfil, loading } = useAuth();
   const [data, setData] = useState<Epi[]>([]);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ nome_equipamento: "", numero_ca: "", dias_validade: "", quantidade_estoque: "" });
 
-  const load = () => {
-    supabase.from("epis").select("*").order("nome_equipamento").then(({ data }) => {
-      if (data) setData(data);
-    });
-  };
+  const load = useCallback(async () => {
+    if (!user || !perfil?.empresa_id) return;
+
+    const { data, error } = await supabase
+      .from("epis")
+      .select("*")
+      .eq("empresa_id", perfil.empresa_id)
+      .order("nome_equipamento");
+
+    if (error) {
+      toast.error("Falha ao carregar EPIs: " + error.message);
+      return;
+    }
+
+    setData(data || []);
+  }, [user, perfil?.empresa_id]);
 
   useEffect(() => {
-    load();
+    if (loading || !user || !perfil?.empresa_id) {
+      setData([]);
+      return;
+    }
+
+    void load();
 
     const channel = supabase
-      .channel("epis-realtime")
+      .channel(`epis-realtime-${perfil.empresa_id}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "epis" },
+        {
+          event: "*",
+          schema: "public",
+          table: "epis",
+          filter: `empresa_id=eq.${perfil.empresa_id}`,
+        },
         () => { load(); }
       )
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [loading, user, perfil?.empresa_id, load]);
 
   const handleAdd = async () => {
     if (!perfil?.empresa_id) {
@@ -54,7 +75,7 @@ export default function Epis() {
     toast.success("EPI adicionado!");
     setForm({ nome_equipamento: "", numero_ca: "", dias_validade: "", quantidade_estoque: "" });
     setOpen(false);
-    load();
+    await load();
   };
 
   return (
