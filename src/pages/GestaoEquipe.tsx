@@ -55,6 +55,21 @@ export default function GestaoEquipe() {
   const [formName, setFormName] = useState("");
   const [formEmail, setFormEmail] = useState("");
   const [formRole, setFormRole] = useState("");
+  const [empresaNome, setEmpresaNome] = useState("");
+
+  // Buscar nome da empresa
+  useEffect(() => {
+    const fetchEmpresa = async () => {
+      if (!perfil?.empresa_id) return;
+      const { data } = await supabase
+        .from("empresas")
+        .select("nome_fantasia")
+        .eq("id", perfil.empresa_id)
+        .maybeSingle();
+      if (data) setEmpresaNome(data.nome_fantasia);
+    };
+    fetchEmpresa();
+  }, [perfil?.empresa_id]);
 
   const fetchTeam = async () => {
     if (!perfil?.empresa_id) return;
@@ -103,7 +118,7 @@ export default function GestaoEquipe() {
       if (error) throw error;
 
       // Dispara webhook para n8n
-      await triggerInviteWebhook({ nome: formName, email: formEmail });
+      await triggerInviteWebhook({ nome: formName, email: formEmail, empresa_nome: empresaNome });
 
       const responseData = data as any;
       if (responseData?.temp_password) {
@@ -143,7 +158,7 @@ export default function GestaoEquipe() {
       if (error) throw error;
 
       // Dispara webhook para n8n no reenvio
-      await triggerInviteWebhook({ nome: member.nome_completo, email: member.email || "" });
+      await triggerInviteWebhook({ nome: member.nome_completo, email: member.email || "", empresa_nome: empresaNome });
 
       toast.success(`Convite reenviado para ${member.nome_completo}`);
     } catch (err: any) {
