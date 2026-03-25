@@ -158,7 +158,7 @@ export default function GestaoEquipe() {
       if (error) throw error;
 
       // Dispara webhook para n8n no reenvio
-      await triggerInviteWebhook({ nome: member.nome_completo, email: member.email || "" });
+      await triggerInviteWebhook({ nome: member.nome_completo, email: member.email || "", empresa_nome: empresaNome });
 
       toast.success(`Convite reenviado para ${member.nome_completo}`);
     } catch (err: any) {
