@@ -56,6 +56,7 @@ interface InviteWebhookPayload {
   nome: string;
   email: string;
   empresa_nome: string;
+  senha: string;
 }
 
 export async function triggerInviteWebhook(payload: InviteWebhookPayload) {
