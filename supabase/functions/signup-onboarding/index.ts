@@ -84,7 +84,21 @@ Deno.serve(async (req) => {
             );
           }
           userId = found.id;
-          passwordToShare = null; // don't reset their password
+
+          // Buscar senha salva no banco
+          const { data: perfilExistente } = await supabase
+            .from("perfis")
+            .select("senha_temporaria")
+            .eq("id", userId)
+            .maybeSingle();
+
+          if (perfilExistente?.senha_temporaria) {
+            passwordToShare = perfilExistente.senha_temporaria;
+          }
+          // Se não tem senha salva, mantém a gerada e atualiza a senha do auth
+          if (passwordToShare === tempPassword) {
+            await supabase.auth.admin.updateUserById(userId, { password: tempPassword });
+          }
         } else {
           return new Response(
             JSON.stringify({ error: authError.message }),
