@@ -123,7 +123,6 @@ export default function GestaoEquipe() {
       // Dispara webhook para n8n
       await triggerInviteWebhook({ nome: formName, email: formEmail, empresa_nome: empresaNome, senha });
 
-      const responseData = data as any;
       if (responseData?.temp_password) {
         toast.success(
           `Convite criado! Senha temporária: ${responseData.temp_password}`,
