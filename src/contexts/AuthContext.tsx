@@ -69,13 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [perfil?.empresa_id, fetchEmpresa]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      if (currentUser) fetchPerfil(currentUser.id);
-      setLoading(false);
-    });
-
+    // Set up listener FIRST to avoid missing events
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         const currentUser = session?.user ?? null;
@@ -89,6 +83,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     );
+
+    // Then check existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      if (currentUser) fetchPerfil(currentUser.id);
+      setLoading(false);
+    });
 
     return () => subscription.unsubscribe();
   }, []);
