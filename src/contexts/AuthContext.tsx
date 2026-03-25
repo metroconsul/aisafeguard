@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
@@ -39,23 +39,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [perfil, setPerfil] = useState<Perfil | null>(null);
   const [empresa, setEmpresa] = useState<Empresa | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authReady, setAuthReady] = useState(false);
+  const lastLoadedUserIdRef = useRef<string | null>(null);
 
   const fetchEmpresa = useCallback(async (empresaId: string) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("empresas")
       .select("nome_fantasia, logo_url")
       .eq("id", empresaId)
       .maybeSingle();
 
+    if (error) {
+      setEmpresa(null);
+      return;
+    }
+
     setEmpresa((data as Empresa | null) ?? null);
   }, []);
 
   const fetchPerfil = useCallback(async (userId: string) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("perfis")
       .select("id, empresa_id, nome_completo, role")
       .eq("id", userId)
       .maybeSingle();
+
+    if (error) {
+      setPerfil(null);
+      setEmpresa(null);
+      return;
+    }
 
     const p = (data as Perfil | null) ?? null;
     setPerfil(p);
@@ -76,19 +89,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // Listen first, but avoid clearing user on transient null sessions
+    // Listen first to avoid missing auth events during bootstrap
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (!mounted) return;
 
         if (event === "SIGNED_OUT") {
           setUser(null);
+          setAuthReady(true);
           return;
         }
 
-        if (session?.user) {
-          setUser(session.user);
+        if (event === "TOKEN_REFRESHED") {
+          setAuthReady(true);
+          return;
         }
+
+        const nextUser = session?.user ?? null;
+        setUser((prev) => (prev?.id === nextUser?.id ? prev : nextUser));
+        setAuthReady(true);
       }
     );
 
@@ -96,10 +115,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .getSession()
       .then(({ data: { session } }) => {
         if (!mounted) return;
-        setUser(session?.user ?? null);
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
+        const nextUser = session?.user ?? null;
+        setUser((prev) => (prev?.id === nextUser?.id ? prev : nextUser));
+        setAuthReady(true);
       });
 
     return () => {
@@ -109,16 +127,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (loading) return;
+    if (!authReady) return;
 
     if (!user) {
       setPerfil(null);
       setEmpresa(null);
+      lastLoadedUserIdRef.current = null;
+      setLoading(false);
       return;
     }
 
-    void fetchPerfil(user.id);
-  }, [user, loading, fetchPerfil]);
+    if (lastLoadedUserIdRef.current === user.id && perfil?.id === user.id) {
+      setLoading(false);
+      return;
+    }
+
+    let mounted = true;
+    setLoading(true);
+
+    void fetchPerfil(user.id).finally(() => {
+      if (!mounted) return;
+      lastLoadedUserIdRef.current = user.id;
+      setLoading(false);
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [authReady, user, fetchPerfil, perfil?.id]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
