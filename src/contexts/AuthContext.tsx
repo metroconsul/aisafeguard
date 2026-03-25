@@ -76,11 +76,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // Listen first, but keep callback lean (no Supabase calls inside)
+    // Listen first, but avoid clearing user on transient null sessions
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         if (!mounted) return;
-        setUser(session?.user ?? null);
+
+        if (event === "SIGNED_OUT") {
+          setUser(null);
+          return;
+        }
+
+        if (session?.user) {
+          setUser(session.user);
+        }
       }
     );
 
