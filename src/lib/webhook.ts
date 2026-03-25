@@ -48,3 +48,26 @@ export async function triggerSignatureWebhook(payload: SignatureWebhookPayload) 
     return false;
   }
 }
+
+// Webhook de convite de usuário (n8n)
+export const INVITE_WEBHOOK_URL = "https://n8n-n8n.is8ujj.easypanel.host/webhook-test/safeguard-usuario";
+
+interface InviteWebhookPayload {
+  nome: string;
+  email: string;
+}
+
+export async function triggerInviteWebhook(payload: InviteWebhookPayload) {
+  try {
+    const response = await fetch(INVITE_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tipo: "convite_usuario", ...payload }),
+    });
+    console.log("Invite webhook triggered:", response.status);
+    return response.ok;
+  } catch (error) {
+    console.error("Invite webhook error:", error);
+    return false;
+  }
+}
