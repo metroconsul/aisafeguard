@@ -170,7 +170,7 @@ Deno.serve(async (req) => {
         },
       });
 
-      const responsePayload: any = { success: true, message: `Convite enviado para ${email}` };
+      const responsePayload: any = { success: true, message: `Convite enviado para ${email}`, email };
       if (passwordToShare) responsePayload.temp_password = passwordToShare;
 
       return new Response(
