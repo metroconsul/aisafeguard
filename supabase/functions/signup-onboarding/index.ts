@@ -117,6 +117,7 @@ Deno.serve(async (req) => {
         role,
         status: "pendente",
         senha_temporaria: passwordToShare || undefined,
+        email,
       }, { onConflict: "id" });
 
       if (perfilError) {
