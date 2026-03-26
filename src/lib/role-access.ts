@@ -41,8 +41,13 @@ export function canAccessRoute(role: string | undefined, route: string): boolean
   if (!role) return false;
   const allowed = ROLE_ROUTES[role];
   if (!allowed) return false;
+
   // Exact match or sub-route (e.g. /app/funcionarios/123)
-  return allowed.some((r) => route === r || route.startsWith(r + "/"));
+  // NOTE: Treating "/app" as a prefix would accidentally allow every /app/* route.
+  return allowed.some((r) => {
+    if (r === "/app") return route === "/app";
+    return route === r || route.startsWith(r + "/");
+  });
 }
 
 export function filterMenuItems<T extends { url: string }>(
@@ -50,5 +55,8 @@ export function filterMenuItems<T extends { url: string }>(
   items: T[]
 ): T[] {
   if (!role) return [];
-  return items.filter((item) => canAccessRoute(role, item.url));
+  return items.filter((item) => {
+    if (item.url === "/app") return canAccessRoute(role, "/app");
+    return canAccessRoute(role, item.url);
+  });
 }
