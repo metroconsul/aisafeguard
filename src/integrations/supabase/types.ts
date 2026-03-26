@@ -447,6 +447,7 @@ export type Database = {
       perfis: {
         Row: {
           created_at: string | null
+          email: string | null
           empresa_id: string
           id: string
           nome_completo: string
@@ -456,6 +457,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          email?: string | null
           empresa_id: string
           id: string
           nome_completo: string
@@ -465,6 +467,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          email?: string | null
           empresa_id?: string
           id?: string
           nome_completo?: string
