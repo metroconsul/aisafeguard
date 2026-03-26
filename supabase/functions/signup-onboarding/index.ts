@@ -233,6 +233,7 @@ Deno.serve(async (req) => {
       empresa_id: empresaData.id,
       nome_completo: nome_usuario,
       role: "admin",
+      email,
     });
 
     if (perfilError) {
