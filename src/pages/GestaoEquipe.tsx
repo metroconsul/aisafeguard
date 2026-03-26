@@ -77,7 +77,7 @@ export default function GestaoEquipe() {
 
     const { data, error } = await supabase
       .from("perfis")
-      .select("id, nome_completo, role, status")
+      .select("id, nome_completo, role, status, email")
       .eq("empresa_id", perfil.empresa_id);
 
     if (error) {
