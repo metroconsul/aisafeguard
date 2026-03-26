@@ -95,10 +95,8 @@ Deno.serve(async (req) => {
           if (perfilExistente?.senha_temporaria) {
             passwordToShare = perfilExistente.senha_temporaria;
           }
-          // Se não tem senha salva, mantém a gerada e atualiza a senha do auth
-          if (passwordToShare === tempPassword) {
-            await supabase.auth.admin.updateUserById(userId, { password: tempPassword });
-          }
+          // Sempre sincronizar a senha no auth com a que vamos compartilhar
+          await supabase.auth.admin.updateUserById(userId, { password: passwordToShare! });
         } else {
           return new Response(
             JSON.stringify({ error: authError.message }),
