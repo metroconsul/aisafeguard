@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
+import { filterMenuItems } from "@/lib/role-access";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
@@ -52,8 +53,44 @@ const supportItems = [
 
 export function AppSidebar() {
   const { state } = useSidebar();
-  const { empresa } = useAuth();
+  const { empresa, perfil } = useAuth();
   const collapsed = state === "collapsed";
+  const role = perfil?.role;
+
+  const visibleGeneral = filterMenuItems(role, generalItems);
+  const visibleCadastro = filterMenuItems(role, cadastroItems);
+  const visibleIntegration = filterMenuItems(role, integrationItems);
+  const visibleSupport = filterMenuItems(role, supportItems);
+
+  const renderGroup = (label: string, items: typeof generalItems) => {
+    if (items.length === 0) return null;
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          {label}
+        </SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {items.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild>
+                  <NavLink
+                    to={item.url}
+                    end={item.url === "/app"}
+                    className="text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    activeClassName="bg-primary/10 text-primary font-medium"
+                  >
+                    <item.icon className="mr-2 h-4 w-4" strokeWidth={1.5} />
+                    {!collapsed && <span>{item.title}</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    );
+  };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -70,106 +107,10 @@ export function AppSidebar() {
           )}
         </div>
 
-        {/* General */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Geral
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {generalItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === "/app"}
-                      className="text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                      activeClassName="bg-primary/10 text-primary font-medium"
-                    >
-                      <item.icon className="mr-2 h-4 w-4" strokeWidth={1.5} />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Cadastros */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Cadastros
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {cadastroItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className="text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                      activeClassName="bg-primary/10 text-primary font-medium"
-                    >
-                      <item.icon className="mr-2 h-4 w-4" strokeWidth={1.5} />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Integrações */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Integrações
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {integrationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className="text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                      activeClassName="bg-primary/10 text-primary font-medium"
-                    >
-                      <item.icon className="mr-2 h-4 w-4" strokeWidth={1.5} />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Support */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Suporte
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {supportItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className="text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                      activeClassName="bg-primary/10 text-primary font-medium"
-                    >
-                      <item.icon className="mr-2 h-4 w-4" strokeWidth={1.5} />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {renderGroup("Geral", visibleGeneral)}
+        {renderGroup("Cadastros", visibleCadastro)}
+        {renderGroup("Integrações", visibleIntegration)}
+        {renderGroup("Suporte", visibleSupport)}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-3">
