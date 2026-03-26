@@ -77,7 +77,7 @@ export default function GestaoEquipe() {
 
     const { data, error } = await supabase
       .from("perfis")
-      .select("id, nome_completo, role, status")
+      .select("id, nome_completo, role, status, email")
       .eq("empresa_id", perfil.empresa_id);
 
     if (error) {
@@ -162,7 +162,8 @@ export default function GestaoEquipe() {
       const resendData = data as any;
 
       // Dispara webhook para n8n no reenvio
-      await triggerInviteWebhook({ nome: member.nome_completo, email: member.email || "", empresa_nome: empresaNome, senha: resendData?.temp_password || "" });
+      const memberEmail = resendData?.email || member.email || "";
+      await triggerInviteWebhook({ nome: member.nome_completo, email: memberEmail, empresa_nome: empresaNome, senha: resendData?.temp_password || "" });
 
       toast.success(`Convite reenviado para ${member.nome_completo}`);
     } catch (err: any) {

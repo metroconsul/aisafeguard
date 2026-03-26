@@ -117,6 +117,7 @@ Deno.serve(async (req) => {
         role,
         status: "pendente",
         senha_temporaria: passwordToShare || undefined,
+        email,
       }, { onConflict: "id" });
 
       if (perfilError) {
@@ -169,7 +170,7 @@ Deno.serve(async (req) => {
         },
       });
 
-      const responsePayload: any = { success: true, message: `Convite enviado para ${email}` };
+      const responsePayload: any = { success: true, message: `Convite enviado para ${email}`, email };
       if (passwordToShare) responsePayload.temp_password = passwordToShare;
 
       return new Response(
@@ -232,6 +233,7 @@ Deno.serve(async (req) => {
       empresa_id: empresaData.id,
       nome_completo: nome_usuario,
       role: "admin",
+      email,
     });
 
     if (perfilError) {
