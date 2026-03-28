@@ -24,6 +24,7 @@ import Login from "@/pages/Login";
 import Cadastro from "@/pages/Cadastro";
 import CofreEmpresa from "@/pages/CofreEmpresa";
 import Treinamentos from "@/pages/Treinamentos";
+import Holerites from "@/pages/Holerites";
 import Unsubscribe from "@/pages/Unsubscribe";
 import NotFound from "@/pages/NotFound";
 
