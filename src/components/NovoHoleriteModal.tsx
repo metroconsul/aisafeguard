@@ -45,13 +45,13 @@ export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
   const monthOptions = generateMonthOptions();
 
   const { data: funcionarios = [] } = useQuery({
-    queryKey: ["funcionarios-holerite", empresa?.id],
-    enabled: !!empresa?.id && open,
+    queryKey: ["funcionarios-holerite", empresaId],
+    enabled: !!empresaId && open,
     queryFn: async () => {
       const { data } = await supabase
         .from("funcionarios")
         .select("id, nome, setor, telefone_whatsapp")
-        .eq("empresa_id", empresa!.id)
+        .eq("empresa_id", empresaId!)
         .eq("status", "ativo")
         .order("nome");
       return data || [];
