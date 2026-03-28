@@ -283,6 +283,43 @@ export default function PerfilFuncionario() {
         </div>
       </div>
 
+      {/* Portal Access - CPF & PIN */}
+      <div className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-card">
+        <div className="flex items-center gap-2 mb-4">
+          <KeyRound className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold text-foreground">Acesso ao Portal do Colaborador</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">CPF</Label>
+            <Input
+              value={editCpf}
+              onChange={(e) => setEditCpf(e.target.value.replace(/\D/g, "").slice(0, 11))}
+              placeholder="00000000000"
+              inputMode="numeric"
+              className="tabular-nums"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">PIN de Acesso (4-6 dígitos)</Label>
+            <Input
+              value={editPin}
+              onChange={(e) => setEditPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              placeholder="••••"
+              inputMode="numeric"
+              className="tabular-nums"
+            />
+          </div>
+          <Button onClick={handleSaveAccess} disabled={savingAccess} className="gap-2">
+            {savingAccess ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Salvar Acesso
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          Esses dados permitem que o funcionário acesse o Portal do Colaborador em <strong>/portal</strong>.
+        </p>
+      </div>
+
       {/* Tabs */}
       <Tabs defaultValue="admissao_rescisao">
         <TabsList className="w-full flex overflow-x-auto">
