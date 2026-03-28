@@ -12,7 +12,7 @@ import { ptBR } from "date-fns/locale";
 import UploadDocumentoModal from "@/components/UploadDocumentoModal";
 import UploadTreinamentoModal from "@/components/UploadTreinamentoModal";
 import { useAuth } from "@/contexts/AuthContext";
-
+import { toast } from "sonner";
 
 
 interface Funcionario {
