@@ -266,30 +266,27 @@ export default function LandingPage() {
       </nav>
 
       {/* ─── Hero ─── */}
-      <section className="relative overflow-hidden px-5 pt-20 pb-28 md:pt-28 md:pb-36" style={{ background: `linear-gradient(135deg, ${NAVY} 0%, ${NAVY_LIGHT} 50%, #1e3a6e 100%)` }}>
-        {/* subtle grid overlay */}
-        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-rule='evenodd'%3E%3Cpath d='M0 0h1v40H0zM39 0h1v40h-1z'/%3E%3Cpath d='M0 0h40v1H0zM0 39h40v1H0z'/%3E%3C/g%3E%3C/svg%3E\")" }} />
-
+      <section className="relative overflow-hidden px-5 pt-20 pb-16 md:pt-28 md:pb-24 bg-white">
         <div className="mx-auto max-w-5xl relative z-10">
           <motion.div initial="hidden" animate="visible" variants={stagger} className="text-center">
             <motion.span
               variants={fadeUp}
-              className="mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold tracking-wide"
-              style={{ background: "rgba(255,255,255,0.1)", color: ORANGE_LIGHT }}
+              className="mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold tracking-wide border"
+              style={{ background: "#eff6ff", color: BLUE, borderColor: "#dbeafe" }}
             >
               <ShieldCheck className="h-3.5 w-3.5" />
               Plataforma Enterprise de SST, RH e Conformidade
             </motion.span>
 
-            <motion.h1 variants={fadeUp} className="mt-4 text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <motion.h1 variants={fadeUp} className="mt-4 text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               O Escudo Jurídico e Operacional{" "}
               <br className="hidden sm:block" />
-              <span style={{ color: ORANGE_LIGHT }}>da sua Obra ou Indústria.</span>
+              <span style={{ color: BLUE }}>da sua Obra ou Indústria.</span>
             </motion.h1>
 
-            <motion.p variants={fadeUp} className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
+            <motion.p variants={fadeUp} className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-500">
               Gestão completa de EPIs, Holerites e Treinamentos (NRs) com assinatura digital auditável e automação via WhatsApp.{" "}
-              <span className="font-semibold text-white/90">Dê adeus ao papel e às multas.</span>
+              <span className="font-semibold text-slate-800">Dê adeus ao papel e às multas.</span>
             </motion.p>
 
             <motion.div variants={fadeUp} className="mt-9 flex flex-wrap justify-center gap-4">
@@ -302,38 +299,40 @@ export default function LandingPage() {
               </button>
               <a
                 href="#diferenciais"
-                className="rounded-xl border border-white/20 bg-white/5 px-8 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10"
+                className="rounded-xl border border-slate-200 bg-white px-8 py-3.5 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50"
               >
                 Conhecer Funcionalidades
               </a>
             </motion.div>
           </motion.div>
 
-          {/* floating cards */}
-          <motion.div animate={floatY(4)} className="absolute -bottom-10 left-0 md:left-[5%] z-0 hidden lg:block">
-            <div className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md p-4 shadow-xl w-60">
-              <div className="flex items-center gap-2 text-xs font-semibold text-white">
-                <BarChart3 className="h-4 w-4" style={{ color: ORANGE_LIGHT }} />
-                Dashboard Admin
+          {/* floating cards — below buttons */}
+          <motion.div initial="hidden" animate="visible" variants={stagger} className="mt-14 flex flex-wrap justify-center gap-5">
+            <motion.div variants={fadeUp} animate={floatY(4)}>
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-lg w-60">
+                <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                  <BarChart3 className="h-4 w-4" style={{ color: BLUE }} />
+                  Dashboard Admin
+                </div>
+                <div className="mt-3 flex items-end gap-1.5">
+                  {[40, 65, 50, 80, 55, 72, 60].map((h, i) => (
+                    <div key={i} className="w-4 rounded-sm" style={{ height: `${h * 0.5}px`, background: `linear-gradient(to top, ${BLUE}, ${BLUE_LIGHT})` }} />
+                  ))}
+                </div>
               </div>
-              <div className="mt-3 flex items-end gap-1.5">
-                {[40, 65, 50, 80, 55, 72, 60].map((h, i) => (
-                  <div key={i} className="w-4 rounded-sm" style={{ height: `${h * 0.5}px`, background: `linear-gradient(to top, ${BLUE}, ${BLUE_LIGHT})` }} />
-                ))}
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
 
-          <motion.div animate={floatY(5)} className="absolute -bottom-6 right-0 md:right-[5%] z-0 hidden lg:block">
-            <div className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md p-4 shadow-xl w-56">
-              <div className="flex items-center gap-2 text-xs font-semibold text-green-300">
-                <MessageSquare className="h-4 w-4" />
-                WhatsApp Notificação
+            <motion.div variants={fadeUp} animate={floatY(5)}>
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-lg w-60">
+                <div className="flex items-center gap-2 text-xs font-semibold text-green-600">
+                  <MessageSquare className="h-4 w-4" />
+                  WhatsApp Notificação
+                </div>
+                <p className="mt-2 text-[11px] text-slate-400">
+                  "Olá João, seu holerite de 03/2026 está disponível no Portal. Acesse e assine."
+                </p>
               </div>
-              <p className="mt-2 text-[11px] text-white/60">
-                "Olá João, seu holerite de 03/2026 está disponível no Portal. Acesse e assine."
-              </p>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
