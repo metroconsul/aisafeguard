@@ -31,7 +31,8 @@ function generateMonthOptions() {
 }
 
 export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
-  const { empresa } = useAuth();
+  const { perfil } = useAuth();
+  const empresaId = perfil?.empresa_id;
   const fileRef = useRef<HTMLInputElement>(null);
   const [month, setMonth] = useState("");
   const [recipientType, setRecipientType] = useState<"single" | "batch">("single");
