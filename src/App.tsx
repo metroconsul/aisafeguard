@@ -24,6 +24,7 @@ import Login from "@/pages/Login";
 import Cadastro from "@/pages/Cadastro";
 import CofreEmpresa from "@/pages/CofreEmpresa";
 import Treinamentos from "@/pages/Treinamentos";
+import Holerites from "@/pages/Holerites";
 import Unsubscribe from "@/pages/Unsubscribe";
 import NotFound from "@/pages/NotFound";
 
@@ -81,6 +82,7 @@ const App = () => (
                         <Route path="/seguranca" element={<Seguranca />} />
                         <Route path="/documentos" element={<CofreEmpresa />} />
                         <Route path="/treinamentos" element={<Treinamentos />} />
+                        <Route path="/holerites" element={<Holerites />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </AppLayout>

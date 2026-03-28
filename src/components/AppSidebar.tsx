@@ -10,6 +10,7 @@ import {
   MessageCircle,
   FolderLock,
   GraduationCap,
+  FileText,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,6 +33,7 @@ const generalItems = [
   { title: "Dashboard", url: "/app", icon: LayoutDashboard },
   { title: "Nova Entrega", url: "/app/nova-entrega", icon: PackagePlus },
   { title: "Cofre da Empresa", url: "/app/documentos", icon: FolderLock },
+  { title: "Holerites", url: "/app/holerites", icon: FileText },
 ];
 
 const cadastroItems = [
