@@ -3,13 +3,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Upload, Eye, Pen, FileText, Loader2, Printer, GraduationCap } from "lucide-react";
+import { ArrowLeft, Upload, Eye, Pen, FileText, Loader2, Printer, GraduationCap, Save, KeyRound } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import UploadDocumentoModal from "@/components/UploadDocumentoModal";
 import UploadTreinamentoModal from "@/components/UploadTreinamentoModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+
 
 interface Funcionario {
   id: string;
@@ -17,6 +21,7 @@ interface Funcionario {
   cpf: string | null;
   cargo: string;
   status: string;
+  access_pin: string | null;
 }
 
 interface Document {
@@ -127,20 +132,53 @@ export default function PerfilFuncionario() {
   const [loading, setLoading] = useState(true);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [treinamentoOpen, setTreinamentoOpen] = useState(false);
+  const [editCpf, setEditCpf] = useState("");
+  const [editPin, setEditPin] = useState("");
+  const [savingAccess, setSavingAccess] = useState(false);
 
   const loadData = () => {
     if (!id) return;
     Promise.all([
-      supabase.from("funcionarios").select("id, nome, cpf, cargo, status").eq("id", id).single(),
+      supabase.from("funcionarios").select("id, nome, cpf, cargo, status, access_pin").eq("id", id).single(),
       supabase.from("documents").select("*").eq("funcionario_id", id).order("created_at", { ascending: false }),
     ]).then(([funcRes, docsRes]) => {
-      if (funcRes.data) setFunc(funcRes.data as Funcionario);
+      if (funcRes.data) {
+        const f = funcRes.data as Funcionario;
+        setFunc(f);
+        setEditCpf(f.cpf || "");
+        setEditPin(f.access_pin || "");
+      }
       if (docsRes.data) setDocs(docsRes.data as Document[]);
       setLoading(false);
     });
   };
 
   useEffect(() => { loadData(); }, [id]);
+
+  const handleSaveAccess = async () => {
+    if (!func) return;
+    const cpfClean = editCpf.replace(/\D/g, "");
+    if (cpfClean && cpfClean.length !== 11) {
+      toast.error("CPF deve ter 11 dígitos.");
+      return;
+    }
+    if (editPin && (editPin.length < 4 || editPin.length > 6 || !/^\d+$/.test(editPin))) {
+      toast.error("PIN deve ter entre 4 e 6 dígitos numéricos.");
+      return;
+    }
+    setSavingAccess(true);
+    const { error } = await supabase
+      .from("funcionarios")
+      .update({ cpf: cpfClean || null, access_pin: editPin || null })
+      .eq("id", func.id);
+    if (error) {
+      toast.error("Erro ao salvar: " + error.message);
+    } else {
+      toast.success("Dados de acesso atualizados!");
+      loadData();
+    }
+    setSavingAccess(false);
+  };
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   if (!func) return <div className="py-20 text-center text-muted-foreground">Funcionário não encontrado.</div>;
@@ -243,6 +281,43 @@ export default function PerfilFuncionario() {
             <GraduationCap className="mr-2 h-4 w-4" /> Treinamento
           </Button>
         </div>
+      </div>
+
+      {/* Portal Access - CPF & PIN */}
+      <div className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-card">
+        <div className="flex items-center gap-2 mb-4">
+          <KeyRound className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold text-foreground">Acesso ao Portal do Colaborador</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">CPF</Label>
+            <Input
+              value={editCpf}
+              onChange={(e) => setEditCpf(e.target.value.replace(/\D/g, "").slice(0, 11))}
+              placeholder="00000000000"
+              inputMode="numeric"
+              className="tabular-nums"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">PIN de Acesso (4-6 dígitos)</Label>
+            <Input
+              value={editPin}
+              onChange={(e) => setEditPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              placeholder="••••"
+              inputMode="numeric"
+              className="tabular-nums"
+            />
+          </div>
+          <Button onClick={handleSaveAccess} disabled={savingAccess} className="gap-2">
+            {savingAccess ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Salvar Acesso
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          Esses dados permitem que o funcionário acesse o Portal do Colaborador em <strong>/portal</strong>.
+        </p>
       </div>
 
       {/* Tabs */}
