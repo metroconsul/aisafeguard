@@ -26,14 +26,12 @@ function generateMonthOptions() {
 }
 
 export default function Holerites() {
-  const { empresa } = useAuth();
+  const { perfil, empresa } = useAuth();
+  const empresaId = perfil?.empresa_id;
   const monthOptions = useMemo(generateMonthOptions, []);
   const [selectedMonth, setSelectedMonth] = useState(monthOptions[0].value);
   const [modalOpen, setModalOpen] = useState(false);
   const [resending, setResending] = useState<string | null>(null);
-
-  const { perfil, empresa } = useAuth();
-  const empresaId = perfil?.empresa_id;
 
   const { data: holerites = [], refetch } = useQuery({
     queryKey: ["holerites", empresaId, selectedMonth],
