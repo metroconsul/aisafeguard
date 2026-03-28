@@ -79,7 +79,7 @@ export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
 
       for (const func of targets) {
         // 1. Upload PDF
-        const filePath = `holerites/${empresa!.id}/${func.id}/${month.replace("/", "-")}.pdf`;
+        const filePath = `holerites/${empresaId}/${func.id}/${month.replace("/", "-")}.pdf`;
         const { error: uploadError } = await supabase.storage
           .from("employee_vault")
           .upload(filePath, file, { upsert: true });
