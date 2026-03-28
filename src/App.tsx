@@ -4,8 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { PortalAuthProvider } from "@/contexts/PortalAuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
+import { PortalLayout } from "@/components/portal/PortalLayout";
 import LandingPage from "@/pages/LandingPage";
 import Dashboard from "@/pages/Dashboard";
 import NovaEntrega from "@/pages/NovaEntrega";
@@ -20,11 +22,17 @@ import GestaoEquipe from "@/pages/GestaoEquipe";
 import Assinar from "@/pages/Assinar";
 import Login from "@/pages/Login";
 import Cadastro from "@/pages/Cadastro";
-import PortalColaborador from "@/pages/PortalColaborador";
 import CofreEmpresa from "@/pages/CofreEmpresa";
 import Treinamentos from "@/pages/Treinamentos";
 import Unsubscribe from "@/pages/Unsubscribe";
 import NotFound from "@/pages/NotFound";
+
+// Portal pages
+import PortalLogin from "@/pages/portal/PortalLogin";
+import PortalHome from "@/pages/portal/PortalHome";
+import PortalEpis from "@/pages/portal/PortalEpis";
+import PortalHolerites from "@/pages/portal/PortalHolerites";
+import PortalDocumentos from "@/pages/portal/PortalDocumentos";
 
 const queryClient = new QueryClient();
 
@@ -35,42 +43,52 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/site" element={<LandingPage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/cadastro" element={<Cadastro />} />
-            <Route path="/assinar/:id" element={<Assinar />} />
-            <Route path="/portal" element={<PortalColaborador />} />
-            <Route path="/unsubscribe" element={<Unsubscribe />} />
+          <PortalAuthProvider>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/site" element={<LandingPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/cadastro" element={<Cadastro />} />
+              <Route path="/assinar/:id" element={<Assinar />} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
 
-            {/* Protected admin routes */}
-            <Route
-              path="/app/*"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <Routes>
-                      <Route path="/" element={<Dashboard />} />
-                      <Route path="/nova-entrega" element={<NovaEntrega />} />
-                      <Route path="/funcionarios" element={<Funcionarios />} />
-                      <Route path="/funcionarios/:id" element={<PerfilFuncionario />} />
-                      <Route path="/epis" element={<Epis />} />
-                      <Route path="/integracoes" element={<Integracoes />} />
-                      <Route path="/setores" element={<Setores />} />
-                      <Route path="/configuracoes" element={<Configuracoes />} />
-                      <Route path="/equipe" element={<GestaoEquipe />} />
-                      <Route path="/seguranca" element={<Seguranca />} />
-                      <Route path="/documentos" element={<CofreEmpresa />} />
-                      <Route path="/treinamentos" element={<Treinamentos />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
+              {/* Portal do Colaborador */}
+              <Route path="/portal/login" element={<PortalLogin />} />
+              <Route path="/portal" element={<PortalLayout />}>
+                <Route index element={<PortalHome />} />
+                <Route path="epis" element={<PortalEpis />} />
+                <Route path="holerites" element={<PortalHolerites />} />
+                <Route path="documentos" element={<PortalDocumentos />} />
+              </Route>
+
+              {/* Protected admin routes */}
+              <Route
+                path="/app/*"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Routes>
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/nova-entrega" element={<NovaEntrega />} />
+                        <Route path="/funcionarios" element={<Funcionarios />} />
+                        <Route path="/funcionarios/:id" element={<PerfilFuncionario />} />
+                        <Route path="/epis" element={<Epis />} />
+                        <Route path="/integracoes" element={<Integracoes />} />
+                        <Route path="/setores" element={<Setores />} />
+                        <Route path="/configuracoes" element={<Configuracoes />} />
+                        <Route path="/equipe" element={<GestaoEquipe />} />
+                        <Route path="/seguranca" element={<Seguranca />} />
+                        <Route path="/documentos" element={<CofreEmpresa />} />
+                        <Route path="/treinamentos" element={<Treinamentos />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </PortalAuthProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
