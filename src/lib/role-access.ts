@@ -17,17 +17,16 @@ const ROLE_ROUTES: Record<string, string[]> = {
   ],
   tecnico_seguranca: [
     "/app",
-    "/app/nova-entrega",
-    "/app/documentos",
     "/app/funcionarios",
     "/app/epis",
     "/app/treinamentos",
     "/app/setores",
+    "/app/documentos",
   ],
   rh: [
     "/app",
-    "/app/documentos",
     "/app/funcionarios",
+    "/app/documentos",
     "/app/treinamentos",
   ],
   almoxarifado: [
