@@ -261,6 +261,36 @@ export type Database = {
           },
         ]
       }
+      epi_solicitacoes: {
+        Row: {
+          created_at: string | null
+          empresa_id: string
+          epi_id: string
+          funcionario_id: string
+          id: string
+          motivo: string
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          empresa_id: string
+          epi_id: string
+          funcionario_id: string
+          id?: string
+          motivo: string
+          status?: string
+        }
+        Update: {
+          created_at?: string | null
+          empresa_id?: string
+          epi_id?: string
+          funcionario_id?: string
+          id?: string
+          motivo?: string
+          status?: string
+        }
+        Relationships: []
+      }
       epis: {
         Row: {
           created_at: string | null
@@ -301,6 +331,7 @@ export type Database = {
       }
       funcionarios: {
         Row: {
+          access_pin: string | null
           cargo: string
           cpf: string | null
           created_at: string | null
@@ -314,6 +345,7 @@ export type Database = {
           telefone_whatsapp: string | null
         }
         Insert: {
+          access_pin?: string | null
           cargo: string
           cpf?: string | null
           created_at?: string | null
@@ -327,6 +359,7 @@ export type Database = {
           telefone_whatsapp?: string | null
         }
         Update: {
+          access_pin?: string | null
           cargo?: string
           cpf?: string | null
           created_at?: string | null
