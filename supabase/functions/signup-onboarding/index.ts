@@ -150,7 +150,7 @@ Deno.serve(async (req) => {
 
       // Send invite email via transactional email system
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-      const loginUrl = "https://wear-and-sign.lovable.app/login";
+      const loginUrl = "https://aisafeguard.lovable.app/login";
       
       await supabase.functions.invoke("send-transactional-email", {
         body: {
