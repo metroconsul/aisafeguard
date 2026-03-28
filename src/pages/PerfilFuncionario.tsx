@@ -12,12 +12,8 @@ import { ptBR } from "date-fns/locale";
 import UploadDocumentoModal from "@/components/UploadDocumentoModal";
 import UploadTreinamentoModal from "@/components/UploadTreinamentoModal";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
-import { format, differenceInDays } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import UploadDocumentoModal from "@/components/UploadDocumentoModal";
-import UploadTreinamentoModal from "@/components/UploadTreinamentoModal";
-import { useAuth } from "@/contexts/AuthContext";
+
+
 
 interface Funcionario {
   id: string;
