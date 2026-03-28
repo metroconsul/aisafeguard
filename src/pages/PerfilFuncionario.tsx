@@ -17,6 +17,7 @@ interface Funcionario {
   cpf: string | null;
   cargo: string;
   status: string;
+  access_pin: string | null;
 }
 
 interface Document {
