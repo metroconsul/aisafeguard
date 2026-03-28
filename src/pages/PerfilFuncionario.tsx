@@ -136,20 +136,53 @@ export default function PerfilFuncionario() {
   const [loading, setLoading] = useState(true);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [treinamentoOpen, setTreinamentoOpen] = useState(false);
+  const [editCpf, setEditCpf] = useState("");
+  const [editPin, setEditPin] = useState("");
+  const [savingAccess, setSavingAccess] = useState(false);
 
   const loadData = () => {
     if (!id) return;
     Promise.all([
-      supabase.from("funcionarios").select("id, nome, cpf, cargo, status").eq("id", id).single(),
+      supabase.from("funcionarios").select("id, nome, cpf, cargo, status, access_pin").eq("id", id).single(),
       supabase.from("documents").select("*").eq("funcionario_id", id).order("created_at", { ascending: false }),
     ]).then(([funcRes, docsRes]) => {
-      if (funcRes.data) setFunc(funcRes.data as Funcionario);
+      if (funcRes.data) {
+        const f = funcRes.data as Funcionario;
+        setFunc(f);
+        setEditCpf(f.cpf || "");
+        setEditPin(f.access_pin || "");
+      }
       if (docsRes.data) setDocs(docsRes.data as Document[]);
       setLoading(false);
     });
   };
 
   useEffect(() => { loadData(); }, [id]);
+
+  const handleSaveAccess = async () => {
+    if (!func) return;
+    const cpfClean = editCpf.replace(/\D/g, "");
+    if (cpfClean && cpfClean.length !== 11) {
+      toast.error("CPF deve ter 11 dígitos.");
+      return;
+    }
+    if (editPin && (editPin.length < 4 || editPin.length > 6 || !/^\d+$/.test(editPin))) {
+      toast.error("PIN deve ter entre 4 e 6 dígitos numéricos.");
+      return;
+    }
+    setSavingAccess(true);
+    const { error } = await supabase
+      .from("funcionarios")
+      .update({ cpf: cpfClean || null, access_pin: editPin || null })
+      .eq("id", func.id);
+    if (error) {
+      toast.error("Erro ao salvar: " + error.message);
+    } else {
+      toast.success("Dados de acesso atualizados!");
+      loadData();
+    }
+    setSavingAccess(false);
+  };
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   if (!func) return <div className="py-20 text-center text-muted-foreground">Funcionário não encontrado.</div>;
