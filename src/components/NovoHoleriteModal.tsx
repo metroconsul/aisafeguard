@@ -89,7 +89,7 @@ export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
 
         // 2. Insert document
         const { data: doc, error: insertError } = await supabase.from("documents").insert({
-          empresa_id: empresa!.id,
+          empresa_id: empresaId!,
           funcionario_id: func.id,
           title: `Holerite ${month}`,
           doc_category: "holerite",

@@ -32,14 +32,17 @@ export default function Holerites() {
   const [modalOpen, setModalOpen] = useState(false);
   const [resending, setResending] = useState<string | null>(null);
 
+  const { perfil } = useAuth();
+  const empresaId = perfil?.empresa_id;
+
   const { data: holerites = [], refetch } = useQuery({
-    queryKey: ["holerites", empresa?.id, selectedMonth],
-    enabled: !!empresa?.id,
+    queryKey: ["holerites", empresaId, selectedMonth],
+    enabled: !!empresaId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("documents")
         .select("*, funcionarios(nome, setor, telefone_whatsapp)")
-        .eq("empresa_id", empresa!.id)
+        .eq("empresa_id", empresaId!)
         .eq("doc_category", "holerite")
         .eq("reference_period", selectedMonth);
       if (error) throw error;

@@ -29,6 +29,7 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/app/funcionarios",
     "/app/documentos",
     "/app/treinamentos",
+    "/app/holerites",
   ],
   almoxarifado: [
     "/app",
