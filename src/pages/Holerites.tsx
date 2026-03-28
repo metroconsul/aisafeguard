@@ -32,7 +32,7 @@ export default function Holerites() {
   const [modalOpen, setModalOpen] = useState(false);
   const [resending, setResending] = useState<string | null>(null);
 
-  const { perfil } = useAuth();
+  const { perfil, empresa } = useAuth();
   const empresaId = perfil?.empresa_id;
 
   const { data: holerites = [], refetch } = useQuery({
