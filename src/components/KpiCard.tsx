@@ -38,6 +38,7 @@ export function KpiCard({ title, value, trend, icon: Icon, alert, subtitle }: Kp
           </span>
         )}
       </div>
+      {subtitle && <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>}
     </div>
   );
 }
