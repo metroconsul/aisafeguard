@@ -47,6 +47,8 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
   const [expirationDate, setExpirationDate] = useState("");
   const [referencePeriod, setReferencePeriod] = useState("");
   const [requiresSignature, setRequiresSignature] = useState(false);
+  const [asoType, setAsoType] = useState("");
+  const [healthStatus, setHealthStatus] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -58,6 +60,8 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
     setExpirationDate("");
     setReferencePeriod("");
     setRequiresSignature(false);
+    setAsoType("");
+    setHealthStatus("");
     setFile(null);
   };
 
