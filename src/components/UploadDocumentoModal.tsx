@@ -80,6 +80,7 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
 
   const handleSave = async () => {
     if (!title || !category) { toast.error("Preencha título e categoria."); return; }
+    if (category === "aso" && !asoType) { toast.error("Selecione o tipo de ASO."); return; }
     if (!file) { toast.error("Selecione um arquivo PDF."); return; }
     if (!perfil?.empresa_id) { toast.error("Perfil não carregado."); return; }
 
