@@ -157,6 +157,33 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
             </div>
           )}
 
+          {showAsoFields && (
+            <>
+              <div className="space-y-1.5">
+                <Label>Tipo de ASO *</Label>
+                <Select value={asoType} onValueChange={setAsoType}>
+                  <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                  <SelectContent>
+                    {ASO_TYPES.map((t) => (
+                      <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Status de Saúde</Label>
+                <Select value={healthStatus} onValueChange={setHealthStatus}>
+                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>
+                    {HEALTH_STATUS.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          )
+
           {showRefPeriod && (
             <div className="space-y-1.5">
               <Label>Mês/Ano de Referência</Label>
