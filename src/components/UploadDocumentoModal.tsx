@@ -20,10 +20,24 @@ interface Props {
 const CATEGORIAS = [
   { value: "admissao", label: "Admissão" },
   { value: "rescisao", label: "Rescisão" },
-  { value: "aso_exames", label: "ASO / Exames" },
+  { value: "aso", label: "ASO / Exames" },
   { value: "holerite", label: "Holerite" },
   { value: "epi", label: "EPI" },
   { value: "treinamento_nr", label: "Treinamento / NR" },
+  { value: "cartao_ponto", label: "Cartão de Ponto" },
+];
+
+const ASO_TYPES = [
+  { value: "admissional", label: "Admissional" },
+  { value: "periodico", label: "Periódico" },
+  { value: "demissional", label: "Demissional" },
+  { value: "retorno_trabalho", label: "Retorno ao Trabalho" },
+  { value: "mudanca_risco", label: "Mudança de Risco" },
+];
+
+const HEALTH_STATUS = [
+  { value: "apto", label: "Apto" },
+  { value: "inapto", label: "Inapto" },
 ];
 
 export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId, onSuccess }: Props) {
