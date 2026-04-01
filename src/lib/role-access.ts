@@ -15,6 +15,8 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/app/equipe",
     "/app/seguranca",
     "/app/holerites",
+    "/app/admissoes",
+    "/app/pontos",
   ],
   tecnico_seguranca: [
     "/app",
