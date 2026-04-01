@@ -182,7 +182,7 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
                 </Select>
               </div>
             </>
-          )
+          )}
 
           {showRefPeriod && (
             <div className="space-y-1.5">
