@@ -20,6 +20,7 @@ export function RHDashboard() {
   const [funcAtivos, setFuncAtivos] = useState(0);
   const [docsPendentes, setDocsPendentes] = useState(0);
   const [examesPendentes, setExamesPendentes] = useState(0);
+  const [asoDetail, setAsoDetail] = useState("");
   const [nrsVencendo, setNrsVencendo] = useState(0);
   const [pendencias, setPendencias] = useState<PendenciaRow[]>([]);
 
