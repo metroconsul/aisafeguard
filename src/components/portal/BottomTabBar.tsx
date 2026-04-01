@@ -1,12 +1,13 @@
 import { NavLink } from "react-router-dom";
-import { Home, HardHat, FileText, FolderOpen } from "lucide-react";
+import { Home, HardHat, FileText, FolderOpen, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
   { to: "/portal", icon: Home, label: "Início", end: true },
   { to: "/portal/epis", icon: HardHat, label: "EPIs", end: false },
   { to: "/portal/holerites", icon: FileText, label: "Holerites", end: false },
-  { to: "/portal/documentos", icon: FolderOpen, label: "Documentos", end: false },
+  { to: "/portal/pontos", icon: Clock, label: "Pontos", end: false },
+  { to: "/portal/documentos", icon: FolderOpen, label: "Docs", end: false },
 ];
 
 export function BottomTabBar() {
