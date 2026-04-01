@@ -12,6 +12,7 @@ export function TecnicoDashboard() {
   const { perfil } = useAuth();
   const navigate = useNavigate();
   const [asosVencendo, setAsosVencendo] = useState(0);
+  const [asoDetail, setAsoDetail] = useState("");
   const [nrsVencendo, setNrsVencendo] = useState(0);
   const [episVencidos, setEpisVencidos] = useState(0);
   const [setoresCount, setSetoresCount] = useState(0);
