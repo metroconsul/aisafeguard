@@ -11,6 +11,8 @@ import {
   FolderLock,
   GraduationCap,
   FileText,
+  UserPlus,
+  Clock,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
