@@ -15,6 +15,8 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/app/equipe",
     "/app/seguranca",
     "/app/holerites",
+    "/app/admissoes",
+    "/app/pontos",
   ],
   tecnico_seguranca: [
     "/app",
@@ -30,6 +32,8 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/app/documentos",
     "/app/treinamentos",
     "/app/holerites",
+    "/app/admissoes",
+    "/app/pontos",
   ],
   almoxarifado: [
     "/app",

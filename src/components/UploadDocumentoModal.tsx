@@ -20,10 +20,24 @@ interface Props {
 const CATEGORIAS = [
   { value: "admissao", label: "Admissão" },
   { value: "rescisao", label: "Rescisão" },
-  { value: "aso_exames", label: "ASO / Exames" },
+  { value: "aso", label: "ASO / Exames" },
   { value: "holerite", label: "Holerite" },
   { value: "epi", label: "EPI" },
   { value: "treinamento_nr", label: "Treinamento / NR" },
+  { value: "cartao_ponto", label: "Cartão de Ponto" },
+];
+
+const ASO_TYPES = [
+  { value: "admissional", label: "Admissional" },
+  { value: "periodico", label: "Periódico" },
+  { value: "demissional", label: "Demissional" },
+  { value: "retorno_trabalho", label: "Retorno ao Trabalho" },
+  { value: "mudanca_risco", label: "Mudança de Risco" },
+];
+
+const HEALTH_STATUS = [
+  { value: "apto", label: "Apto" },
+  { value: "inapto", label: "Inapto" },
 ];
 
 export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId, onSuccess }: Props) {
@@ -33,6 +47,8 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
   const [expirationDate, setExpirationDate] = useState("");
   const [referencePeriod, setReferencePeriod] = useState("");
   const [requiresSignature, setRequiresSignature] = useState(false);
+  const [asoType, setAsoType] = useState("");
+  const [healthStatus, setHealthStatus] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -44,6 +60,8 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
     setExpirationDate("");
     setReferencePeriod("");
     setRequiresSignature(false);
+    setAsoType("");
+    setHealthStatus("");
     setFile(null);
   };
 
@@ -62,6 +80,7 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
 
   const handleSave = async () => {
     if (!title || !category) { toast.error("Preencha título e categoria."); return; }
+    if (category === "aso" && !asoType) { toast.error("Selecione o tipo de ASO."); return; }
     if (!file) { toast.error("Selecione um arquivo PDF."); return; }
     if (!perfil?.empresa_id) { toast.error("Perfil não carregado."); return; }
 
@@ -73,7 +92,7 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
 
       const { data: urlData } = supabase.storage.from("employee_vault").getPublicUrl(filePath);
 
-      const { error } = await supabase.from("documents").insert({
+      const insertData: any = {
         funcionario_id: funcionarioId,
         empresa_id: perfil.empresa_id,
         title,
@@ -82,8 +101,11 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
         expiration_date: expirationDate || null,
         reference_period: referencePeriod || null,
         signature_status: requiresSignature ? "pendente" : "nao_aplicavel",
-      });
+      };
+      if (category === "aso" && asoType) insertData.aso_type = asoType;
+      if (category === "aso" && healthStatus) insertData.health_status = healthStatus;
 
+      const { error } = await supabase.from("documents").insert(insertData);
       if (error) throw error;
       toast.success("Documento salvo com sucesso!");
       reset();
@@ -96,8 +118,9 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
     }
   };
 
-  const showExpiration = category === "aso_exames" || category === "treinamento_nr";
-  const showRefPeriod = category === "holerite";
+  const showExpiration = category === "aso" || category === "treinamento_nr";
+  const showRefPeriod = category === "holerite" || category === "cartao_ponto";
+  const showAsoFields = category === "aso";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -132,6 +155,33 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
               <Label>Data de Vencimento</Label>
               <Input type="date" value={expirationDate} onChange={(e) => setExpirationDate(e.target.value)} />
             </div>
+          )}
+
+          {showAsoFields && (
+            <>
+              <div className="space-y-1.5">
+                <Label>Tipo de ASO *</Label>
+                <Select value={asoType} onValueChange={setAsoType}>
+                  <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                  <SelectContent>
+                    {ASO_TYPES.map((t) => (
+                      <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Status de Saúde</Label>
+                <Select value={healthStatus} onValueChange={setHealthStatus}>
+                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>
+                    {HEALTH_STATUS.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
           )}
 
           {showRefPeriod && (

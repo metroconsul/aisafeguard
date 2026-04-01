@@ -26,6 +26,9 @@ import CofreEmpresa from "@/pages/CofreEmpresa";
 import Treinamentos from "@/pages/Treinamentos";
 import Holerites from "@/pages/Holerites";
 import Unsubscribe from "@/pages/Unsubscribe";
+import Admissoes from "@/pages/Admissoes";
+import CartaoPonto from "@/pages/CartaoPonto";
+import OnboardingPublico from "@/pages/OnboardingPublico";
 import NotFound from "@/pages/NotFound";
 
 // Portal pages
@@ -33,6 +36,7 @@ import PortalLogin from "@/pages/portal/PortalLogin";
 import PortalHome from "@/pages/portal/PortalHome";
 import PortalEpis from "@/pages/portal/PortalEpis";
 import PortalHolerites from "@/pages/portal/PortalHolerites";
+import PortalPontos from "@/pages/portal/PortalPontos";
 import PortalDocumentos from "@/pages/portal/PortalDocumentos";
 
 const queryClient = new QueryClient();
@@ -53,6 +57,7 @@ const App = () => (
               <Route path="/cadastro" element={<Cadastro />} />
               <Route path="/assinar/:id" element={<Assinar />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
+              <Route path="/onboarding/:token" element={<OnboardingPublico />} />
 
               {/* Portal do Colaborador */}
               <Route path="/portal/login" element={<PortalLogin />} />
@@ -60,6 +65,7 @@ const App = () => (
                 <Route index element={<PortalHome />} />
                 <Route path="epis" element={<PortalEpis />} />
                 <Route path="holerites" element={<PortalHolerites />} />
+                <Route path="pontos" element={<PortalPontos />} />
                 <Route path="documentos" element={<PortalDocumentos />} />
               </Route>
 
@@ -83,6 +89,8 @@ const App = () => (
                         <Route path="/documentos" element={<CofreEmpresa />} />
                         <Route path="/treinamentos" element={<Treinamentos />} />
                         <Route path="/holerites" element={<Holerites />} />
+                        <Route path="/admissoes" element={<Admissoes />} />
+                        <Route path="/pontos" element={<CartaoPonto />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </AppLayout>

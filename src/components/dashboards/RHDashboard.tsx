@@ -20,6 +20,7 @@ export function RHDashboard() {
   const [funcAtivos, setFuncAtivos] = useState(0);
   const [docsPendentes, setDocsPendentes] = useState(0);
   const [examesPendentes, setExamesPendentes] = useState(0);
+  const [asoDetail, setAsoDetail] = useState("");
   const [nrsVencendo, setNrsVencendo] = useState(0);
   const [pendencias, setPendencias] = useState<PendenciaRow[]>([]);
 
@@ -46,15 +47,26 @@ export function RHDashboard() {
       .eq("signature_status", "pendente")
       .then(({ count }) => setDocsPendentes(count ?? 0));
 
-    // Exames pendentes (ASOs)
+    // Exames pendentes (ASOs) with type detail
     supabase
       .from("documents")
-      .select("id", { count: "exact", head: true })
+      .select("id, aso_type", { count: "exact" })
       .eq("empresa_id", empresaId)
       .in("doc_category", ["aso_exames", "aso"])
       .not("expiration_date", "is", null)
       .lte("expiration_date", in30Str)
-      .then(({ count }) => setExamesPendentes(count ?? 0));
+      .then(({ data, count }) => {
+        setExamesPendentes(count ?? 0);
+        if (data && data.length > 0) {
+          const types: Record<string, number> = {};
+          data.forEach((d: any) => { const t = d.aso_type || "geral"; types[t] = (types[t] || 0) + 1; });
+          const labels: Record<string, string> = {
+            admissional: "Admissional", periodico: "Periódico", demissional: "Demissional",
+            retorno_trabalho: "Retorno", mudanca_risco: "Mud. Risco", geral: "Geral",
+          };
+          setAsoDetail(Object.entries(types).map(([k, v]) => `${v} ${labels[k] || k}`).join(", "));
+        }
+      });
 
     // NRs vencendo
     supabase
@@ -100,7 +112,7 @@ export function RHDashboard() {
       <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard title="Funcionários Ativos" value={funcAtivos} icon={Users} />
         <KpiCard title="Docs Pendentes Assinatura" value={docsPendentes} icon={FileText} alert={docsPendentes > 0} />
-        <KpiCard title="Exames/ASOs Vencendo" value={examesPendentes} icon={Stethoscope} alert={examesPendentes > 0} />
+        <KpiCard title="Exames/ASOs Vencendo" value={examesPendentes} icon={Stethoscope} alert={examesPendentes > 0} subtitle={asoDetail} />
         <KpiCard title="NRs Vencendo" value={nrsVencendo} icon={GraduationCap} alert={nrsVencendo > 0} />
       </div>
 

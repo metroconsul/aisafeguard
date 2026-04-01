@@ -44,6 +44,7 @@ const TABS = [
   { value: "aso", label: "Saúde / ASO", categories: ["aso_exames", "aso"] },
   { value: "treinamento", label: "Treinamentos / NRs", categories: ["treinamento_nr"] },
   { value: "holerite", label: "Holerites", categories: ["holerite"] },
+  { value: "ponto", label: "Cartão de Ponto", categories: ["cartao_ponto"] },
   { value: "epi", label: "Fichas de EPI", categories: ["epi"] },
 ];
 

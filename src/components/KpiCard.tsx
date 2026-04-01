@@ -1,15 +1,16 @@
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { type LucideIcon } from "lucide-react";
 
-interface KpiCardProps {
+export interface KpiCardProps {
   title: string;
   value: string | number;
   trend?: { value: string; positive: boolean };
   icon: LucideIcon;
   alert?: boolean;
+  subtitle?: string;
 }
 
-export function KpiCard({ title, value, trend, icon: Icon, alert }: KpiCardProps) {
+export function KpiCard({ title, value, trend, icon: Icon, alert, subtitle }: KpiCardProps) {
   return (
     <div className="rounded-xl border border-border bg-card p-5 shadow-card">
       <div className="flex items-center justify-between">
@@ -37,6 +38,7 @@ export function KpiCard({ title, value, trend, icon: Icon, alert }: KpiCardProps
           </span>
         )}
       </div>
+      {subtitle && <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>}
     </div>
   );
 }
