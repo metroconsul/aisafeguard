@@ -112,7 +112,7 @@ export function RHDashboard() {
       <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard title="Funcionários Ativos" value={funcAtivos} icon={Users} />
         <KpiCard title="Docs Pendentes Assinatura" value={docsPendentes} icon={FileText} alert={docsPendentes > 0} />
-        <KpiCard title="Exames/ASOs Vencendo" value={examesPendentes} icon={Stethoscope} alert={examesPendentes > 0} />
+        <KpiCard title="Exames/ASOs Vencendo" value={examesPendentes} icon={Stethoscope} alert={examesPendentes > 0} subtitle={asoDetail} />
         <KpiCard title="NRs Vencendo" value={nrsVencendo} icon={GraduationCap} alert={nrsVencendo > 0} />
       </div>
 
