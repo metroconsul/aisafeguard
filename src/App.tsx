@@ -36,6 +36,7 @@ import PortalLogin from "@/pages/portal/PortalLogin";
 import PortalHome from "@/pages/portal/PortalHome";
 import PortalEpis from "@/pages/portal/PortalEpis";
 import PortalHolerites from "@/pages/portal/PortalHolerites";
+import PortalPontos from "@/pages/portal/PortalPontos";
 import PortalDocumentos from "@/pages/portal/PortalDocumentos";
 
 const queryClient = new QueryClient();
