@@ -57,6 +57,7 @@ const App = () => (
               <Route path="/cadastro" element={<Cadastro />} />
               <Route path="/assinar/:id" element={<Assinar />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
+              <Route path="/onboarding/:token" element={<OnboardingPublico />} />
 
               {/* Portal do Colaborador */}
               <Route path="/portal/login" element={<PortalLogin />} />
