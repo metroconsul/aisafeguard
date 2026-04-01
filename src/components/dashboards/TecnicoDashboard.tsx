@@ -25,15 +25,30 @@ export function TecnicoDashboard() {
     in30Days.setDate(in30Days.getDate() + 30);
     const in30Str = in30Days.toISOString().split("T")[0];
 
-    // ASOs vencendo
+    // ASOs vencendo with type breakdown
     supabase
       .from("documents")
-      .select("id", { count: "exact", head: true })
+      .select("id, aso_type", { count: "exact" })
       .eq("empresa_id", empresaId)
       .in("doc_category", ["aso_exames", "aso"])
       .not("expiration_date", "is", null)
       .lte("expiration_date", in30Str)
-      .then(({ count }) => setAsosVencendo(count ?? 0));
+      .then(({ data, count }) => {
+        setAsosVencendo(count ?? 0);
+        if (data && data.length > 0) {
+          const types: Record<string, number> = {};
+          data.forEach((d: any) => {
+            const t = d.aso_type || "geral";
+            types[t] = (types[t] || 0) + 1;
+          });
+          const labels: Record<string, string> = {
+            admissional: "Admissional", periodico: "Periódico", demissional: "Demissional",
+            retorno_trabalho: "Retorno", mudanca_risco: "Mud. Risco", geral: "Geral",
+          };
+          const detail = Object.entries(types).map(([k, v]) => `${v} ${labels[k] || k}`).join(", ");
+          setAsoDetail(detail);
+        }
+      });
 
     // NRs vencendo
     supabase
