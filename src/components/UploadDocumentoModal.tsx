@@ -92,7 +92,7 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
 
       const { data: urlData } = supabase.storage.from("employee_vault").getPublicUrl(filePath);
 
-      const { error } = await supabase.from("documents").insert({
+      const insertData: any = {
         funcionario_id: funcionarioId,
         empresa_id: perfil.empresa_id,
         title,
@@ -101,8 +101,11 @@ export default function UploadDocumentoModal({ open, onOpenChange, funcionarioId
         expiration_date: expirationDate || null,
         reference_period: referencePeriod || null,
         signature_status: requiresSignature ? "pendente" : "nao_aplicavel",
-      });
+      };
+      if (category === "aso" && asoType) insertData.aso_type = asoType;
+      if (category === "aso" && healthStatus) insertData.health_status = healthStatus;
 
+      const { error } = await supabase.from("documents").insert(insertData);
       if (error) throw error;
       toast.success("Documento salvo com sucesso!");
       reset();
