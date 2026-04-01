@@ -92,7 +92,7 @@ export function TecnicoDashboard() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard title="ASOs Vencendo" value={asosVencendo} icon={Stethoscope} alert={asosVencendo > 0} />
+        <KpiCard title="ASOs Vencendo" value={asosVencendo} icon={Stethoscope} alert={asosVencendo > 0} subtitle={asoDetail} />
         <KpiCard title="NRs Vencendo" value={nrsVencendo} icon={GraduationCap} alert={nrsVencendo > 0} />
         <KpiCard title="EPIs com CA Vencido" value={episVencidos} icon={HardHat} alert={episVencidos > 0} />
         <KpiCard title="Setores Monitorados" value={setoresCount} icon={ShieldCheck} />
