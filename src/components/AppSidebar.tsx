@@ -36,6 +36,8 @@ const generalItems = [
   { title: "Nova Entrega", url: "/app/nova-entrega", icon: PackagePlus },
   { title: "Cofre da Empresa", url: "/app/documentos", icon: FolderLock },
   { title: "Holerites", url: "/app/holerites", icon: FileText },
+  { title: "Cartão de Ponto", url: "/app/pontos", icon: Clock },
+  { title: "Admissões", url: "/app/admissoes", icon: UserPlus },
 ];
 
 const cadastroItems = [
