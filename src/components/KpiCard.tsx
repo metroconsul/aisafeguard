@@ -1,12 +1,13 @@
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { type LucideIcon } from "lucide-react";
 
-interface KpiCardProps {
+export interface KpiCardProps {
   title: string;
   value: string | number;
   trend?: { value: string; positive: boolean };
   icon: LucideIcon;
   alert?: boolean;
+  subtitle?: string;
 }
 
 export function KpiCard({ title, value, trend, icon: Icon, alert }: KpiCardProps) {
