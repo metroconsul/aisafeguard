@@ -14,14 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
+      admission_documents: {
+        Row: {
+          admission_id: string
+          created_at: string | null
+          doc_type: string
+          feedback_rh: string | null
+          file_url: string
+          id: string
+          status: string
+        }
+        Insert: {
+          admission_id: string
+          created_at?: string | null
+          doc_type: string
+          feedback_rh?: string | null
+          file_url: string
+          id?: string
+          status?: string
+        }
+        Update: {
+          admission_id?: string
+          created_at?: string | null
+          doc_type?: string
+          feedback_rh?: string | null
+          file_url?: string
+          id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admission_documents_admission_id_fkey"
+            columns: ["admission_id"]
+            isOneToOne: false
+            referencedRelation: "admission_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admission_requests: {
+        Row: {
+          candidate_cpf: string | null
+          candidate_name: string
+          candidate_phone: string | null
+          created_at: string | null
+          empresa_id: string
+          id: string
+          status: string
+          token: string
+        }
+        Insert: {
+          candidate_cpf?: string | null
+          candidate_name: string
+          candidate_phone?: string | null
+          created_at?: string | null
+          empresa_id: string
+          id?: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          candidate_cpf?: string | null
+          candidate_name?: string
+          candidate_phone?: string | null
+          created_at?: string | null
+          empresa_id?: string
+          id?: string
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admission_requests_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
+          aso_type: string | null
           created_at: string | null
           doc_category: string
           empresa_id: string
           expiration_date: string | null
           file_url: string | null
           funcionario_id: string | null
+          health_status: string | null
           id: string
           issue_date: string | null
           provider_or_lead: string | null
@@ -35,12 +116,14 @@ export type Database = {
           zapsign_token: string | null
         }
         Insert: {
+          aso_type?: string | null
           created_at?: string | null
           doc_category?: string
           empresa_id: string
           expiration_date?: string | null
           file_url?: string | null
           funcionario_id?: string | null
+          health_status?: string | null
           id?: string
           issue_date?: string | null
           provider_or_lead?: string | null
@@ -54,12 +137,14 @@ export type Database = {
           zapsign_token?: string | null
         }
         Update: {
+          aso_type?: string | null
           created_at?: string | null
           doc_category?: string
           empresa_id?: string
           expiration_date?: string | null
           file_url?: string | null
           funcionario_id?: string | null
+          health_status?: string | null
           id?: string
           issue_date?: string | null
           provider_or_lead?: string | null
