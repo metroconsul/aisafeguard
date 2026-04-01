@@ -65,6 +65,7 @@ const App = () => (
                 <Route index element={<PortalHome />} />
                 <Route path="epis" element={<PortalEpis />} />
                 <Route path="holerites" element={<PortalHolerites />} />
+                <Route path="pontos" element={<PortalPontos />} />
                 <Route path="documentos" element={<PortalDocumentos />} />
               </Route>
 
