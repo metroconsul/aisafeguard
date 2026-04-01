@@ -10,7 +10,7 @@ export interface KpiCardProps {
   subtitle?: string;
 }
 
-export function KpiCard({ title, value, trend, icon: Icon, alert }: KpiCardProps) {
+export function KpiCard({ title, value, trend, icon: Icon, alert, subtitle }: KpiCardProps) {
   return (
     <div className="rounded-xl border border-border bg-card p-5 shadow-card">
       <div className="flex items-center justify-between">
