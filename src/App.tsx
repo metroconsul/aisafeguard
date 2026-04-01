@@ -26,6 +26,9 @@ import CofreEmpresa from "@/pages/CofreEmpresa";
 import Treinamentos from "@/pages/Treinamentos";
 import Holerites from "@/pages/Holerites";
 import Unsubscribe from "@/pages/Unsubscribe";
+import Admissoes from "@/pages/Admissoes";
+import CartaoPonto from "@/pages/CartaoPonto";
+import OnboardingPublico from "@/pages/OnboardingPublico";
 import NotFound from "@/pages/NotFound";
 
 // Portal pages
