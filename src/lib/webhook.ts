@@ -1,5 +1,5 @@
 // Configure sua URL do n8n webhook aqui
-export const WEBHOOK_URL = "https://n8n-n8n.is8ujj.easypanel.host/webhook/Epis";
+export const WEBHOOK_URL = "https://n8n-n8n.nd25qi.easypanel.host/webhook/epi-delivery";
 export const SIGNATURE_WEBHOOK_URL = "https://n8n-n8n.is8ujj.easypanel.host/webhook/Pdf-Confirmação";
 
 interface WebhookPayload {
