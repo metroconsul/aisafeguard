@@ -420,6 +420,7 @@ export type Database = {
       funcionarios: {
         Row: {
           access_pin: string | null
+          admission_stage: string | null
           cargo: string
           cpf: string | null
           created_at: string | null
@@ -434,6 +435,7 @@ export type Database = {
         }
         Insert: {
           access_pin?: string | null
+          admission_stage?: string | null
           cargo: string
           cpf?: string | null
           created_at?: string | null
@@ -448,6 +450,7 @@ export type Database = {
         }
         Update: {
           access_pin?: string | null
+          admission_stage?: string | null
           cargo?: string
           cpf?: string | null
           created_at?: string | null
