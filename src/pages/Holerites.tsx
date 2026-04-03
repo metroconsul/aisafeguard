@@ -218,6 +218,7 @@ export default function Holerites() {
                             Pendente
                           </Badge>
                         )}
+                      </TableCell>
                       <TableCell>
                         {(doc as any).notification_status === "enviado" ? (
                           <Badge className="bg-green-100 text-green-700 border-green-300">Enviado</Badge>
