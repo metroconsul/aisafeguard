@@ -51,7 +51,7 @@ export default function OnboardingPublico() {
 
   const loadCandidate = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data, error } = await anonClient
       .from("funcionarios")
       .select("id, nome, cargo, setor, empresa_id, status")
       .eq("id", id!)
@@ -66,7 +66,7 @@ export default function OnboardingPublico() {
     setCandidate(data as Candidate);
 
     // Get empresa name
-    const { data: emp } = await supabase
+    const { data: emp } = await anonClient
       .from("empresas")
       .select("nome_fantasia")
       .eq("id", data.empresa_id)
@@ -74,7 +74,7 @@ export default function OnboardingPublico() {
     if (emp) setEmpresaName(emp.nome_fantasia);
 
     // Load existing docs
-    const { data: existingDocs } = await supabase
+    const { data: existingDocs } = await anonClient
       .from("documents")
       .select("id, doc_category, title, file_url")
       .eq("funcionario_id", data.id)
@@ -90,13 +90,13 @@ export default function OnboardingPublico() {
     try {
       const ext = file.name.split(".").pop();
       const path = `admissao/${candidate.id}/${docType}_${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("admission-docs").upload(path, file);
+      const { error: upErr } = await anonClient.storage.from("admission-docs").upload(path, file);
       if (upErr) throw upErr;
 
-      const { data: urlData } = supabase.storage.from("admission-docs").getPublicUrl(path);
+      const { data: urlData } = anonClient.storage.from("admission-docs").getPublicUrl(path);
       const label = DOC_TYPES.find(d => d.type === docType)?.label || docType;
 
-      const { data: newDoc, error: insertErr } = await supabase.from("documents").insert({
+      const { data: newDoc, error: insertErr } = await anonClient.from("documents").insert({
         funcionario_id: candidate.id,
         empresa_id: candidate.empresa_id,
         title: label,
