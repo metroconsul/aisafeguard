@@ -4,7 +4,15 @@ import { createClient } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, CheckCircle2, FileText, Camera, ShieldCheck, Upload } from "lucide-react";
+import { Loader2, CheckCircle2, FileText, Camera, ShieldCheck } from "lucide-react";
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const PUBLIC_HEADERS = {
+  apikey: SUPABASE_PUBLISHABLE_KEY,
+  Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+  "Content-Type": "application/json",
+};
 
 const DOC_TYPES = [
   { type: "rg_cpf", label: "RG / CPF", required: true },
@@ -32,13 +40,18 @@ export default function OnboardingPublico() {
   const { id } = useParams<{ id: string }>();
 
   const anonClient = useMemo(() => createClient(
-    import.meta.env.VITE_SUPABASE_URL,
-    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY,
     {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
         detectSessionInUrl: false,
+      },
+      global: {
+        headers: {
+          Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+        },
       },
     }
   ), []);
@@ -57,35 +70,47 @@ export default function OnboardingPublico() {
 
   const loadCandidate = async () => {
     setLoading(true);
-    const { data, error } = await anonClient
-      .from("funcionarios")
-      .select("id, nome, cargo, setor, empresa_id, status")
-      .eq("id", id!)
-      .maybeSingle();
 
-    if (error || !data || data.status !== "em_admissao") {
+    if (!id || !/^[0-9a-fA-F-]{36}$/.test(id)) {
       setCandidate(null);
       setLoading(false);
       return;
     }
 
-    setCandidate(data as Candidate);
+    const candidateResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/funcionarios?select=id,nome,cargo,setor,empresa_id,status&id=eq.${encodeURIComponent(id)}`,
+      { headers: PUBLIC_HEADERS }
+    );
+    const candidateRows = await candidateResponse.json();
+    const currentCandidate = Array.isArray(candidateRows) ? candidateRows[0] : null;
 
-    // Get empresa name
-    const { data: emp } = await anonClient
-      .from("empresas")
-      .select("nome_fantasia")
-      .eq("id", data.empresa_id)
-      .maybeSingle();
-    if (emp) setEmpresaName(emp.nome_fantasia);
+    if (!candidateResponse.ok || !currentCandidate || currentCandidate.status !== "em_admissao") {
+      setCandidate(null);
+      setLoading(false);
+      return;
+    }
 
-    // Load existing docs
-    const { data: existingDocs } = await anonClient
-      .from("documents")
-      .select("id, doc_category, title, file_url")
-      .eq("funcionario_id", data.id)
-      .eq("doc_category", "admissao");
-    setDocs((existingDocs as Doc[]) || []);
+    setCandidate(currentCandidate as Candidate);
+
+    const [empresaResponse, docsResponse] = await Promise.all([
+      fetch(
+        `${SUPABASE_URL}/rest/v1/empresas?select=nome_fantasia&id=eq.${encodeURIComponent(currentCandidate.empresa_id)}`,
+        { headers: PUBLIC_HEADERS }
+      ),
+      fetch(
+        `${SUPABASE_URL}/rest/v1/documents?select=id,doc_category,title,file_url&funcionario_id=eq.${encodeURIComponent(currentCandidate.id)}&doc_category=eq.admissao`,
+        { headers: PUBLIC_HEADERS }
+      ),
+    ]);
+
+    const empresaRows = await empresaResponse.json();
+    const docsRows = await docsResponse.json();
+
+    if (empresaResponse.ok && Array.isArray(empresaRows) && empresaRows[0]?.nome_fantasia) {
+      setEmpresaName(empresaRows[0].nome_fantasia);
+    }
+
+    setDocs(Array.isArray(docsRows) ? (docsRows as Doc[]) : []);
     setLoading(false);
   };
 
