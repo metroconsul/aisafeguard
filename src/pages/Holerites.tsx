@@ -179,7 +179,7 @@ export default function Holerites() {
             <TableBody>
               {holerites.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                     Nenhum holerite encontrado para este período.
                   </TableCell>
                 </TableRow>
