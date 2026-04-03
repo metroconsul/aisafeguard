@@ -56,6 +56,24 @@ export default function Holerites() {
     setResending(doc.id);
     try {
       const func = doc.funcionarios as any;
+      // Fetch PDF as base64 for resend
+      let pdfBase64 = "";
+      let fileName = "";
+      if (doc.file_url) {
+        try {
+          const pdfResp = await fetch(doc.file_url);
+          const blob = await pdfResp.blob();
+          pdfBase64 = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve((reader.result as string).split(",")[1]);
+            reader.readAsDataURL(blob);
+          });
+          fileName = `holerite_${(func?.nome || "funcionario").replace(/\s+/g, "_")}_${doc.reference_period?.replace("/", "-")}.pdf`;
+        } catch (e) {
+          console.warn("Não foi possível carregar o PDF para reenvio:", e);
+        }
+      }
+
       const { error } = await supabase.functions.invoke("notify-holerite", {
         body: {
           document_id: doc.id,
@@ -64,6 +82,8 @@ export default function Holerites() {
           phone: func?.telefone_whatsapp || "",
           reference_period: doc.reference_period,
           action: "resend_holerite",
+          pdf_base64: pdfBase64,
+          file_name: fileName,
         },
       });
       if (error) throw error;

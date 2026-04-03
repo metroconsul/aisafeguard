@@ -10,6 +10,15 @@ import { Label } from "@/components/ui/label";
 import { Upload, Loader2, FileUp } from "lucide-react";
 import { toast } from "sonner";
 import { format, subMonths } from "date-fns";
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve((reader.result as string).split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 import { ptBR } from "date-fns/locale";
 
 interface Props {
@@ -99,8 +108,9 @@ export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
         }).select("id").single();
         if (insertError) throw insertError;
 
-        // 3. Notify via Edge Function
+        // 3. Notify via Edge Function (with PDF base64)
         if (notifyWhatsApp) {
+          const pdfBase64 = await fileToBase64(file);
           const { error: fnError } = await supabase.functions.invoke("notify-holerite", {
             body: {
               document_id: doc.id,
@@ -109,6 +119,8 @@ export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
               phone: func.telefone_whatsapp || "",
               reference_period: month,
               action: "new_holerite",
+              pdf_base64: pdfBase64,
+              file_name: `holerite_${func.nome.replace(/\s+/g, "_")}_${month.replace("/", "-")}.pdf`,
             },
           });
           if (fnError) {
