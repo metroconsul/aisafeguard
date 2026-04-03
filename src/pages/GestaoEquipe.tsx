@@ -121,7 +121,7 @@ export default function GestaoEquipe() {
       const senha = responseData?.temp_password || "";
 
       // Dispara webhook para n8n
-      await triggerInviteWebhook({ nome: formName, email: formEmail, empresa_nome: empresaNome, senha });
+      await triggerInviteWebhook({ nome: formName, email: formEmail, empresa_nome: empresaNome, senha, cargo: ROLE_CONFIG[formRole as keyof typeof ROLE_CONFIG]?.label || formRole });
 
       if (responseData?.temp_password) {
         toast.success(
