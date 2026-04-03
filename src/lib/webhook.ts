@@ -53,7 +53,7 @@ export async function triggerSignatureWebhook(payload: SignatureWebhookPayload) 
 }
 
 // Webhook de convite de usuário (n8n)
-export const INVITE_WEBHOOK_URL = "https://n8n-n8n.is8ujj.easypanel.host/webhook-test/safeguard-usuario";
+export const INVITE_WEBHOOK_URL = "https://n8n-n8n.nd25qi.easypanel.host/webhook/team-invite";
 
 interface InviteWebhookPayload {
   nome: string;
