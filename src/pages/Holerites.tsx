@@ -218,6 +218,12 @@ export default function Holerites() {
                             Pendente
                           </Badge>
                         )}
+                      <TableCell>
+                        {(doc as any).notification_status === "enviado" ? (
+                          <Badge className="bg-green-100 text-green-700 border-green-300">Enviado</Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-amber-400 text-amber-600 bg-amber-50">Pendente</Badge>
+                        )}
                       </TableCell>
                       <TableCell>
                         {doc.signed_at ? format(new Date(doc.signed_at), "dd/MM/yyyy HH:mm") : "—"}
