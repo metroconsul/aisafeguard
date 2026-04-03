@@ -172,6 +172,7 @@ export default function Holerites() {
                 <TableHead>Setor</TableHead>
                 <TableHead>Documento</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Notificação</TableHead>
                 <TableHead>Data/Hora Assinatura</TableHead>
                 <TableHead className="print:hidden">Ações</TableHead>
               </TableRow>
