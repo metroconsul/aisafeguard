@@ -1,72 +1,38 @@
 
 
-# Plano: Módulo de Gestão e Disparo de Holerites
+## Plano: Adicionar status de notificação WhatsApp aos Holerites
 
-## Resumo
+### Contexto
+O n8n precisa fazer um callback para marcar o holerite como "enviado" após disparar o WhatsApp. Como você usa Lovable Cloud (sem acesso direto ao dashboard Supabase), faremos tudo por aqui.
 
-Criar a página `/app/holerites` com gestão completa de holerites (upload, disparo, auditoria de assinaturas) acessível para Admin e RH, incluindo Edge Function para notificação via n8n.
+### Etapas
 
-## Mudanças
+**1. Migration — adicionar coluna `notification_status`**
+- Usar a ferramenta de migration do Lovable Cloud para executar:
+  ```sql
+  ALTER TABLE documents ADD COLUMN IF NOT EXISTS notification_status TEXT DEFAULT 'pendente';
+  ```
 
-### 1. Rota e Permissões
+**2. Configurar o node do n8n**
+- No último node "Callback Supabase — Marcar Enviado", configurar como HTTP Request:
+  - **Method**: PATCH
+  - **URL**: `https://ffndxwyviafznftdxnib.supabase.co/rest/v1/documents?id=eq.{{ $json.document_id }}`
+  - **Headers**:
+    - `apikey`: a chave `anon` do projeto (`eyJhbGci...Gh3ZA`)
+    - `Authorization`: `Bearer <mesma chave anon>`
+    - `Content-Type`: `application/json`
+    - `Prefer`: `return=minimal`
+  - **Body**: `{ "notification_status": "enviado" }`
 
-**`src/lib/role-access.ts`** — Adicionar `/app/holerites` nas rotas de `admin` e `rh`.
+> Como a tabela `documents` tem RLS, pode ser necessário usar a **service_role key** em vez da anon key. Vou verificar as políticas RLS existentes para confirmar.
 
-**`src/components/AppSidebar.tsx`** — Adicionar item "Holerites" no menu (ícone `FileText`), no grupo "Geral".
+**3. Atualizar a UI (Holerites.tsx)**
+- Adicionar uma coluna "Notificação WhatsApp" na tabela de auditoria
+- Exibir badge verde "Enviado" ou badge amarelo "Pendente" conforme o valor de `notification_status`
 
-**`src/App.tsx`** — Adicionar rota `<Route path="/holerites" element={<Holerites />} />` dentro das rotas protegidas.
+**4. (Opcional) Criar Edge Function de callback**
+- Se preferir não expor chaves diretamente no n8n, podemos criar uma Edge Function `/callback-holerite` que recebe o `document_id` e faz o update internamente. O n8n chamaria essa função sem precisar de credenciais do banco.
 
-### 2. Página Principal (`src/pages/Holerites.tsx`)
-
-- **Header**: Título + botão "Novo Disparo de Holerite" + botão secundário "Gerar Relatório de Fechamento"
-- **Filtro**: Select de Mês/Ano de referência (últimos 12 meses)
-- **KPIs**: 3 cards — Total Emitido, Assinados (verde), Pendentes (amarelo/vermelho)
-- **Tabela de Auditoria**: Colunas: Funcionário, Setor, PDF, Status (badge), Data/Hora + IP da assinatura, Ações (Visualizar PDF, Reenviar WhatsApp)
-- Dados puxados da tabela `documents` filtrados por `doc_category = 'holerite'` e `reference_period` = mês selecionado
-- Joins com `funcionarios` para nome/setor/telefone
-
-### 3. Modal de Novo Disparo (`src/components/NovoHoleriteModal.tsx`)
-
-- Select Mês/Ano de Referência (obrigatório)
-- Select Destinatário: "Um Funcionário" (busca) ou "Envio em Lote"
-- Input File drag & drop para PDF
-- Checkbox "Notificar via WhatsApp" (marcado por padrão)
-- Fluxo no submit:
-  1. Upload do PDF para bucket `employee_vault`
-  2. Insert na tabela `documents` (doc_category='holerite', signature_status='pendente')
-  3. Invoke Edge Function `notify-holerite` com payload
-  4. Toast de sucesso/erro com loading state
-
-### 4. Edge Function (`supabase/functions/notify-holerite/index.ts`)
-
-- CORS headers padrão
-- Recebe payload: `document_id`, `employee_id`, `employee_name`, `phone`, `reference_period`, `action`
-- Faz POST para `Deno.env.get('N8N_WEBHOOK_URL')` (fallback string vazia)
-- Adiciona `portal_url: 'https://aisafeguard.lovable.app/portal'` ao payload
-- Retorna `{ success: true }` ou erro com status 400
-- `verify_jwt = false` no config.toml
-
-### 5. Relatório de Fechamento
-
-- Botão "Gerar Relatório de Fechamento do Mês" abre `window.print()` com uma view formatada listando todos os funcionários e status de assinatura do mês selecionado (CSS `@media print`)
-
-### 6. Banco de Dados
-
-Nenhuma migração necessária — a tabela `documents` já possui todos os campos necessários (`doc_category`, `signature_status`, `reference_period`, `signed_at`, `signature_ip`, `file_url`, `funcionario_id`, `empresa_id`). A tabela `signature_logs` já existe para auditoria.
-
-### 7. Secret
-
-Será necessário adicionar o secret `N8N_WEBHOOK_URL` para a Edge Function (usando `add_secret`).
-
-## Arquivos Criados/Editados
-
-| Arquivo | Ação |
-|---|---|
-| `src/pages/Holerites.tsx` | Criar |
-| `src/components/NovoHoleriteModal.tsx` | Criar |
-| `supabase/functions/notify-holerite/index.ts` | Criar |
-| `src/lib/role-access.ts` | Editar (add rota) |
-| `src/components/AppSidebar.tsx` | Editar (add menu) |
-| `src/App.tsx` | Editar (add rota) |
-| `supabase/config.toml` | Editar (add function config) |
+### Recomendação
+A opção 4 (Edge Function de callback) é mais segura — evita colocar chaves do banco no n8n. O n8n chamaria apenas a URL da Edge Function passando o `document_id`.
 
