@@ -1,0 +1,1 @@
+ALTER TABLE public.documents ADD COLUMN IF NOT EXISTS notification_status TEXT DEFAULT 'pendente';
