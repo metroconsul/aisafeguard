@@ -4,89 +4,103 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Upload, CheckCircle2, FileText, Camera, ShieldCheck } from "lucide-react";
+import { Loader2, CheckCircle2, FileText, Camera, ShieldCheck, Upload } from "lucide-react";
 
 const DOC_TYPES = [
-  { type: "rg", label: "RG / Identidade", icon: FileText },
-  { type: "cpf", label: "CPF", icon: FileText },
-  { type: "comprovante_residencia", label: "Comprovante de Endereço", icon: FileText },
-  { type: "carteira_trabalho", label: "Carteira de Trabalho", icon: FileText },
+  { type: "rg_cpf", label: "RG / CPF", required: true },
+  { type: "comprovante_residencia", label: "Comprovante de Residência", required: true },
+  { type: "cnh", label: "CNH (opcional)", required: false },
 ];
 
-interface AdmissionDoc {
+interface Candidate {
   id: string;
-  doc_type: string;
-  file_url: string;
+  nome: string;
+  cargo: string;
+  setor: string;
+  empresa_id: string;
   status: string;
-  feedback_rh: string | null;
+}
+
+interface Doc {
+  id: string;
+  doc_category: string;
+  title: string;
+  file_url: string | null;
 }
 
 export default function OnboardingPublico() {
-  const { token } = useParams<{ token: string }>();
-  const [admissionId, setAdmissionId] = useState<string | null>(null);
-  const [candidateName, setCandidateName] = useState("");
+  const { id } = useParams<{ id: string }>();
+  const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [empresaName, setEmpresaName] = useState("");
-  const [status, setStatus] = useState("");
-  const [docs, setDocs] = useState<AdmissionDoc[]>([]);
+  const [docs, setDocs] = useState<Doc[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
-    if (!token) return;
-    loadAdmission();
-  }, [token]);
+    if (id) loadCandidate();
+  }, [id]);
 
-  const loadAdmission = async () => {
+  const loadCandidate = async () => {
     setLoading(true);
-    const { data: req, error } = await supabase
-      .from("admission_requests")
-      .select("id, candidate_name, status, empresa_id")
-      .eq("token", token!)
+    const { data, error } = await supabase
+      .from("funcionarios")
+      .select("id, nome, cargo, setor, empresa_id, status")
+      .eq("id", id!)
       .maybeSingle();
-    
-    if (error || !req) {
+
+    if (error || !data || data.status !== "em_admissao") {
+      setCandidate(null);
       setLoading(false);
       return;
     }
 
-    setAdmissionId(req.id);
-    setCandidateName(req.candidate_name);
-    setStatus(req.status);
+    setCandidate(data as Candidate);
 
     // Get empresa name
-    const { data: emp } = await supabase.from("empresas").select("nome_fantasia").eq("id", req.empresa_id).maybeSingle();
+    const { data: emp } = await supabase
+      .from("empresas")
+      .select("nome_fantasia")
+      .eq("id", data.empresa_id)
+      .maybeSingle();
     if (emp) setEmpresaName(emp.nome_fantasia);
 
     // Load existing docs
     const { data: existingDocs } = await supabase
-      .from("admission_documents")
-      .select("*")
-      .eq("admission_id", req.id);
-    setDocs((existingDocs as AdmissionDoc[]) || []);
+      .from("documents")
+      .select("id, doc_category, title, file_url")
+      .eq("funcionario_id", data.id)
+      .eq("doc_category", "admissao");
+    setDocs((existingDocs as Doc[]) || []);
     setLoading(false);
   };
 
   const handleUpload = async (docType: string, file: File) => {
-    if (!admissionId) return;
+    if (!candidate) return;
     setUploading(docType);
-    
+
     try {
-      const path = `onboarding/${admissionId}/${docType}_${Date.now()}.${file.name.split('.').pop()}`;
+      const ext = file.name.split(".").pop();
+      const path = `admissao/${candidate.id}/${docType}_${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage.from("admission-docs").upload(path, file);
       if (upErr) throw upErr;
 
       const { data: urlData } = supabase.storage.from("admission-docs").getPublicUrl(path);
+      const label = DOC_TYPES.find(d => d.type === docType)?.label || docType;
 
-      const { data: newDoc, error: insertErr } = await supabase.from("admission_documents").insert({
-        admission_id: admissionId,
-        doc_type: docType,
+      const { data: newDoc, error: insertErr } = await supabase.from("documents").insert({
+        funcionario_id: candidate.id,
+        empresa_id: candidate.empresa_id,
+        title: label,
+        doc_category: "admissao",
         file_url: urlData.publicUrl,
-      }).select().single();
-      
+        signature_status: "nao_aplicavel",
+      }).select("id, doc_category, title, file_url").single();
+
       if (insertErr) throw insertErr;
-      setDocs(prev => [...prev.filter(d => d.doc_type !== docType), newDoc as AdmissionDoc]);
+      // Use title to track which type was uploaded
+      setDocs(prev => [...prev.filter(d => d.title !== label), newDoc as Doc]);
       toast.success("Documento enviado!");
     } catch (err: any) {
       toast.error("Erro no upload: " + err.message);
@@ -95,12 +109,9 @@ export default function OnboardingPublico() {
     }
   };
 
-  const handleSubmitAll = async () => {
-    if (!admissionId) return;
-    // Update status to em_analise
-    const { error } = await supabase.from("admission_requests").update({ status: "em_analise" }).eq("id", admissionId);
-    if (error) { toast.error("Erro ao enviar."); return; }
+  const handleSubmitAll = () => {
     setSubmitted(true);
+    toast.success("Documentos enviados ao RH com sucesso!");
   };
 
   if (loading) {
@@ -111,90 +122,87 @@ export default function OnboardingPublico() {
     );
   }
 
-  if (!admissionId) {
+  if (!candidate) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-5">
         <div className="text-center space-y-3">
           <ShieldCheck className="mx-auto h-12 w-12 text-muted-foreground" />
-          <h1 className="text-xl font-bold text-foreground">Link inválido ou expirado</h1>
-          <p className="text-muted-foreground">Verifique o link recebido pelo RH.</p>
+          <h1 className="text-xl font-bold text-foreground">Link expirado ou inválido</h1>
+          <p className="text-muted-foreground text-sm">Verifique o link recebido pelo RH ou entre em contato.</p>
         </div>
       </div>
     );
   }
 
-  if (submitted || status === "em_analise" || status === "aprovado") {
+  if (submitted) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-5">
         <div className="text-center space-y-4 max-w-sm">
-          <CheckCircle2 className="mx-auto h-16 w-16 text-green-500" />
-          <h1 className="text-2xl font-bold text-foreground">
-            {status === "aprovado" ? "Admissão Aprovada!" : "Documentos em Análise"}
-          </h1>
+          <div className="mx-auto h-20 w-20 rounded-full bg-green-100 dark:bg-green-950/40 flex items-center justify-center">
+            <CheckCircle2 className="h-10 w-10 text-green-500" />
+          </div>
+          <h1 className="text-2xl font-bold text-foreground">Tudo certo!</h1>
           <p className="text-muted-foreground">
-            {status === "aprovado"
-              ? "Parabéns! Sua admissão foi aprovada pelo RH."
-              : "Seus documentos foram enviados e estão sendo analisados pelo RH. Você será informado sobre o resultado."}
+            O RH já recebeu seus documentos. Você será informado(a) sobre os próximos passos.
           </p>
         </div>
       </div>
     );
   }
 
-  const uploadedTypes = docs.map(d => d.doc_type);
-  const allUploaded = DOC_TYPES.every(dt => uploadedTypes.includes(dt.type));
+  const uploadedLabels = docs.map(d => d.title);
+  const requiredDone = DOC_TYPES.filter(d => d.required).every(dt =>
+    uploadedLabels.includes(dt.label)
+  );
 
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-md px-5 py-8 space-y-6">
         {/* Header */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-3">
           <div className="flex justify-center">
-            <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
-              <ShieldCheck className="h-6 w-6 text-primary-foreground" />
+            <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center">
+              <ShieldCheck className="h-7 w-7 text-primary-foreground" />
             </div>
           </div>
           <h1 className="text-xl font-bold text-foreground">
-            Bem-vindo à {empresaName || "Empresa"}
+            Bem-vindo(a) à {empresaName || "Empresa"}!
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Olá, <strong>{candidateName}</strong>. Envie seus documentos para admissão.
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Olá, <strong className="text-foreground">{candidate.nome}</strong>! Por favor, envie seus documentos para finalizar sua admissão.
           </p>
         </div>
 
-        {/* Document cards */}
+        {/* Document upload cards */}
         <div className="space-y-3">
           {DOC_TYPES.map(dt => {
-            const existing = docs.find(d => d.doc_type === dt.type);
+            const existing = docs.find(d => d.title === dt.label);
             const isUploading = uploading === dt.type;
-            const wasRejected = existing?.status === "rejeitado";
 
             return (
-              <div key={dt.type} className={`rounded-xl border p-4 transition-colors ${
-                existing && !wasRejected
-                  ? "border-green-300 bg-green-50 dark:bg-green-950/20"
-                  : wasRejected
-                  ? "border-red-300 bg-red-50 dark:bg-red-950/20"
-                  : "border-border bg-card"
-              }`}>
+              <div
+                key={dt.type}
+                className={`rounded-xl border p-4 transition-all ${
+                  existing
+                    ? "border-green-300 bg-green-50 dark:bg-green-950/20"
+                    : "border-border bg-card"
+                }`}
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <dt.icon className={`h-5 w-5 ${existing && !wasRejected ? "text-green-600" : "text-muted-foreground"}`} />
+                    <FileText className={`h-5 w-5 ${existing ? "text-green-600" : "text-muted-foreground"}`} />
                     <div>
                       <p className="font-medium text-foreground text-sm">{dt.label}</p>
-                      {wasRejected && existing?.feedback_rh && (
-                        <p className="text-xs text-red-600 mt-0.5">⚠️ {existing.feedback_rh}</p>
-                      )}
+                      {!dt.required && <p className="text-xs text-muted-foreground">Opcional</p>}
                     </div>
                   </div>
-                  {existing && !wasRejected ? (
-                    <Badge className="bg-green-100 text-green-700 border-green-300">
+                  {existing ? (
+                    <Badge className="bg-green-100 text-green-700 border-green-300 text-xs">
                       <CheckCircle2 className="mr-1 h-3 w-3" /> Enviado
                     </Badge>
                   ) : (
                     <Button
                       size="sm"
-                      variant={wasRejected ? "destructive" : "default"}
                       disabled={isUploading}
                       onClick={() => fileInputRefs.current[dt.type]?.click()}
                     >
@@ -203,7 +211,7 @@ export default function OnboardingPublico() {
                       ) : (
                         <>
                           <Camera className="mr-1 h-4 w-4" />
-                          {wasRejected ? "Reenviar" : "Enviar"}
+                          Enviar
                         </>
                       )}
                     </Button>
@@ -226,17 +234,18 @@ export default function OnboardingPublico() {
           })}
         </div>
 
-        {/* Submit */}
-        {allUploaded && (
-          <Button onClick={handleSubmitAll} className="w-full h-14 text-base font-semibold bg-green-600 hover:bg-green-700 text-white">
+        {/* Submit button */}
+        {requiredDone ? (
+          <Button
+            onClick={handleSubmitAll}
+            className="w-full h-14 text-base font-semibold bg-green-600 hover:bg-green-700 text-white rounded-xl"
+          >
             <CheckCircle2 className="mr-2 h-5 w-5" />
-            Enviar para Análise do RH
+            Enviar Documentos ao RH
           </Button>
-        )}
-
-        {!allUploaded && (
+        ) : (
           <p className="text-center text-xs text-muted-foreground">
-            Envie todos os documentos acima para prosseguir.
+            Envie os documentos obrigatórios acima para prosseguir.
           </p>
         )}
       </div>
