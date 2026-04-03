@@ -1,7 +1,6 @@
-// Configure sua URL do n8n webhook aqui
-export const WEBHOOK_URL = "https://n8n-n8n.nd25qi.easypanel.host/webhook/epi-delivery";
-export const SIGNATURE_WEBHOOK_URL = "https://n8n-n8n.is8ujj.easypanel.host/webhook/Pdf-Confirmação";
+import { supabase } from "@/integrations/supabase/client";
 
+// Webhook de entrega de EPI — via Edge Function proxy (evita CORS)
 interface WebhookPayload {
   nome_funcionario: string;
   telefone_whatsapp: string;
@@ -11,20 +10,24 @@ interface WebhookPayload {
 
 export async function triggerWebhook(payload: WebhookPayload) {
   try {
-    const response = await fetch(WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+    const { data, error } = await supabase.functions.invoke("webhook-epi-delivery", {
+      body: payload,
     });
-    console.log("Webhook triggered:", response.status);
-    return response.ok;
+    if (error) {
+      console.error("Webhook EPI error:", error);
+      return false;
+    }
+    console.log("Webhook EPI triggered:", data);
+    return true;
   } catch (error) {
-    console.error("Webhook error:", error);
+    console.error("Webhook EPI error:", error);
     return false;
   }
 }
 
-// Webhook de confirmação de assinatura
+// Webhook de confirmação de assinatura — via Edge Function proxy
+export const SIGNATURE_WEBHOOK_URL = "https://n8n-n8n.nd25qi.easypanel.host/webhook/Pdf-Confirmação";
+
 interface SignatureWebhookPayload {
   id_entrega: string;
   nome_funcionario: string;
