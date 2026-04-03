@@ -31,10 +31,16 @@ interface Doc {
 export default function OnboardingPublico() {
   const { id } = useParams<{ id: string }>();
 
-  // Create a dedicated anon client to avoid conflicts with authenticated sessions
   const anonClient = useMemo(() => createClient(
     import.meta.env.VITE_SUPABASE_URL,
-    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    }
   ), []);
 
   const [candidate, setCandidate] = useState<Candidate | null>(null);
