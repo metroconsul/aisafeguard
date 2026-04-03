@@ -105,6 +105,7 @@ export type Database = {
           health_status: string | null
           id: string
           issue_date: string | null
+          notification_status: string | null
           provider_or_lead: string | null
           reference_period: string | null
           signature_ip: string | null
@@ -126,6 +127,7 @@ export type Database = {
           health_status?: string | null
           id?: string
           issue_date?: string | null
+          notification_status?: string | null
           provider_or_lead?: string | null
           reference_period?: string | null
           signature_ip?: string | null
@@ -147,6 +149,7 @@ export type Database = {
           health_status?: string | null
           id?: string
           issue_date?: string | null
+          notification_status?: string | null
           provider_or_lead?: string | null
           reference_period?: string | null
           signature_ip?: string | null

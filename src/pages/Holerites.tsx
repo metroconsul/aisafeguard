@@ -172,6 +172,7 @@ export default function Holerites() {
                 <TableHead>Setor</TableHead>
                 <TableHead>Documento</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Notificação</TableHead>
                 <TableHead>Data/Hora Assinatura</TableHead>
                 <TableHead className="print:hidden">Ações</TableHead>
               </TableRow>
@@ -179,7 +180,7 @@ export default function Holerites() {
             <TableBody>
               {holerites.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                     Nenhum holerite encontrado para este período.
                   </TableCell>
                 </TableRow>
@@ -216,6 +217,13 @@ export default function Holerites() {
                           <Badge variant="outline" className="border-amber-400 text-amber-600 bg-amber-50">
                             Pendente
                           </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {(doc as any).notification_status === "enviado" ? (
+                          <Badge className="bg-green-100 text-green-700 border-green-300">Enviado</Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-amber-400 text-amber-600 bg-amber-50">Pendente</Badge>
                         )}
                       </TableCell>
                       <TableCell>
