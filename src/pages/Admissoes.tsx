@@ -1,163 +1,161 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { DragDropContext, Droppable, type DropResult } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { UserPlus, Copy, Eye, Loader2, CheckCircle2, XCircle, UserCheck } from "lucide-react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { UserPlus, Loader2 } from "lucide-react";
+import AdmissaoKanbanCard from "@/components/admissao/AdmissaoKanbanCard";
+import AdmissaoModal from "@/components/admissao/AdmissaoModal";
 
-interface AdmissionRequest {
+type Stage = "dados_iniciais" | "aso_pendente" | "assinatura" | "pronto_efetivar";
+
+const COLUMNS: { id: Stage; title: string; color: string }[] = [
+  { id: "dados_iniciais", title: "Dados Pessoais", color: "border-t-blue-500" },
+  { id: "aso_pendente", title: "Aguardando ASO", color: "border-t-amber-500" },
+  { id: "assinatura", title: "Assinatura de Contrato", color: "border-t-purple-500" },
+  { id: "pronto_efetivar", title: "Pronto para Efetivar", color: "border-t-green-500" },
+];
+
+interface Employee {
   id: string;
-  token: string;
-  candidate_name: string;
-  candidate_cpf: string | null;
-  candidate_phone: string | null;
-  status: string;
-  created_at: string;
+  nome: string;
+  cargo: string;
+  setor: string;
+  cpf: string | null;
+  telefone_whatsapp: string | null;
+  empresa_id: string | null;
+  admission_stage: string;
+  doc_count: number;
 }
-
-interface AdmissionDoc {
-  id: string;
-  doc_type: string;
-  file_url: string;
-  status: string;
-  feedback_rh: string | null;
-}
-
-const STATUS_MAP: Record<string, { label: string; className: string }> = {
-  aguardando_envio: { label: "Aguardando Envio", className: "bg-muted text-muted-foreground border-border" },
-  em_analise: { label: "Em Análise", className: "bg-amber-100 text-amber-700 border-amber-300" },
-  aprovado: { label: "Aprovado", className: "bg-green-100 text-green-700 border-green-300" },
-  reprovado: { label: "Reprovado", className: "bg-red-100 text-red-700 border-red-300" },
-};
-
-const DOC_TYPE_LABELS: Record<string, string> = {
-  rg: "RG / Identidade",
-  cpf: "CPF",
-  comprovante_residencia: "Comprovante de Residência",
-  carteira_trabalho: "Carteira de Trabalho",
-};
 
 export default function Admissoes() {
   const { perfil } = useAuth();
   const empresaId = perfil?.empresa_id;
-  const [requests, setRequests] = useState<AdmissionRequest[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [newModalOpen, setNewModalOpen] = useState(false);
-  const [reviewId, setReviewId] = useState<string | null>(null);
-  const [reviewDocs, setReviewDocs] = useState<AdmissionDoc[]>([]);
-  const [reviewRequest, setReviewRequest] = useState<AdmissionRequest | null>(null);
-  const [loadingDocs, setLoadingDocs] = useState(false);
-  const [rejectFeedback, setRejectFeedback] = useState("");
-  const [rejectDocId, setRejectDocId] = useState<string | null>(null);
+  const [selectedEmp, setSelectedEmp] = useState<Employee | null>(null);
   const [saving, setSaving] = useState(false);
 
   // New candidate form
   const [candidateName, setCandidateName] = useState("");
   const [candidateCpf, setCandidateCpf] = useState("");
   const [candidatePhone, setCandidatePhone] = useState("");
+  const [candidateCargo, setCandidateCargo] = useState("");
+  const [candidateSetor, setCandidateSetor] = useState("");
 
-  const loadRequests = async () => {
+  const loadEmployees = useCallback(async () => {
     if (!empresaId) return;
     setLoading(true);
-    const { data } = await supabase
-      .from("admission_requests")
-      .select("*")
-      .eq("empresa_id", empresaId)
-      .order("created_at", { ascending: false });
-    setRequests((data as AdmissionRequest[]) || []);
-    setLoading(false);
-  };
 
-  useEffect(() => { loadRequests(); }, [empresaId]);
+    // Fetch employees in admission
+    const { data: emps } = await supabase
+      .from("funcionarios")
+      .select("id, nome, cargo, setor, cpf, telefone_whatsapp, empresa_id, admission_stage")
+      .eq("empresa_id", empresaId)
+      .eq("status", "em_admissao");
+
+    if (!emps) { setLoading(false); return; }
+
+    // Fetch doc counts per employee
+    const empIds = emps.map(e => e.id);
+    let docCounts: Record<string, number> = {};
+    if (empIds.length > 0) {
+      const { data: docs } = await supabase
+        .from("documents")
+        .select("funcionario_id")
+        .in("funcionario_id", empIds);
+      if (docs) {
+        docs.forEach(d => {
+          if (d.funcionario_id) docCounts[d.funcionario_id] = (docCounts[d.funcionario_id] || 0) + 1;
+        });
+      }
+    }
+
+    setEmployees(emps.map(e => ({
+      ...e,
+      admission_stage: (e as any).admission_stage || "dados_iniciais",
+      doc_count: docCounts[e.id] || 0,
+    })));
+    setLoading(false);
+  }, [empresaId]);
+
+  useEffect(() => { loadEmployees(); }, [loadEmployees]);
+
+  const handleDragEnd = async (result: DropResult) => {
+    if (!result.destination) return;
+    const { draggableId, destination } = result;
+    const newStage = destination.droppableId as Stage;
+
+    // Optimistic update
+    setEmployees(prev =>
+      prev.map(e => e.id === draggableId ? { ...e, admission_stage: newStage } : e)
+    );
+
+    const { error } = await supabase
+      .from("funcionarios")
+      .update({ admission_stage: newStage } as any)
+      .eq("id", draggableId);
+
+    if (error) {
+      toast.error("Erro ao mover card.");
+      loadEmployees(); // revert
+    }
+  };
 
   const handleNewCandidate = async () => {
     if (!candidateName.trim()) { toast.error("Nome é obrigatório."); return; }
+    if (!candidateCargo.trim()) { toast.error("Cargo é obrigatório."); return; }
+    if (!candidateSetor.trim()) { toast.error("Setor é obrigatório."); return; }
     if (!empresaId) return;
     setSaving(true);
-    const { data, error } = await supabase.from("admission_requests").insert({
+    const { error } = await supabase.from("funcionarios").insert({
       empresa_id: empresaId,
-      candidate_name: candidateName.trim(),
-      candidate_cpf: candidateCpf.replace(/\D/g, "") || null,
-      candidate_phone: candidatePhone || null,
-    }).select().single();
-    if (error) {
-      toast.error("Erro ao criar candidato: " + error.message);
-    } else {
-      toast.success("Candidato criado com sucesso!");
-      setCandidateName(""); setCandidateCpf(""); setCandidatePhone("");
-      setNewModalOpen(false);
-      loadRequests();
-    }
-    setSaving(false);
-  };
-
-  const copyLink = (token: string) => {
-    const url = `${window.location.origin}/onboarding/${token}`;
-    navigator.clipboard.writeText(url);
-    toast.success("Link copiado!");
-  };
-
-  const openReview = async (req: AdmissionRequest) => {
-    setReviewId(req.id);
-    setReviewRequest(req);
-    setLoadingDocs(true);
-    const { data } = await supabase
-      .from("admission_documents")
-      .select("*")
-      .eq("admission_id", req.id)
-      .order("created_at", { ascending: true });
-    setReviewDocs((data as AdmissionDoc[]) || []);
-    setLoadingDocs(false);
-  };
-
-  const handleDocAction = async (docId: string, action: "aprovado" | "rejeitado", feedback?: string) => {
-    const update: any = { status: action };
-    if (feedback) update.feedback_rh = feedback;
-    const { error } = await supabase.from("admission_documents").update(update).eq("id", docId);
-    if (error) { toast.error("Erro: " + error.message); return; }
-    toast.success(action === "aprovado" ? "Documento aprovado!" : "Documento rejeitado.");
-    setRejectDocId(null);
-    setRejectFeedback("");
-    // Reload docs
-    if (reviewId) {
-      const { data } = await supabase.from("admission_documents").select("*").eq("admission_id", reviewId);
-      setReviewDocs((data as AdmissionDoc[]) || []);
-    }
-  };
-
-  const handleEfetivar = async () => {
-    if (!reviewRequest || !empresaId) return;
-    setSaving(true);
-    // Create funcionario from candidate
-    const { error: funcError } = await supabase.from("funcionarios").insert({
-      empresa_id: empresaId,
-      nome: reviewRequest.candidate_name,
-      cpf: reviewRequest.candidate_cpf || null,
-      telefone_whatsapp: reviewRequest.candidate_phone || null,
-      cargo: "Novo Colaborador",
+      nome: candidateName.trim(),
+      cpf: candidateCpf.replace(/\D/g, "") || null,
+      telefone_whatsapp: candidatePhone || null,
+      cargo: candidateCargo.trim(),
+      setor: candidateSetor.trim(),
       matricula: `ADM-${Date.now().toString(36).toUpperCase()}`,
-      setor: "A definir",
-      status: "ativo",
-    });
-    if (funcError) { toast.error("Erro ao efetivar: " + funcError.message); setSaving(false); return; }
-    // Update status to aprovado
-    await supabase.from("admission_requests").update({ status: "aprovado" }).eq("id", reviewRequest.id);
-    toast.success("Candidato efetivado como funcionário!");
-    setReviewId(null);
-    setReviewRequest(null);
-    loadRequests();
+      status: "em_admissao",
+      admission_stage: "dados_iniciais",
+    } as any);
+    if (error) {
+      toast.error("Erro: " + error.message);
+    } else {
+      toast.success("Candidato adicionado ao Kanban!");
+      setCandidateName(""); setCandidateCpf(""); setCandidatePhone("");
+      setCandidateCargo(""); setCandidateSetor("");
+      setNewModalOpen(false);
+      loadEmployees();
+    }
     setSaving(false);
   };
 
-  const allDocsApproved = reviewDocs.length > 0 && reviewDocs.every(d => d.status === "aprovado");
+  const handleEfetivar = async (emp: Employee) => {
+    setSaving(true);
+    const pin = String(Math.floor(1000 + Math.random() * 9000));
+    const { error } = await supabase
+      .from("funcionarios")
+      .update({ status: "ativo", access_pin: pin } as any)
+      .eq("id", emp.id);
+
+    if (error) {
+      toast.error("Erro ao efetivar: " + error.message);
+    } else {
+      toast.success(`Funcionário efetivado! PIN de acesso ao portal: ${pin}`, { duration: 10000 });
+      setSelectedEmp(null);
+      loadEmployees();
+    }
+    setSaving(false);
+  };
+
+  const getColumnItems = (stage: Stage) =>
+    employees.filter(e => e.admission_stage === stage);
 
   return (
     <div className="space-y-6">
@@ -172,80 +170,49 @@ export default function Admissoes() {
         </Button>
       </div>
 
-      {/* KPIs */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-6">
-            <span className="text-3xl font-bold text-foreground">{requests.length}</span>
-            <span className="text-sm text-muted-foreground">Total</span>
-          </CardContent>
-        </Card>
-        <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20">
-          <CardContent className="flex flex-col items-center justify-center py-6">
-            <span className="text-3xl font-bold text-amber-600">
-              {requests.filter(r => r.status === "em_analise" || r.status === "aguardando_envio").length}
-            </span>
-            <span className="text-sm text-amber-700">Em Andamento</span>
-          </CardContent>
-        </Card>
-        <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
-          <CardContent className="flex flex-col items-center justify-center py-6">
-            <span className="text-3xl font-bold text-green-600">
-              {requests.filter(r => r.status === "aprovado").length}
-            </span>
-            <span className="text-sm text-green-700">Efetivados</span>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Table */}
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Candidato</TableHead>
-                <TableHead>CPF</TableHead>
-                <TableHead>WhatsApp</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-8"><Loader2 className="mx-auto h-5 w-5 animate-spin" /></TableCell></TableRow>
-              ) : requests.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Nenhum candidato cadastrado.</TableCell></TableRow>
-              ) : requests.map(req => (
-                <TableRow key={req.id}>
-                  <TableCell className="font-medium">{req.candidate_name}</TableCell>
-                  <TableCell>{req.candidate_cpf || "—"}</TableCell>
-                  <TableCell>{req.candidate_phone || "—"}</TableCell>
-                  <TableCell>
-                    <Badge className={STATUS_MAP[req.status]?.className || ""}>
-                      {STATUS_MAP[req.status]?.label || req.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{format(new Date(req.created_at), "dd/MM/yyyy", { locale: ptBR })}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => copyLink(req.token)} title="Copiar link">
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                      {(req.status === "em_analise" || req.status === "aguardando_envio") && (
-                        <Button variant="ghost" size="icon" onClick={() => openReview(req)} title="Revisar">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      )}
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {COLUMNS.map(col => (
+              <Droppable key={col.id} droppableId={col.id}>
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={`rounded-lg border-t-4 ${col.color} bg-muted/40 min-h-[300px] flex flex-col ${
+                      snapshot.isDraggingOver ? "bg-primary/5" : ""
+                    }`}
+                  >
+                    <div className="px-4 py-3 border-b border-border">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-foreground">{col.title}</h3>
+                        <span className="text-xs font-medium rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
+                          {getColumnItems(col.id).length}
+                        </span>
+                      </div>
                     </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                    <div className="p-3 space-y-3 flex-1">
+                      {getColumnItems(col.id).map((emp, idx) => (
+                        <AdmissaoKanbanCard
+                          key={emp.id}
+                          employee={emp}
+                          index={idx}
+                          onClick={() => setSelectedEmp(emp)}
+                        />
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  </div>
+                )}
+              </Droppable>
+            ))}
+          </div>
+        </DragDropContext>
+      )}
 
       {/* New Candidate Modal */}
       <Dialog open={newModalOpen} onOpenChange={setNewModalOpen}>
@@ -255,6 +222,16 @@ export default function Admissoes() {
             <div className="space-y-1.5">
               <Label>Nome Completo *</Label>
               <Input value={candidateName} onChange={e => setCandidateName(e.target.value)} placeholder="Nome do candidato" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>Cargo *</Label>
+                <Input value={candidateCargo} onChange={e => setCandidateCargo(e.target.value)} placeholder="Ex: Pedreiro" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Setor *</Label>
+                <Input value={candidateSetor} onChange={e => setCandidateSetor(e.target.value)} placeholder="Ex: Obra A" />
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label>CPF</Label>
@@ -268,66 +245,19 @@ export default function Admissoes() {
           <DialogFooter>
             <Button onClick={handleNewCandidate} disabled={saving}>
               {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Criar e Gerar Link
+              Adicionar ao Kanban
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Review Modal */}
-      <Dialog open={!!reviewId} onOpenChange={(o) => { if (!o) { setReviewId(null); setReviewRequest(null); } }}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Revisão — {reviewRequest?.candidate_name}</DialogTitle>
-          </DialogHeader>
-          {loadingDocs ? (
-            <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin" /></div>
-          ) : reviewDocs.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">Nenhum documento enviado pelo candidato ainda.</p>
-          ) : (
-            <div className="space-y-4">
-              {reviewDocs.map(doc => (
-                <div key={doc.id} className="rounded-xl border border-border p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-foreground">{DOC_TYPE_LABELS[doc.doc_type] || doc.doc_type}</span>
-                    <Badge className={doc.status === "aprovado" ? "bg-green-100 text-green-700" : doc.status === "rejeitado" ? "bg-red-100 text-red-700" : "bg-muted text-muted-foreground"}>
-                      {doc.status === "aprovado" ? "Aprovado" : doc.status === "rejeitado" ? "Rejeitado" : "Pendente"}
-                    </Badge>
-                  </div>
-                  <div className="rounded-lg border overflow-hidden bg-muted/30">
-                    <img src={doc.file_url} alt={doc.doc_type} className="w-full max-h-64 object-contain" />
-                  </div>
-                  {doc.feedback_rh && <p className="text-sm text-red-600">Feedback: {doc.feedback_rh}</p>}
-                  {doc.status === "pendente" && (
-                    <div className="flex gap-2">
-                      <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => handleDocAction(doc.id, "aprovado")}>
-                        <CheckCircle2 className="mr-1 h-4 w-4" /> Aprovar
-                      </Button>
-                      {rejectDocId === doc.id ? (
-                        <div className="flex gap-2 flex-1">
-                          <Input value={rejectFeedback} onChange={e => setRejectFeedback(e.target.value)} placeholder="Motivo da rejeição..." className="flex-1" />
-                          <Button size="sm" variant="destructive" onClick={() => handleDocAction(doc.id, "rejeitado", rejectFeedback)}>Confirmar</Button>
-                        </div>
-                      ) : (
-                        <Button size="sm" variant="outline" className="text-red-600 border-red-300" onClick={() => setRejectDocId(doc.id)}>
-                          <XCircle className="mr-1 h-4 w-4" /> Rejeitar
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {allDocsApproved && reviewRequest?.status !== "aprovado" && (
-                <Button onClick={handleEfetivar} disabled={saving} className="w-full h-12 bg-green-600 hover:bg-green-700 text-white">
-                  {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserCheck className="mr-2 h-5 w-5" />}
-                  Efetivar Contratação
-                </Button>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Admission Detail Sheet */}
+      <AdmissaoModal
+        employee={selectedEmp}
+        open={!!selectedEmp}
+        onClose={() => setSelectedEmp(null)}
+        onEfetivar={handleEfetivar}
+      />
     </div>
   );
 }
