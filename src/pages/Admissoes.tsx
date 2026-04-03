@@ -113,7 +113,7 @@ export default function Admissoes() {
     if (!candidateSetor.trim()) { toast.error("Setor é obrigatório."); return; }
     if (!empresaId) return;
     setSaving(true);
-    const { error } = await supabase.from("funcionarios").insert({
+    const { data: inserted, error } = await supabase.from("funcionarios").insert({
       empresa_id: empresaId,
       nome: candidateName.trim(),
       cpf: candidateCpf.replace(/\D/g, "") || null,
@@ -123,16 +123,32 @@ export default function Admissoes() {
       matricula: `ADM-${Date.now().toString(36).toUpperCase()}`,
       status: "em_admissao",
       admission_stage: "dados_iniciais",
-    } as any);
-    if (error) {
-      toast.error("Erro: " + error.message);
-    } else {
-      toast.success("Candidato adicionado ao Kanban!");
-      setCandidateName(""); setCandidateCpf(""); setCandidatePhone("");
-      setCandidateCargo(""); setCandidateSetor("");
-      setNewModalOpen(false);
-      loadEmployees();
+    } as any).select().single();
+
+    if (error || !inserted) {
+      toast.error("Erro: " + (error?.message || "Falha ao criar candidato"));
+      setSaving(false);
+      return;
     }
+
+    // Dispatch webhook to n8n for WhatsApp notification
+    try {
+      await supabase.functions.invoke("webhook-candidate-onboarding", {
+        body: {
+          candidate_id: inserted.id,
+          name: candidateName.trim(),
+          phone: candidatePhone || null,
+        },
+      });
+    } catch (e) {
+      console.warn("Webhook candidate-onboarding failed:", e);
+    }
+
+    toast.success("Candidato criado! Link de admissão enviado via WhatsApp.");
+    setCandidateName(""); setCandidateCpf(""); setCandidatePhone("");
+    setCandidateCargo(""); setCandidateSetor("");
+    setNewModalOpen(false);
+    loadEmployees();
     setSaving(false);
   };
 
