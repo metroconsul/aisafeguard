@@ -170,6 +170,17 @@ export default function Admissoes() {
     setSaving(false);
   };
 
+  const handleResendLink = async (candidateId: string, name: string, phone: string | null) => {
+    try {
+      await supabase.functions.invoke("webhook-candidate-onboarding", {
+        body: { candidate_id: candidateId, name, phone },
+      });
+      toast.success("Link reenviado via WhatsApp!");
+    } catch {
+      toast.error("Erro ao reenviar link.");
+    }
+  };
+
   const getColumnItems = (stage: Stage) =>
     employees.filter(e => e.admission_stage === stage);
 
@@ -218,6 +229,7 @@ export default function Admissoes() {
                           employee={emp}
                           index={idx}
                           onClick={() => setSelectedEmp(emp)}
+                          onResendLink={handleResendLink}
                         />
                       ))}
                       {provided.placeholder}
