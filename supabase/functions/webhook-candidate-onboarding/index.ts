@@ -22,6 +22,7 @@ serve(async (req) => {
     }
 
     const n8nUrl = "https://n8n-n8n.nd25qi.easypanel.host/webhook/candidate-onboarding";
+    const onboardingUrl = `https://aisafeguard.lovable.app/onboarding/${candidate_id}?v=${Date.now()}`;
 
     const n8nResponse = await fetch(n8nUrl, {
       method: "POST",
@@ -30,7 +31,7 @@ serve(async (req) => {
         candidate_id,
         name,
         phone: phone || null,
-        onboarding_url: `https://aisafeguard.lovable.app/onboarding/${candidate_id}`,
+        onboarding_url: onboardingUrl,
       }),
     });
 
