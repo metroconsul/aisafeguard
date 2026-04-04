@@ -1,38 +1,45 @@
 
 
-## Plano: Adicionar status de notificação WhatsApp aos Holerites
+## Plano: Refatorar Disparo de Holerites para Upload Individual por Funcionário
 
-### Contexto
-O n8n precisa fazer um callback para marcar o holerite como "enviado" após disparar o WhatsApp. Como você usa Lovable Cloud (sem acesso direto ao dashboard Supabase), faremos tudo por aqui.
+### Problema
+No modo "Envio em Lote", o sistema envia o **mesmo PDF** para todos os funcionários. Cada holerite é único por funcionário, então isso não funciona na prática.
 
-### Etapas
+### Solução
+Reformular o modal para suportar **upload de múltiplos PDFs**, um por funcionário, com uma interface clara para associar cada arquivo ao funcionário correto.
 
-**1. Migration — adicionar coluna `notification_status`**
-- Usar a ferramenta de migration do Lovable Cloud para executar:
-  ```sql
-  ALTER TABLE documents ADD COLUMN IF NOT EXISTS notification_status TEXT DEFAULT 'pendente';
-  ```
+### Arquitetura do Novo Modal
 
-**2. Configurar o node do n8n**
-- No último node "Callback Supabase — Marcar Enviado", configurar como HTTP Request:
-  - **Method**: PATCH
-  - **URL**: `https://ffndxwyviafznftdxnib.supabase.co/rest/v1/documents?id=eq.{{ $json.document_id }}`
-  - **Headers**:
-    - `apikey`: a chave `anon` do projeto (`eyJhbGci...Gh3ZA`)
-    - `Authorization`: `Bearer <mesma chave anon>`
-    - `Content-Type`: `application/json`
-    - `Prefer`: `return=minimal`
-  - **Body**: `{ "notification_status": "enviado" }`
+**Modo "Um Funcionário"** (mantém como está):
+- Seleciona funcionário, anexa 1 PDF, dispara.
 
-> Como a tabela `documents` tem RLS, pode ser necessário usar a **service_role key** em vez da anon key. Vou verificar as políticas RLS existentes para confirmar.
+**Modo "Envio em Lote"** (novo fluxo):
+- Seleciona o mês de referência.
+- Exibe a lista de funcionários ativos em uma tabela/lista com:
+  - Nome | Setor | Arquivo (botão de upload individual ou drag-and-drop)
+- O RH anexa o PDF de cada funcionário na linha correspondente.
+- Dica de UX: aceitar também um **upload múltiplo** onde os arquivos são nomeados com o nome ou CPF do funcionário (ex: `joao_silva.pdf`, `12345678900.pdf`) e o sistema tenta fazer o match automático.
+- Botão "Disparar Todos" só fica habilitado quando pelo menos 1 arquivo foi associado.
+- Processa apenas os funcionários que têm arquivo anexado.
 
-**3. Atualizar a UI (Holerites.tsx)**
-- Adicionar uma coluna "Notificação WhatsApp" na tabela de auditoria
-- Exibir badge verde "Enviado" ou badge amarelo "Pendente" conforme o valor de `notification_status`
+### Etapas Técnicas
 
-**4. (Opcional) Criar Edge Function de callback**
-- Se preferir não expor chaves diretamente no n8n, podemos criar uma Edge Function `/callback-holerite` que recebe o `document_id` e faz o update internamente. O n8n chamaria essa função sem precisar de credenciais do banco.
+**1. Refatorar `NovoHoleriteModal.tsx`**
+- Adicionar estado `fileMap: Record<string, File>` para mapear `funcionario_id → File`.
+- No modo lote, renderizar lista de funcionários com input de arquivo individual por linha.
+- Adicionar lógica de **auto-match** por nome de arquivo: ao fazer upload múltiplo, comparar nome do arquivo (normalizado) com `nome` ou `cpf` do funcionário.
+- Mostrar badge verde nos funcionários que já têm arquivo associado.
+- No submit, iterar apenas sobre os funcionários com arquivo no `fileMap`.
 
-### Recomendação
-A opção 4 (Edge Function de callback) é mais segura — evita colocar chaves do banco no n8n. O n8n chamaria apenas a URL da Edge Function passando o `document_id`.
+**2. Ajustar o loop de envio**
+- Em vez de usar o mesmo `file` para todos, pegar `fileMap[func.id]` para cada funcionário.
+- O base64 e upload ao storage usam o arquivo correto de cada um.
+
+**3. UX do auto-match**
+- Ao selecionar múltiplos arquivos, normalizar o nome (remover acentos, lowercase) e comparar com o nome/CPF dos funcionários.
+- Mostrar resultado do match: "12 de 15 funcionários associados automaticamente".
+- Permitir correção manual nos não-associados.
+
+### Sem alterações no banco de dados
+A estrutura da tabela `documents` e do storage permanece a mesma. A mudança é puramente no frontend.
 
