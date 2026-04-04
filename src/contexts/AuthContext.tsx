@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchPerfil = useCallback(async (userId: string) => {
     const { data, error } = await supabase
       .from("perfis")
-      .select("id, empresa_id, nome_completo, role")
+      .select("id, empresa_id, nome_completo, role, status")
       .eq("id", userId)
       .maybeSingle();
 
@@ -70,8 +70,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const p = (data as Perfil | null) ?? null;
-    setPerfil(p);
+    const p = (data as (Perfil & { status?: string }) | null) ?? null;
+
+    // Auto-activate user on first login if status is pending
+    if (p && p.status !== "ativo") {
+      await supabase
+        .from("perfis")
+        .update({ status: "ativo" })
+        .eq("id", userId);
+    }
+
+    setPerfil(p ? { id: p.id, empresa_id: p.empresa_id, nome_completo: p.nome_completo, role: p.role } : null);
 
     if (p?.empresa_id) {
       await fetchEmpresa(p.empresa_id);
