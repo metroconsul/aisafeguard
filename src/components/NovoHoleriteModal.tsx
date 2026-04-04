@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,9 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Upload, Loader2, FileUp } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Upload, Loader2, FileUp, CheckCircle2, X, FileText, Users } from "lucide-react";
 import { toast } from "sonner";
 import { format, subMonths } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -19,7 +22,14 @@ function fileToBase64(file: File): Promise<string> {
     reader.readAsDataURL(file);
   });
 }
-import { ptBR } from "date-fns/locale";
+
+function normalizeStr(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/gi, "")
+    .toLowerCase();
+}
 
 interface Props {
   open: boolean;
@@ -39,27 +49,40 @@ function generateMonthOptions() {
   return options;
 }
 
+interface Funcionario {
+  id: string;
+  nome: string;
+  setor: string;
+  telefone_whatsapp: string | null;
+  cpf: string | null;
+}
+
 export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
   const { perfil } = useAuth();
   const empresaId = perfil?.empresa_id;
   const fileRef = useRef<HTMLInputElement>(null);
+  const batchFileRef = useRef<HTMLInputElement>(null);
+  const individualFileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
   const [month, setMonth] = useState("");
   const [recipientType, setRecipientType] = useState<"single" | "batch">("single");
   const [selectedFuncionario, setSelectedFuncionario] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [fileMap, setFileMap] = useState<Record<string, File>>({});
   const [notifyWhatsApp, setNotifyWhatsApp] = useState(true);
   const [loading, setLoading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
 
   const monthOptions = generateMonthOptions();
 
-  const { data: funcionarios = [] } = useQuery({
+  const { data: funcionarios = [] } = useQuery<Funcionario[]>({
     queryKey: ["funcionarios-holerite", empresaId],
     enabled: !!empresaId && open,
     queryFn: async () => {
       const { data } = await supabase
         .from("funcionarios")
-        .select("id, nome, setor, telefone_whatsapp")
+        .select("id, nome, setor, telefone_whatsapp, cpf")
         .eq("empresa_id", empresaId!)
         .eq("status", "ativo")
         .order("nome");
@@ -67,7 +90,54 @@ export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
     },
   });
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const matchedCount = useMemo(() => Object.keys(fileMap).length, [fileMap]);
+
+  const autoMatchFiles = useCallback(
+    (files: FileList) => {
+      const newMap: Record<string, File> = { ...fileMap };
+      let matched = 0;
+
+      Array.from(files).forEach((f) => {
+        if (f.type !== "application/pdf") return;
+        const baseName = normalizeStr(f.name.replace(/\.pdf$/i, ""));
+
+        for (const func of funcionarios) {
+          const normNome = normalizeStr(func.nome);
+          const normCpf = func.cpf ? normalizeStr(func.cpf) : null;
+
+          if (baseName === normNome || baseName.includes(normNome) || normNome.includes(baseName) || (normCpf && baseName.includes(normCpf))) {
+            if (!newMap[func.id]) {
+              newMap[func.id] = f;
+              matched++;
+              break;
+            }
+          }
+        }
+      });
+
+      setFileMap(newMap);
+      if (matched > 0) {
+        toast.success(`${matched} arquivo(s) associado(s) automaticamente!`);
+      }
+      const unmatched = Array.from(files).filter((f) => f.type === "application/pdf").length - matched;
+      if (unmatched > 0) {
+        toast.info(`${unmatched} arquivo(s) não puderam ser associados automaticamente. Associe manualmente.`);
+      }
+    },
+    [funcionarios, fileMap]
+  );
+
+  const handleBatchDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      const files = e.dataTransfer.files;
+      if (files.length > 0) autoMatchFiles(files);
+    },
+    [autoMatchFiles]
+  );
+
+  const handleSingleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
     const f = e.dataTransfer.files[0];
@@ -75,42 +145,66 @@ export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
     else toast.error("Apenas arquivos PDF são aceitos.");
   }, []);
 
+  const removeFileFromMap = (funcId: string) => {
+    setFileMap((prev) => {
+      const next = { ...prev };
+      delete next[funcId];
+      return next;
+    });
+  };
+
   const handleSubmit = async () => {
     if (!month) return toast.error("Selecione o mês de referência.");
-    if (recipientType === "single" && !selectedFuncionario) return toast.error("Selecione um funcionário.");
-    if (!file) return toast.error("Anexe o arquivo PDF do holerite.");
+
+    if (recipientType === "single") {
+      if (!selectedFuncionario) return toast.error("Selecione um funcionário.");
+      if (!file) return toast.error("Anexe o arquivo PDF do holerite.");
+    } else {
+      if (matchedCount === 0) return toast.error("Associe ao menos um PDF a um funcionário.");
+    }
 
     setLoading(true);
     try {
-      const targets = recipientType === "single"
-        ? funcionarios.filter((f) => f.id === selectedFuncionario)
-        : funcionarios;
+      const targets =
+        recipientType === "single"
+          ? funcionarios.filter((f) => f.id === selectedFuncionario)
+          : funcionarios.filter((f) => fileMap[f.id]);
 
-      for (const func of targets) {
+      setProgress({ current: 0, total: targets.length });
+
+      for (let i = 0; i < targets.length; i++) {
+        const func = targets[i];
+        const currentFile = recipientType === "single" ? file! : fileMap[func.id];
+        setProgress({ current: i + 1, total: targets.length });
+
         // 1. Upload PDF
         const filePath = `holerites/${empresaId}/${func.id}/${month.replace("/", "-")}.pdf`;
         const { error: uploadError } = await supabase.storage
           .from("employee_vault")
-          .upload(filePath, file, { upsert: true });
+          .upload(filePath, currentFile, { upsert: true });
         if (uploadError) throw uploadError;
 
         const { data: urlData } = supabase.storage.from("employee_vault").getPublicUrl(filePath);
 
         // 2. Insert document
-        const { data: doc, error: insertError } = await supabase.from("documents").insert({
-          empresa_id: empresaId!,
-          funcionario_id: func.id,
-          title: `Holerite ${month}`,
-          doc_category: "holerite",
-          signature_status: "pendente",
-          reference_period: month,
-          file_url: urlData.publicUrl,
-        }).select("id").single();
+        const { data: doc, error: insertError } = await supabase
+          .from("documents")
+          .insert({
+            empresa_id: empresaId!,
+            funcionario_id: func.id,
+            title: `Holerite ${month}`,
+            doc_category: "holerite",
+            signature_status: "pendente",
+            reference_period: month,
+            file_url: urlData.publicUrl,
+          })
+          .select("id")
+          .single();
         if (insertError) throw insertError;
 
-        // 3. Notify via Edge Function (with PDF base64)
+        // 3. Notify via Edge Function
         if (notifyWhatsApp) {
-          const pdfBase64 = await fileToBase64(file);
+          const pdfBase64 = await fileToBase64(currentFile);
           const { error: fnError } = await supabase.functions.invoke("notify-holerite", {
             body: {
               document_id: doc.id,
@@ -129,13 +223,14 @@ export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
         }
       }
 
-      toast.success("Holerite(s) salvo(s) e notificação enviada para a fila de disparo!");
+      toast.success(`${targets.length} holerite(s) salvo(s) com sucesso!`);
       resetForm();
       onSuccess();
     } catch (err: any) {
       toast.error(err.message || "Erro ao salvar holerite.");
     } finally {
       setLoading(false);
+      setProgress({ current: 0, total: 0 });
     }
   };
 
@@ -143,13 +238,14 @@ export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
     setMonth("");
     setSelectedFuncionario("");
     setFile(null);
+    setFileMap({});
     setNotifyWhatsApp(true);
     setRecipientType("single");
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileUp className="h-5 w-5 text-primary" />
@@ -157,15 +253,19 @@ export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 mt-2">
+        <div className="space-y-4 mt-2 overflow-y-auto flex-1 pr-1">
           {/* Mês de Referência */}
           <div className="space-y-1.5">
             <Label>Mês/Ano de Referência *</Label>
             <Select value={month} onValueChange={setMonth}>
-              <SelectTrigger><SelectValue placeholder="Selecione o mês" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o mês" />
+              </SelectTrigger>
               <SelectContent>
                 {monthOptions.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -175,52 +275,186 @@ export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
           <div className="space-y-1.5">
             <Label>Destinatário</Label>
             <Select value={recipientType} onValueChange={(v) => setRecipientType(v as any)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="single">Um Funcionário Específico</SelectItem>
-                <SelectItem value="batch">Envio em Lote (todos ativos)</SelectItem>
+                <SelectItem value="batch">Envio em Lote (individual por funcionário)</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
+          {/* === MODO SINGLE === */}
           {recipientType === "single" && (
-            <div className="space-y-1.5">
-              <Label>Funcionário *</Label>
-              <Select value={selectedFuncionario} onValueChange={setSelectedFuncionario}>
-                <SelectTrigger><SelectValue placeholder="Buscar funcionário..." /></SelectTrigger>
-                <SelectContent>
-                  {funcionarios.map((f) => (
-                    <SelectItem key={f.id} value={f.id}>{f.nome} — {f.setor}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <>
+              <div className="space-y-1.5">
+                <Label>Funcionário *</Label>
+                <Select value={selectedFuncionario} onValueChange={setSelectedFuncionario}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Buscar funcionário..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {funcionarios.map((f) => (
+                      <SelectItem key={f.id} value={f.id}>
+                        {f.nome} — {f.setor}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Drag & Drop single */}
+              <div
+                className={`flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors cursor-pointer ${
+                  dragOver ? "border-primary bg-primary/5" : "border-muted-foreground/30"
+                }`}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleSingleDrop}
+                onClick={() => fileRef.current?.click()}
+              >
+                <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                {file ? (
+                  <p className="text-sm font-medium text-foreground">{file.name}</p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Arraste o PDF do holerite ou clique para selecionar</p>
+                )}
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) setFile(e.target.files[0]);
+                  }}
+                />
+              </div>
+            </>
           )}
 
-          {/* Drag & Drop */}
-          <div
-            className={`flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors cursor-pointer ${
-              dragOver ? "border-primary bg-primary/5" : "border-muted-foreground/30"
-            }`}
-            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={handleDrop}
-            onClick={() => fileRef.current?.click()}
-          >
-            <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-            {file ? (
-              <p className="text-sm font-medium text-foreground">{file.name}</p>
-            ) : (
-              <p className="text-sm text-muted-foreground">Arraste o PDF do holerite ou clique para selecionar</p>
-            )}
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".pdf"
-              className="hidden"
-              onChange={(e) => { if (e.target.files?.[0]) setFile(e.target.files[0]); }}
-            />
-          </div>
+          {/* === MODO BATCH === */}
+          {recipientType === "batch" && (
+            <>
+              {/* Auto-match drop zone */}
+              <div
+                className={`flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors cursor-pointer ${
+                  dragOver ? "border-primary bg-primary/5" : "border-muted-foreground/30"
+                }`}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleBatchDrop}
+                onClick={() => batchFileRef.current?.click()}
+              >
+                <Users className="h-8 w-8 text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground text-center">
+                  Arraste <strong>vários PDFs</strong> nomeados com o nome ou CPF do funcionário
+                  <br />
+                  <span className="text-xs">(ex: joao_silva.pdf, 12345678900.pdf)</span>
+                </p>
+                <input
+                  ref={batchFileRef}
+                  type="file"
+                  accept=".pdf"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files) autoMatchFiles(e.target.files);
+                  }}
+                />
+              </div>
+
+              {/* Match summary */}
+              {matchedCount > 0 && (
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="bg-success/10 text-success border-success/20">
+                    <CheckCircle2 className="mr-1 h-3 w-3" />
+                    {matchedCount} de {funcionarios.length} associado(s)
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs text-destructive"
+                    onClick={() => setFileMap({})}
+                  >
+                    Limpar todos
+                  </Button>
+                </div>
+              )}
+
+              {/* Lista de funcionários */}
+              <ScrollArea className="max-h-[280px] rounded-lg border border-border">
+                <div className="divide-y divide-border">
+                  {funcionarios.map((func) => {
+                    const hasFile = !!fileMap[func.id];
+                    return (
+                      <div
+                        key={func.id}
+                        className={`flex items-center justify-between gap-3 px-3 py-2.5 ${
+                          hasFile ? "bg-success/5" : ""
+                        }`}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-foreground truncate">{func.nome}</p>
+                          <p className="text-xs text-muted-foreground">{func.setor}</p>
+                        </div>
+
+                        {hasFile ? (
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Badge variant="outline" className="bg-success/10 text-success border-success/20 text-xs max-w-[140px] truncate">
+                              <FileText className="mr-1 h-3 w-3 shrink-0" />
+                              <span className="truncate">{fileMap[func.id].name}</span>
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                              onClick={() => removeFileFromMap(func.id)}
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs shrink-0"
+                            onClick={() => individualFileRefs.current[func.id]?.click()}
+                          >
+                            <Upload className="mr-1 h-3 w-3" />
+                            Anexar
+                            <input
+                              ref={(el) => {
+                                individualFileRefs.current[func.id] = el;
+                              }}
+                              type="file"
+                              accept=".pdf"
+                              className="hidden"
+                              onChange={(e) => {
+                                const f = e.target.files?.[0];
+                                if (f && f.type === "application/pdf") {
+                                  setFileMap((prev) => ({ ...prev, [func.id]: f }));
+                                } else if (f) {
+                                  toast.error("Apenas PDFs são aceitos.");
+                                }
+                                e.target.value = "";
+                              }}
+                            />
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            </>
+          )}
 
           {/* Notify checkbox */}
           <div className="flex items-center gap-2">
@@ -234,9 +468,20 @@ export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
             </Label>
           </div>
 
+          {/* Progress */}
+          {loading && progress.total > 0 && (
+            <div className="text-sm text-muted-foreground text-center">
+              Processando {progress.current} de {progress.total}...
+            </div>
+          )}
+
           <Button onClick={handleSubmit} disabled={loading} className="w-full">
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            {loading ? "Salvando..." : "Salvar e Disparar"}
+            {loading
+              ? `Processando ${progress.current}/${progress.total}...`
+              : recipientType === "batch"
+              ? `Disparar ${matchedCount} Holerite(s)`
+              : "Salvar e Disparar"}
           </Button>
         </div>
       </DialogContent>
