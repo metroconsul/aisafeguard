@@ -170,9 +170,9 @@ export default function LandingPage() {
             <Link to="/portal/login" className="rounded-full border border-white/20 px-5 py-2 text-sm font-medium text-white/80 transition-all hover:bg-white/10 hover:-translate-y-0.5">
               Portal do Colaborador
             </Link>
-            <Link to="/login" className="rounded-full px-5 py-2 text-sm font-bold transition-all hover:-translate-y-0.5" style={{ background: LIME, color: NAVY }}>
-              Teste Grátis
-            </Link>
+            <a href="#precos" className="rounded-full px-5 py-2 text-sm font-bold transition-all hover:-translate-y-0.5" style={{ background: LIME, color: NAVY }}>
+              Começar Agora
+            </a>
           </div>
 
           <button className="md:hidden text-white" onClick={() => setMenuOpen(!menuOpen)}>
@@ -187,7 +187,7 @@ export default function LandingPage() {
               <a href="#automacoes" className="text-sm font-medium text-white/70" onClick={() => setMenuOpen(false)}>Automações</a>
               <a href="#precos" className="text-sm font-medium text-white/70" onClick={() => setMenuOpen(false)}>Preços</a>
               <Link to="/portal/login" className="text-sm font-medium text-white/70" onClick={() => setMenuOpen(false)}>Portal do Colaborador</Link>
-              <Link to="/login" className="rounded-full px-5 py-2.5 text-center text-sm font-bold" style={{ background: LIME, color: NAVY }}>Teste Grátis</Link>
+              <a href="#precos" className="rounded-full px-5 py-2.5 text-center text-sm font-bold" style={{ background: LIME, color: NAVY }} onClick={() => setMenuOpen(false)}>Começar Agora</a>
             </div>
           </motion.div>
         )}
