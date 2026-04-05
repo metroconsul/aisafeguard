@@ -170,12 +170,38 @@ export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
           ? funcionarios.filter((f) => f.id === selectedFuncionario)
           : funcionarios.filter((f) => fileMap[f.id]);
 
-      setProgress({ current: 0, total: targets.length });
+      // Check for existing holerites in this period
+      const targetIds = targets.map((t) => t.id);
+      const { data: existing } = await supabase
+        .from("documents")
+        .select("funcionario_id")
+        .eq("empresa_id", empresaId!)
+        .eq("doc_category", "holerite")
+        .eq("reference_period", month)
+        .in("funcionario_id", targetIds);
 
-      for (let i = 0; i < targets.length; i++) {
-        const func = targets[i];
+      const existingSet = new Set((existing || []).map((e) => e.funcionario_id));
+      const duplicates = targets.filter((t) => existingSet.has(t.id));
+      const validTargets = targets.filter((t) => !existingSet.has(t.id));
+
+      if (duplicates.length > 0 && validTargets.length === 0) {
+        const names = duplicates.map((d) => d.nome).join(", ");
+        toast.error(`Holerite de ${month} já existe para: ${names}. Nenhum novo disparo realizado.`);
+        setLoading(false);
+        return;
+      }
+
+      if (duplicates.length > 0) {
+        const names = duplicates.map((d) => d.nome).join(", ");
+        toast.warning(`Pulando duplicados (já possuem holerite em ${month}): ${names}`);
+      }
+
+      setProgress({ current: 0, total: validTargets.length });
+
+      for (let i = 0; i < validTargets.length; i++) {
+        const func = validTargets[i];
         const currentFile = recipientType === "single" ? file! : fileMap[func.id];
-        setProgress({ current: i + 1, total: targets.length });
+        setProgress({ current: i + 1, total: validTargets.length });
 
         // 1. Upload PDF
         const filePath = `holerites/${empresaId}/${func.id}/${month.replace("/", "-")}.pdf`;
