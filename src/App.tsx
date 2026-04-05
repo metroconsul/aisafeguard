@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import { PortalLayout } from "@/components/portal/PortalLayout";
 import LandingPage from "@/pages/LandingPage";
+import SobrePortal from "@/pages/SobrePortal";
 import Dashboard from "@/pages/Dashboard";
 import NovaEntrega from "@/pages/NovaEntrega";
 import Funcionarios from "@/pages/Funcionarios";
@@ -53,6 +54,7 @@ const App = () => (
               {/* Public routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/site" element={<LandingPage />} />
+              <Route path="/sobre-o-portal" element={<SobrePortal />} />
               <Route path="/login" element={<Login />} />
               <Route path="/cadastro" element={<Cadastro />} />
               <Route path="/assinar/:id" element={<Assinar />} />
