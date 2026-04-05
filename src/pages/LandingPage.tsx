@@ -167,8 +167,9 @@ export default function LandingPage() {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            <Link to="/portal/login" className="rounded-full border border-white/20 px-5 py-2 text-sm font-medium text-white/80 transition-all hover:bg-white/10 hover:-translate-y-0.5">
+            <Link to="/sobre-o-portal" className="rounded-full border border-white/20 px-5 py-2 text-sm font-medium text-white/80 transition-all hover:bg-white/10 hover:-translate-y-0.5">
               Portal do Colaborador
+            </Link>
             </Link>
             <a href="#precos" className="rounded-full px-5 py-2 text-sm font-bold transition-all hover:-translate-y-0.5" style={{ background: LIME, color: NAVY }}>
               Começar Agora
@@ -186,7 +187,7 @@ export default function LandingPage() {
               <a href="#funcionalidades" className="text-sm font-medium text-white/70" onClick={() => setMenuOpen(false)}>Funcionalidades</a>
               <a href="#automacoes" className="text-sm font-medium text-white/70" onClick={() => setMenuOpen(false)}>Automações</a>
               <a href="#precos" className="text-sm font-medium text-white/70" onClick={() => setMenuOpen(false)}>Preços</a>
-              <Link to="/portal/login" className="text-sm font-medium text-white/70" onClick={() => setMenuOpen(false)}>Portal do Colaborador</Link>
+              <Link to="/sobre-o-portal" className="text-sm font-medium text-white/70" onClick={() => setMenuOpen(false)}>Portal do Colaborador</Link>
               <a href="#precos" className="rounded-full px-5 py-2.5 text-center text-sm font-bold" style={{ background: LIME, color: NAVY }} onClick={() => setMenuOpen(false)}>Começar Agora</a>
             </div>
           </motion.div>
@@ -329,20 +330,24 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Mobile-First & Automation Engine ─── */}
+      {/* ─── Automação & Proteção Jurídica ─── */}
       <section id="automacoes" className="px-5 py-20 md:py-28 bg-white">
         <div className="mx-auto max-w-6xl">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="flex flex-col gap-12 lg:flex-row lg:items-center">
             {/* Left text */}
             <motion.div variants={fadeUp} className="flex-1">
               <h2 className="text-3xl font-extrabold sm:text-4xl" style={{ color: NAVY, letterSpacing: "-0.02em" }}>
-                Portal Mobile-First de Zero Atrito
+                Automação Inteligente via WhatsApp & E-mail
               </h2>
+              <p className="mt-4 text-slate-500 leading-relaxed">
+                O motor n8n integra o SafeGuard ao WhatsApp do colaborador. Cada ação gera uma notificação automática — sem intervenção manual.
+              </p>
               <div className="mt-8 space-y-6">
                 {[
-                  { title: "Login sem E-mail", desc: "Acesso exclusivo por CPF e PIN de 4 dígitos para o peão da obra." },
-                  { title: "Assinatura com Validade Jurídica", desc: "IP, Data e User-Agent em cada holerite e ficha de EPI." },
-                  { title: "Motor n8n via WhatsApp", desc: "O sistema avisa o colaborador automaticamente ao entregar um EPI, rodar a folha ou iniciar uma admissão." },
+                  { title: "Entrega de EPI", desc: "O almoxarifado registra a entrega e o funcionário recebe link para assinar a ficha no celular." },
+                  { title: "Holerite Disponível", desc: "Ao rodar a folha em lote, cada colaborador recebe seu holerite com link de assinatura digital." },
+                  { title: "Admissão Digital", desc: "Candidato recebe link no WhatsApp para enviar documentos pelo celular — sem ir ao RH." },
+                  { title: "Proteção Jurídica Total", desc: "Cada assinatura registra IP, timestamp e User-Agent. Cofre digital auditável contra passivos trabalhistas." },
                 ].map((item) => (
                   <div key={item.title} className="flex gap-4">
                     <div className="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-100">
@@ -357,33 +362,24 @@ export default function LandingPage() {
               </div>
             </motion.div>
 
-            {/* Right phone mockup in dark card */}
+            {/* Right: WhatsApp flow mockup */}
             <motion.div variants={fadeUp} className="flex-shrink-0 flex justify-center">
               <div className="rounded-3xl p-6 md:p-8 w-72 md:w-80" style={{ background: `linear-gradient(160deg, ${NAVY}, ${NAVY_MID})`, border: "1px solid rgba(255,255,255,0.1)" }}>
-                <div className="rounded-2xl bg-white overflow-hidden shadow-lg">
-                  <div className="p-4" style={{ background: NAVY }}>
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className="h-5 w-5" style={{ color: LIME }} />
-                      <span className="text-xs font-bold text-white">Portal SafeGuard</span>
+                <div className="space-y-3">
+                  {[
+                    { from: "SafeGuard", msg: "📄 Novo holerite disponível para João Silva. Clique para assinar →", time: "09:32" },
+                    { from: "SafeGuard", msg: "🦺 EPI entregue: Capacete MSA (CA 12345). Assine a ficha de entrega →", time: "14:15" },
+                    { from: "SafeGuard", msg: "📋 Documentos de admissão solicitados. Envie pelo link abaixo →", time: "10:48" },
+                  ].map((m, i) => (
+                    <div key={i} className="rounded-xl bg-white p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center"><MessageSquare className="h-2.5 w-2.5 text-white" /></div>
+                        <span className="text-[9px] font-bold text-slate-700">{m.from}</span>
+                        <span className="ml-auto text-[8px] text-slate-400">{m.time}</span>
+                      </div>
+                      <p className="text-[9px] text-slate-600 leading-relaxed">{m.msg}</p>
                     </div>
-                    <p className="mt-2 text-lg font-bold text-white">Olá, João 👷</p>
-                  </div>
-                  <div className="p-4 space-y-3">
-                    {[
-                      { icon: FileText, label: "Meus Holerites", badge: "1 novo" },
-                      { icon: ShieldCheck, label: "Meus EPIs", badge: "" },
-                      { icon: Lock, label: "Documentos", badge: "" },
-                    ].map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <div key={item.label} className="flex items-center gap-3 rounded-xl p-3" style={{ background: LIGHT_BG }}>
-                          <Icon className="h-4 w-4" style={{ color: BLUE }} />
-                          <span className="text-xs font-semibold" style={{ color: NAVY }}>{item.label}</span>
-                          {item.badge && <span className="ml-auto text-[9px] font-bold rounded-full px-2 py-0.5" style={{ background: LIME, color: NAVY }}>{item.badge}</span>}
-                        </div>
-                      );
-                    })}
-                  </div>
+                  ))}
                 </div>
               </div>
             </motion.div>
