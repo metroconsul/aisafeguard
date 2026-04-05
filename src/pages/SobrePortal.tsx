@@ -36,13 +36,13 @@ export default function SobrePortal() {
             <ShieldCheck className="h-6 w-6" style={{ color: LIME }} />
             SafeGuard
           </Link>
-          <Link
-            to="/portal/login"
+          <a
+            href="/#precos"
             className="rounded-full px-6 py-2 text-sm font-bold transition-all hover:-translate-y-0.5"
             style={{ background: LIME, color: NAVY }}
           >
             Acessar Meu Portal
-          </Link>
+          </a>
         </div>
       </nav>
 
@@ -65,13 +65,13 @@ export default function SobrePortal() {
                 Acesse seus holerites, solicite EPIs e veja seus treinamentos direto do seu celular. Sem precisar de e-mail corporativo ou senhas complicadas.
               </p>
 
-              <Link
-                to="/portal/login"
+              <a
+                href="/#precos"
                 className="mt-10 inline-flex rounded-full px-10 py-4 text-sm font-bold transition-all hover:-translate-y-0.5 shadow-lg"
                 style={{ background: LIME, color: NAVY, boxShadow: `0 8px 30px -8px ${LIME}60` }}
               >
                 Acessar Meu Portal
-              </Link>
+              </a>
             </motion.div>
 
             {/* Right phone mockup */}
@@ -194,13 +194,13 @@ export default function SobrePortal() {
             SafeGuard
           </Link>
 
-          <Link
-            to="/portal/login"
+          <a
+            href="/#precos"
             className="rounded-full px-10 py-4 text-sm font-bold transition-all hover:-translate-y-0.5 shadow-lg"
             style={{ background: LIME, color: NAVY, boxShadow: `0 8px 30px -8px ${LIME}60` }}
           >
             Acessar Meu Portal
-          </Link>
+          </a>
 
           <Link to="/" className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 transition-colors">
             <ArrowLeft className="h-4 w-4" />
