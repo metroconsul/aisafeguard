@@ -249,7 +249,7 @@ export function NovoHoleriteModal({ open, onOpenChange, onSuccess }: Props) {
         }
       }
 
-      toast.success(`${targets.length} holerite(s) salvo(s) com sucesso!`);
+      toast.success(`${validTargets.length} holerite(s) salvo(s) com sucesso!`);
       resetForm();
       onSuccess();
     } catch (err: any) {
