@@ -170,7 +170,6 @@ export default function LandingPage() {
             <Link to="/sobre-o-portal" className="rounded-full border border-white/20 px-5 py-2 text-sm font-medium text-white/80 transition-all hover:bg-white/10 hover:-translate-y-0.5">
               Portal do Colaborador
             </Link>
-            </Link>
             <a href="#precos" className="rounded-full px-5 py-2 text-sm font-bold transition-all hover:-translate-y-0.5" style={{ background: LIME, color: NAVY }}>
               Começar Agora
             </a>
