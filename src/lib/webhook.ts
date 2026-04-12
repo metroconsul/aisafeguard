@@ -26,7 +26,7 @@ export async function triggerWebhook(payload: WebhookPayload) {
 }
 
 // Webhook de confirmação de assinatura — via Edge Function proxy
-export const SIGNATURE_WEBHOOK_URL = "https://n8n-n8n.nd25qi.easypanel.host/webhook/Pdf-Confirmação";
+export const SIGNATURE_WEBHOOK_URL = "https://nextage-n8n.brbss6.easypanel.host/webhook/Pdf-Confirmação";
 
 interface SignatureWebhookPayload {
   id_entrega: string;
@@ -53,7 +53,7 @@ export async function triggerSignatureWebhook(payload: SignatureWebhookPayload) 
 }
 
 // Webhook de convite de usuário (n8n)
-export const INVITE_WEBHOOK_URL = "https://n8n-n8n.nd25qi.easypanel.host/webhook/team-invite";
+export const INVITE_WEBHOOK_URL = "https://nextage-n8n.brbss6.easypanel.host/webhook/team-invite";
 
 interface InviteWebhookPayload {
   nome: string;
