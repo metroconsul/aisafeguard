@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Clock, Send, Printer, Eye, MessageCircle, RefreshCw } from "lucide-react";
+import { Clock, Send, Printer, Eye, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,6 +10,17 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { NovoPontoModal } from "@/components/NovoPontoModal";
 
@@ -153,11 +164,55 @@ export default function CartaoPonto() {
                     </TableCell>
                     <TableCell>{doc.signed_at ? format(new Date(doc.signed_at), "dd/MM/yyyy HH:mm") : "—"}</TableCell>
                     <TableCell className="print:hidden">
-                      {doc.file_url && (
-                        <Button variant="ghost" size="icon" asChild>
-                          <a href={doc.file_url} target="_blank" rel="noreferrer"><Eye className="h-4 w-4" /></a>
-                        </Button>
-                      )}
+                      <div className="flex items-center gap-1">
+                        {doc.file_url && (
+                          <Button variant="ghost" size="icon" asChild>
+                            <a href={doc.file_url} target="_blank" rel="noreferrer"><Eye className="h-4 w-4" /></a>
+                          </Button>
+                        )}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir cartão de ponto?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta ação removerá permanentemente o cartão de ponto de <strong>{func?.nome}</strong> referente a {doc.reference_period}. Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                onClick={async () => {
+                                  try {
+                                    // Best-effort: remove file from storage if it lives in employee_vault
+                                    if (doc.file_url) {
+                                      const marker = "/employee_vault/";
+                                      const idx = doc.file_url.indexOf(marker);
+                                      if (idx !== -1) {
+                                        const path = decodeURIComponent(doc.file_url.substring(idx + marker.length));
+                                        await supabase.storage.from("employee_vault").remove([path]);
+                                      }
+                                    }
+                                    const { error } = await supabase.from("documents").delete().eq("id", doc.id);
+                                    if (error) throw error;
+                                    toast.success("Cartão de ponto excluído");
+                                    refetch();
+                                  } catch (err: any) {
+                                    toast.error("Erro ao excluir: " + (err.message || "tente novamente"));
+                                  }
+                                }}
+                              >
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
