@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AlertTriangle, FileText, LogOut, ChevronRight } from "lucide-react";
+import { RegistroPontoCard } from "@/components/portal/RegistroPontoCard";
 
 export default function PortalHome() {
   const { employee, logout } = usePortalAuth();
@@ -92,6 +93,9 @@ export default function PortalHome() {
         <p className="text-xs text-muted-foreground">Empresa</p>
         <p className="font-semibold text-foreground">{employee.empresa_nome}</p>
       </div>
+
+      {/* Registro de Jornada (Bater Ponto) */}
+      <RegistroPontoCard employee={employee} />
 
       {/* Pendências Urgentes */}
       <div className="space-y-3">
