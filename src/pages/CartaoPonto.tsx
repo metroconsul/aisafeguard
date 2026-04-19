@@ -164,11 +164,55 @@ export default function CartaoPonto() {
                     </TableCell>
                     <TableCell>{doc.signed_at ? format(new Date(doc.signed_at), "dd/MM/yyyy HH:mm") : "—"}</TableCell>
                     <TableCell className="print:hidden">
-                      {doc.file_url && (
-                        <Button variant="ghost" size="icon" asChild>
-                          <a href={doc.file_url} target="_blank" rel="noreferrer"><Eye className="h-4 w-4" /></a>
-                        </Button>
-                      )}
+                      <div className="flex items-center gap-1">
+                        {doc.file_url && (
+                          <Button variant="ghost" size="icon" asChild>
+                            <a href={doc.file_url} target="_blank" rel="noreferrer"><Eye className="h-4 w-4" /></a>
+                          </Button>
+                        )}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir cartão de ponto?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta ação removerá permanentemente o cartão de ponto de <strong>{func?.nome}</strong> referente a {doc.reference_period}. Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                onClick={async () => {
+                                  try {
+                                    // Best-effort: remove file from storage if it lives in employee_vault
+                                    if (doc.file_url) {
+                                      const marker = "/employee_vault/";
+                                      const idx = doc.file_url.indexOf(marker);
+                                      if (idx !== -1) {
+                                        const path = decodeURIComponent(doc.file_url.substring(idx + marker.length));
+                                        await supabase.storage.from("employee_vault").remove([path]);
+                                      }
+                                    }
+                                    const { error } = await supabase.from("documents").delete().eq("id", doc.id);
+                                    if (error) throw error;
+                                    toast.success("Cartão de ponto excluído");
+                                    refetch();
+                                  } catch (err: any) {
+                                    toast.error("Erro ao excluir: " + (err.message || "tente novamente"));
+                                  }
+                                }}
+                              >
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
