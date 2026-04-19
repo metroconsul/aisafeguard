@@ -23,6 +23,8 @@ project_id = "ffndxwyviafznftdxnib"
     verify_jwt = false
   [functions.notify-holerite]
     verify_jwt = false
+  [functions.notify-ponto]
+    verify_jwt = false
   [functions.webhook-epi-delivery]
     verify_jwt = false
   [functions.callback-holerite]
