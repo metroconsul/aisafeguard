@@ -755,6 +755,48 @@ export type Database = {
         }
         Relationships: []
       }
+      time_entries: {
+        Row: {
+          accuracy: number | null
+          address_reference: string | null
+          created_at: string
+          device_info: string | null
+          empresa_id: string
+          funcionario_id: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          recorded_at: string
+          tipo: string
+        }
+        Insert: {
+          accuracy?: number | null
+          address_reference?: string | null
+          created_at?: string
+          device_info?: string | null
+          empresa_id: string
+          funcionario_id: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          recorded_at?: string
+          tipo: string
+        }
+        Update: {
+          accuracy?: number | null
+          address_reference?: string | null
+          created_at?: string
+          device_info?: string | null
+          empresa_id?: string
+          funcionario_id?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          recorded_at?: string
+          tipo?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
