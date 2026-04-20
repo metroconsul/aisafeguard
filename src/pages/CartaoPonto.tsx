@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { NovoPontoModal } from "@/components/NovoPontoModal";
+import { GerarCartoesMensaisModal } from "@/components/GerarCartoesMensaisModal";
+import { FileText } from "lucide-react";
 
 const TIPO_LABEL: Record<string, string> = {
   entrada: "Entrada",
