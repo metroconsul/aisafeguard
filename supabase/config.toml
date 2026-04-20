@@ -31,3 +31,7 @@ project_id = "ffndxwyviafznftdxnib"
     verify_jwt = false
   [functions.webhook-candidate-onboarding]
     verify_jwt = false
+  [functions.notify-ponto-anomalia]
+    verify_jwt = false
+  [functions.gerar-cartao-ponto-mensal]
+    verify_jwt = true

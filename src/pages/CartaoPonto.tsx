@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { NovoPontoModal } from "@/components/NovoPontoModal";
+import { GerarCartoesMensaisModal } from "@/components/GerarCartoesMensaisModal";
+import { FileText } from "lucide-react";
 
 const TIPO_LABEL: Record<string, string> = {
   entrada: "Entrada",
@@ -58,6 +60,7 @@ export default function CartaoPonto() {
   const monthOptions = useMemo(generateMonthOptions, []);
   const [selectedMonth, setSelectedMonth] = useState(monthOptions[0].value);
   const [modalOpen, setModalOpen] = useState(false);
+  const [gerarModalOpen, setGerarModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
 
   const { data: pontos = [], refetch } = useQuery({
@@ -289,7 +292,11 @@ export default function CartaoPonto() {
               <RefreshCw className={`mr-2 h-4 w-4 ${fetchingEntries ? "animate-spin" : ""}`} />
               Atualizar
             </Button>
-            <span className="text-xs text-muted-foreground ml-auto">Auto-atualiza a cada 30s</span>
+            <Button size="sm" onClick={() => setGerarModalOpen(true)} className="ml-auto">
+              <FileText className="mr-2 h-4 w-4" />
+              Gerar Cartões do Mês
+            </Button>
+            <span className="text-xs text-muted-foreground w-full sm:w-auto">Auto-atualiza a cada 30s</span>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -371,6 +378,12 @@ export default function CartaoPonto() {
       </Tabs>
 
       <NovoPontoModal open={modalOpen} onOpenChange={setModalOpen} onSuccess={() => { refetch(); setModalOpen(false); }} />
+      <GerarCartoesMensaisModal
+        open={gerarModalOpen}
+        onOpenChange={setGerarModalOpen}
+        empresaId={empresaId}
+        onSuccess={() => refetch()}
+      />
     </div>
   );
 }
