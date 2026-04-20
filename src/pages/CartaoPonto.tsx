@@ -60,6 +60,7 @@ export default function CartaoPonto() {
   const monthOptions = useMemo(generateMonthOptions, []);
   const [selectedMonth, setSelectedMonth] = useState(monthOptions[0].value);
   const [modalOpen, setModalOpen] = useState(false);
+  const [gerarModalOpen, setGerarModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
 
   const { data: pontos = [], refetch } = useQuery({
