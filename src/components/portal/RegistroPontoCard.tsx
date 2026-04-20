@@ -115,6 +115,36 @@ export function RegistroPontoCard({ employee }: { employee: PortalEmployee }) {
       toast.success(`Ponto registrado às ${format(new Date(), "HH:mm")}!`, {
         icon: <CheckCircle2 className="h-5 w-5 text-success" />,
       });
+
+      // Detecção de anomalia (fire-and-forget)
+      const agora = new Date();
+      const minutos = agora.getHours() * 60 + agora.getMinutes();
+      const diaSemana = agora.getDay(); // 0=dom, 6=sáb
+      let motivo: string | null = null;
+      if (diaSemana === 0 || diaSemana === 6) {
+        motivo = "Batida em fim de semana";
+      } else if (proximoTipo === "entrada" && minutos > 8 * 60 + 15) {
+        motivo = `Atraso na entrada (${Math.floor(minutos / 60)}h${String(minutos % 60).padStart(2, "0")})`;
+      } else if (proximoTipo === "saida" && minutos > 18 * 60 + 30) {
+        motivo = `Hora extra na saída (${Math.floor(minutos / 60)}h${String(minutos % 60).padStart(2, "0")})`;
+      } else if (proximoTipo === "volta_almoco" && minutos > 13 * 60 + 15) {
+        motivo = `Volta tardia do almoço (${Math.floor(minutos / 60)}h${String(minutos % 60).padStart(2, "0")})`;
+      }
+      if (motivo) {
+        supabase.functions
+          .invoke("notify-ponto-anomalia", {
+            body: {
+              funcionario_id: employee.id,
+              tipo: proximoTipo,
+              recorded_at: agora.toISOString(),
+              motivo,
+              latitude: coords.latitude,
+              longitude: coords.longitude,
+            },
+          })
+          .catch((e) => console.warn("Falha ao notificar anomalia:", e));
+      }
+
       setConfirmOpen(false);
       setCoords(null);
       refetch();
