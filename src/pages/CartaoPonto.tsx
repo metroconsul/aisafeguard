@@ -378,6 +378,12 @@ export default function CartaoPonto() {
       </Tabs>
 
       <NovoPontoModal open={modalOpen} onOpenChange={setModalOpen} onSuccess={() => { refetch(); setModalOpen(false); }} />
+      <GerarCartoesMensaisModal
+        open={gerarModalOpen}
+        onOpenChange={setGerarModalOpen}
+        empresaId={empresaId}
+        onSuccess={() => refetch()}
+      />
     </div>
   );
 }
