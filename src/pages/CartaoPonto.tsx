@@ -292,7 +292,11 @@ export default function CartaoPonto() {
               <RefreshCw className={`mr-2 h-4 w-4 ${fetchingEntries ? "animate-spin" : ""}`} />
               Atualizar
             </Button>
-            <span className="text-xs text-muted-foreground ml-auto">Auto-atualiza a cada 30s</span>
+            <Button size="sm" onClick={() => setGerarModalOpen(true)} className="ml-auto">
+              <FileText className="mr-2 h-4 w-4" />
+              Gerar Cartões do Mês
+            </Button>
+            <span className="text-xs text-muted-foreground w-full sm:w-auto">Auto-atualiza a cada 30s</span>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
