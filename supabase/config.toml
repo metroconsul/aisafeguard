@@ -35,3 +35,5 @@ project_id = "ffndxwyviafznftdxnib"
     verify_jwt = false
   [functions.gerar-cartao-ponto-mensal]
     verify_jwt = true
+  [functions.cron-gerar-cartoes-mensais]
+    verify_jwt = false
