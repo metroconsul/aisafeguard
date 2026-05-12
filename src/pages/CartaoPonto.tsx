@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { format, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Clock, Send, Printer, Eye, Trash2, MapPin, RefreshCw } from "lucide-react";
@@ -104,6 +104,22 @@ export default function CartaoPonto() {
 
   const totalBatidas = timeEntries.length;
   const presentes = new Set(timeEntries.map((e: any) => e.funcionario_id)).size;
+
+  // Realtime: nova batida → refetch imediato
+  useEffect(() => {
+    if (!empresaId) return;
+    const channel = supabase
+      .channel(`time_entries-${empresaId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "time_entries", filter: `empresa_id=eq.${empresaId}` },
+        () => refetchEntries()
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [empresaId, refetchEntries]);
 
   return (
     <div className="space-y-6">
