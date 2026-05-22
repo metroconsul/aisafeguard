@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, ChevronRight } from "lucide-react";
+import { Plus, Search } from "lucide-react";
+import FuncionarioKanbanCard from "@/components/funcionarios/FuncionarioKanbanCard";
 
 interface Funcionario {
   id: string;
@@ -29,10 +29,10 @@ interface Setor {
 
 export default function Funcionarios() {
   const { perfil } = useAuth();
-  const navigate = useNavigate();
   const [data, setData] = useState<Funcionario[]>([]);
   const [setores, setSetores] = useState<Setor[]>([]);
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const [form, setForm] = useState({ nome: "", matricula: "", cargo: "", setor: "", setor_id: "", telefone_whatsapp: "", cpf: "" });
 
   const load = () => {
@@ -64,16 +64,52 @@ export default function Funcionarios() {
     load();
   };
 
+  const colunas = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? data.filter((f) =>
+          [f.nome, f.matricula, f.cargo, f.setor_obj?.nome, f.setor]
+            .filter(Boolean)
+            .some((v) => String(v).toLowerCase().includes(q)),
+        )
+      : data;
+
+    const cols = setores.map((s) => ({
+      id: s.id,
+      nome: s.nome,
+      funcionarios: filtered.filter((f) => f.setor_id === s.id),
+    }));
+    const semSetor = filtered.filter((f) => !f.setor_id);
+    if (semSetor.length > 0 || setores.length === 0) {
+      cols.push({ id: "__none__", nome: "Sem setor", funcionarios: semSetor });
+    }
+    return cols;
+  }, [data, setores, query]);
+
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Funcionários</h1>
-          <p className="text-sm text-muted-foreground">{data.length} registros</p>
+    <div>
+      <div>
+        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Funcionários</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          {data.length} {data.length === 1 ? "registro" : "registros"} · {setores.length} {setores.length === 1 ? "setor" : "setores"}
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-6">
+        <div className="relative w-full sm:w-96">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar funcionário..."
+            className="w-full bg-white border border-gray-200 rounded-xl pl-11 pr-4 py-3 shadow-sm text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto"><Plus className="mr-1.5 h-4 w-4" /> Adicionar</Button>
+            <button className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-200 transition-colors">
+              <Plus className="h-4 w-4" /> Novo Funcionário
+            </button>
           </DialogTrigger>
           <DialogContent className="max-w-[95vw] sm:max-w-lg">
             <DialogHeader><DialogTitle>Novo Funcionário</DialogTitle></DialogHeader>
@@ -104,58 +140,36 @@ export default function Funcionarios() {
         </Dialog>
       </div>
 
-      {/* Mobile: card layout */}
-      <div className="block sm:hidden space-y-3">
-        {data.map((f) => (
-          <div key={f.id} onClick={() => navigate(`/app/funcionarios/${f.id}`)} className="cursor-pointer rounded-xl border border-border bg-card p-4 shadow-card space-y-1 hover:border-primary/30 transition-colors">
-            <div className="flex items-center justify-between">
-              <p className="font-medium text-foreground">{f.nome}</p>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+      <div className="mt-6 flex gap-6 overflow-x-auto pb-8 pt-4 w-full">
+        {colunas.map((col) => (
+          <div
+            key={col.id}
+            className="min-w-[320px] max-w-[320px] bg-slate-100/70 border border-slate-200 rounded-2xl flex flex-col max-h-[calc(100vh-280px)]"
+          >
+            <div className="p-4 border-b border-slate-200 flex justify-between items-center">
+              <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wider">{col.nome}</h2>
+              <span className="bg-slate-200 text-gray-600 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
+                {col.funcionarios.length}
+              </span>
             </div>
-            <p className="text-xs text-muted-foreground">{f.cargo} • {f.setor_obj?.nome || f.setor || "—"}</p>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground pt-1">
-              <span>Mat: {f.matricula}</span>
-              {f.telefone_whatsapp && <span>Tel: {f.telefone_whatsapp}</span>}
-              {f.cpf && <span>CPF: {f.cpf}</span>}
+            <div className="p-4 flex flex-col gap-4 flex-1 overflow-y-auto">
+              {col.funcionarios.length === 0 ? (
+                <p className="text-xs text-slate-400 text-center py-8">Nenhum funcionário</p>
+              ) : (
+                col.funcionarios.map((f) => (
+                  <FuncionarioKanbanCard
+                    key={f.id}
+                    id={f.id}
+                    nome={f.nome}
+                    matricula={f.matricula}
+                    cargo={f.cargo}
+                    telefone_whatsapp={f.telefone_whatsapp}
+                  />
+                ))
+              )}
             </div>
           </div>
         ))}
-        {data.length === 0 && (
-          <p className="text-center text-sm text-muted-foreground py-8">Nenhum funcionário cadastrado</p>
-        )}
-      </div>
-
-      {/* Desktop: table layout */}
-      <div className="hidden sm:block rounded-xl border border-border bg-card shadow-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[600px]">
-            <thead>
-              <tr className="border-b border-border bg-muted/50">
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Nome</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Matrícula</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Cargo</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Setor</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground hidden lg:table-cell">WhatsApp</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground hidden lg:table-cell">CPF</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {data.map((f) => (
-                <tr key={f.id} onClick={() => navigate(`/app/funcionarios/${f.id}`)} className="hover:bg-muted/30 transition-colors cursor-pointer">
-                  <td className="px-4 py-3 font-medium text-foreground">{f.nome}</td>
-                  <td className="px-4 py-3 tabular-nums text-muted-foreground">{f.matricula}</td>
-                  <td className="px-4 py-3 text-foreground">{f.cargo}</td>
-                  <td className="px-4 py-3 text-foreground">{f.setor_obj?.nome || f.setor || "—"}</td>
-                  <td className="px-4 py-3 tabular-nums text-muted-foreground hidden lg:table-cell">{f.telefone_whatsapp || "—"}</td>
-                  <td className="px-4 py-3 tabular-nums text-muted-foreground hidden lg:table-cell">{f.cpf || "—"}</td>
-                </tr>
-              ))}
-              {data.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">Nenhum funcionário cadastrado</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
       </div>
     </div>
   );
