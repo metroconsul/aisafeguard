@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ClipboardList } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { EntregaDetailModal } from "@/components/EntregaDetailModal";
+import { EmptyState } from "@/components/EmptyState";
 
 interface EntregaRow {
   id: string;
@@ -15,6 +18,7 @@ interface EntregaRow {
 export function UltimasEntregasTable() {
   const [entregas, setEntregas] = useState<EntregaRow[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     supabase
@@ -44,18 +48,29 @@ export function UltimasEntregasTable() {
 
   return (
     <>
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-card">
+      <div className="rounded-2xl bg-card p-6 shadow-elevated">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Últimas Entregas</h3>
-          <button className="text-xs font-medium text-primary hover:underline">Ver Todas</button>
+          <h3 className="text-base font-semibold text-foreground">Últimas Entregas</h3>
+          <button className="text-xs font-semibold text-primary hover:underline">Ver Todas</button>
         </div>
+
+        {entregas.length === 0 ? (
+          <EmptyState
+            icon={ClipboardList}
+            title="Sem entregas registradas ainda"
+            description="Comece registrando a primeira entrega de EPI para sua equipe."
+            actionLabel="+ Registrar Entrega"
+            onAction={() => navigate("/app/nova-entrega")}
+          />
+        ) : (
+          <>
 
         {/* Mobile: card layout */}
         <div className="block sm:hidden space-y-3">
           {entregas.map((e) => (
             <div
               key={e.id}
-              className="rounded-lg border border-border p-3 cursor-pointer active:bg-muted/40"
+              className="rounded-xl bg-muted/40 p-3 cursor-pointer active:bg-muted/70"
               onClick={() => setSelectedId(e.id)}
             >
               <div className="flex items-center justify-between">
@@ -87,21 +102,21 @@ export function UltimasEntregasTable() {
         <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-sm min-w-[480px]">
             <thead>
-              <tr className="border-b border-border text-left">
-                <th className="pb-3 font-medium text-muted-foreground">Funcionário</th>
-                <th className="pb-3 font-medium text-muted-foreground">EPI</th>
-                <th className="pb-3 font-medium text-muted-foreground hidden md:table-cell">CA</th>
-                <th className="pb-3 font-medium text-muted-foreground">Status</th>
+              <tr className="border-b border-muted text-left">
+                <th className="pb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">Funcionário</th>
+                <th className="pb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">EPI</th>
+                <th className="pb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground hidden md:table-cell">CA</th>
+                <th className="pb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-muted">
               {entregas.map((e) => (
                 <tr
                   key={e.id}
                   className="cursor-pointer transition-colors hover:bg-muted/40"
                   onClick={() => setSelectedId(e.id)}
                 >
-                  <td className="py-3">
+                  <td className="py-4">
                     <div className="flex items-center gap-2.5">
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                         {e.funcionario.split(" ").map((n) => n[0]).join("")}
@@ -112,9 +127,9 @@ export function UltimasEntregasTable() {
                       </div>
                     </div>
                   </td>
-                  <td className="py-3 text-foreground">{e.epi}</td>
-                  <td className="py-3 tabular-nums text-muted-foreground hidden md:table-cell">{e.ca}</td>
-                  <td className="py-3">
+                  <td className="py-4 text-foreground">{e.epi}</td>
+                  <td className="py-4 tabular-nums text-muted-foreground hidden md:table-cell">{e.ca}</td>
+                  <td className="py-4">
                     <Badge
                       variant={e.status === "Assinado" ? "default" : "outline"}
                       className={
@@ -131,6 +146,8 @@ export function UltimasEntregasTable() {
             </tbody>
           </table>
         </div>
+          </>
+        )}
       </div>
 
       <EntregaDetailModal
