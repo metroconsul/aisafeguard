@@ -1,60 +1,72 @@
-## Redesign completo de Nova Entrega de EPI
+# Redesign Funcionários — Kanban por Setor
 
-Reescrita visual + funcional da página `/app/nova-entrega` para uma experiência tipo "kit do dia": comboboxes com busca para Funcionário/Obra, grid visual de EPIs com seleção múltipla, e CTA grande no rodapé. Mantém o webhook e o registro em `entregas`.
+Substituir a tabela atual em `src/pages/Funcionarios.tsx` por um Kanban Board sofisticado, agrupando funcionários pelo setor (`setor_id` → `setores.nome`, com fallback para o campo legado `setor`). Apenas UI/UX — sem mudanças de schema, RLS ou regras de negócio.
 
-### Mudança funcional importante (escopo)
+## Estrutura da página
 
-A página atual permite **1 EPI por entrega**. O grid de seleção múltipla implica registrar **N entregas de uma vez** (uma por EPI selecionado), cada uma gerando seu próprio link de assinatura. Vou:
-- Inserir uma linha em `entregas` por EPI selecionado (mesmo funcionário/obra)
-- Disparar o webhook para cada uma
-- Mostrar a lista de links gerados no estado de sucesso (ao invés de um único link)
+```text
+┌─────────────────────────────────────────────────────────────┐
+│  Funcionários                                                │
+│  N registros · X setores                                     │
+│                                                              │
+│  [🔍 Buscar funcionário...        ]      [+ Novo Funcionário]│
+├─────────────────────────────────────────────────────────────┤
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  →    │
+│  │LOGÍSTICA5│ │ OBRAS  12│ │ ADMIN   3│ │SEM SETOR2│        │
+│  │          │ │          │ │          │ │          │        │
+│  │ [card]   │ │ [card]   │ │ [card]   │ │ [card]   │        │
+│  │ [card]   │ │ [card]   │ │ [card]   │ │          │        │
+│  │ ...      │ │ ...      │ │          │ │          │        │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘        │
+└─────────────────────────────────────────────────────────────┘
+```
 
-Se preferir manter "1 EPI por vez", me avise — basta usar `RadioGroup` no lugar do toggle de seleção múltipla.
+## Header e ações globais
 
-### Estrutura do redesign
+- Wrapper externo: `bg-slate-50 min-h-full -m-* p-6` (compatível com o padding existente do `AppLayout`).
+- Título: `text-3xl font-extrabold text-gray-900 tracking-tight` + subtítulo `text-sm text-gray-500` com contagem total e nº de setores.
+- Barra de ações `flex items-center justify-between gap-4 mt-6`:
+  - Busca: `<Input>` customizado com ícone `Search` à esquerda; classes: `w-96 bg-white border-gray-200 rounded-xl px-4 py-3 shadow-sm focus-visible:ring-indigo-500`.
+  - Botão "+ Novo Funcionário" (mantém o `Dialog` existente): `bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-200`.
 
-`src/pages/NovaEntrega.tsx` reescrita:
+## Container do Kanban
 
-**Container:** `bg-white rounded-3xl shadow-xl shadow-gray-200/40 border border-gray-100 p-8 max-w-5xl mx-auto`
+- `mt-6 flex gap-6 overflow-x-auto pb-8 pt-4 w-full` com scroll horizontal suave.
+- Agrupamento client-side: gera uma coluna por setor existente em `setores` + coluna final "Sem setor" para funcionários sem `setor_id`. Filtro de busca aplicado por `nome`, `matricula`, `cargo` antes do agrupamento.
 
-**Header dentro do container:** título `text-2xl font-extrabold text-gray-900` + subtítulo `text-sm text-gray-500`
+## Coluna (setor)
 
-**Seção 1 — Seleção (grid 2 colunas em md+):**
-- Combobox de Funcionário (busca por nome) e Combobox de Obra. Usar shadcn `Popover` + `Command` para busca real, mas estilizar o trigger como input:
-  - Trigger: `w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 flex items-center gap-2`
-  - Ícone `Search` à esquerda em `text-gray-400 w-4 h-4`
-  - Placeholder: "Buscar funcionário…" / "Buscar obra…"
-  - Label acima: `text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2`
+- Container: `min-w-[320px] max-w-[320px] bg-slate-100/70 border border-slate-200 rounded-2xl flex flex-col max-h-[calc(100vh-280px)]`.
+- Header: `p-4 border-b border-slate-200 flex justify-between items-center`.
+  - Título: `text-sm font-bold text-gray-700 uppercase tracking-wider`.
+  - Badge de contagem: `bg-slate-200 text-gray-600 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center`.
+- Área de cards: `p-4 flex flex-col gap-4 flex-1 overflow-y-auto`.
+- Empty state da coluna: texto sutil "Nenhum funcionário" em `text-xs text-slate-400 text-center py-8`.
 
-**Seção 2 — Grid de EPIs:**
-- Subtítulo: "Selecione os Equipamentos" — `text-xl font-bold text-gray-900 mt-10 mb-4`. À direita do subtítulo um contador discreto "X disponíveis".
-- Grid: `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5`
-- Card EPI (componente local `EpiCard`):
-  - Padrão: `flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-gray-100 bg-white cursor-pointer hover:border-indigo-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 relative`
-  - Selecionado: `border-2 border-indigo-600 bg-indigo-50/50` + ícone `Check` em `absolute top-3 right-3 w-6 h-6 bg-indigo-600 text-white rounded-full p-1 shadow-sm`
-  - Slot de foto: `w-24 h-24 bg-slate-50 rounded-xl mb-3 flex items-center justify-center` com ícone selecionado por categoria — mapa por nome do EPI (capacete → `HardHat`, óculos → `Glasses`, luva → `Hand`, bota → `Footprints`, fallback → `Shield`), `w-10 h-10 text-slate-400`
-  - Nome: `text-sm font-bold text-gray-800 text-center line-clamp-2`
-  - Estoque: badge `text-xs font-medium text-green-700 bg-green-50 px-2 py-1 rounded-md mt-2` — como a tabela `epis` não tem campo de estoque, mostrar o número do CA como subtítulo (`CA 12345`) no mesmo estilo de badge cinza, e omitir "em estoque" para não inventar dado. (Se quiser estoque real, posso adicionar coluna `quantidade_estoque` em `epis` numa próxima iteração.)
-- Estado vazio (sem EPIs cadastrados): usar `EmptyState` existente com ícone `HardHat` e ação "+ Cadastrar EPI" → `/app/epis`
+## Card do funcionário
 
-**Seção 3 — Rodapé:**
-- Separador: `<div className="h-px w-full bg-gray-100 my-8" />`
-- Linha flex com:
-  - Esquerda: contador "X EPI(s) selecionado(s)" em `text-sm font-semibold text-gray-700` + sub-linha "Funcionário: Nome • Obra: Nome" em `text-xs text-gray-500`
-  - Direita: botão "Gerar Entrega" — `bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg shadow-indigo-200/50 transition-all flex items-center gap-2` com ícone `Send` e contagem. Disabled quando sem funcionário/obra/EPIs ou enquanto `loading`.
+Componente novo `src/components/funcionarios/FuncionarioKanbanCard.tsx`.
 
-**Estado de sucesso (após gerar):**
-- Substituir o grid por um painel verde claro com `CheckCircle2` grande, título "Entregas geradas!" e lista das entregas (nome do EPI + link copiável). Botão "Registrar nova entrega" reseta o estado.
+- Base: `bg-white rounded-xl p-5 shadow-sm border border-gray-100 cursor-grab hover:shadow-md hover:border-indigo-300 hover:-translate-y-0.5 transition-all duration-200 relative` — clique navega para `/app/funcionarios/:id`.
+- Topo (`flex justify-between items-start`):
+  - Matrícula: `text-xs font-semibold text-slate-400` (ex: `#1234`).
+  - Status "Ativo": badge `bg-green-50 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase` com ponto verde (`w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse`).
+- Corpo:
+  - Nome: `text-base font-bold text-gray-900 mt-2`.
+  - Cargo: `text-sm font-medium text-indigo-600 mt-0.5`.
+- Rodapé: `mt-4 pt-3 border-t border-slate-50 flex justify-between items-center`.
+  - Botão WhatsApp (ícone `MessageCircle` da lucide): `flex items-center gap-1.5 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors`, abre `https://wa.me/<telefone>` quando disponível, senão desabilitado.
+  - Botão de perfil: ícone `Eye` em `text-gray-400 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-slate-50` que navega para o detalhe.
 
-### Lógica (sem mudar contratos)
+## Detalhes técnicos
 
-- State: `funcId`, `obra`, `selectedEpiIds: Set<string>`, `loading`, `geradas: { epiNome: string; link: string }[]`
-- Submit faz `Promise.all` de inserts em `entregas` (loop por EPI selecionado), calcula `data_vencimento` por EPI, dispara `triggerWebhook` para cada, popula `geradas`
-- Mantém `useAuth`/`empresa_id` igual ao atual
+- Edita `src/pages/Funcionarios.tsx`: remove blocos mobile-table e desktop-table, mantém Dialog de cadastro e carregamento de dados (`load()`, `funcionarios`/`setores`).
+- Adiciona estado `query` (busca) e memo `colunas` (`{ setor, funcionarios[] }[]`).
+- Mobile (<640px): mesma estrutura Kanban com scroll horizontal — colunas continuam `min-w-[320px]`, garantindo UX consistente (sem reverter para tabela).
+- Sem drag-and-drop por enquanto (o card já comunica "arrastável" via `cursor-grab` e hover; mover funcionário entre setores fica fora do escopo desta etapa visual).
+- Tokens: usado Tailwind direto conforme especificado pelo usuário; sem alterações em `index.css`/`tailwind.config.ts`.
 
-### Arquivos
+## Arquivos
 
-- `src/pages/NovaEntrega.tsx` — reescrita completa
-- (Opcional) extrair `EpiCard` inline no mesmo arquivo para não criar componente avulso — manter o arquivo único
-
-Sem mudanças de banco, RLS, edge functions ou rotas.
+- Editar: `src/pages/Funcionarios.tsx`
+- Criar: `src/components/funcionarios/FuncionarioKanbanCard.tsx`
