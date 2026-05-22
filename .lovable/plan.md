@@ -1,58 +1,80 @@
+## Redesign do Dashboard SafeGuard — Nível UX/UI Sênior
 
+Aplicar uma camada de polimento profissional sobre o dashboard atual: novo design system, KPIs com personalidade, gráfico moderno, empty states elegantes e sidebar refinada. Mudanças focadas em apresentação — sem alterar lógica de dados nem queries Supabase.
 
-## Plano: Alertas WhatsApp + Relatório PDF Mensal de Ponto
+### 1. Design tokens globais (`src/index.css` + `tailwind.config.ts`)
 
-### Parte 1 — Alerta WhatsApp ao RH em batidas anômalas
+Atualizar as variáveis HSL no `:root`:
 
-**Detecção (no momento do INSERT em `time_entries`):**
-Após salvar a batida no `RegistroPontoCard.tsx`, classificar como anômala se:
-- **Fim de semana**: sábado ou domingo
-- **Atraso**: tipo `entrada` após 08:15
-- **Hora extra**: tipo `saida` após 18:30
-- **Volta tardia do almoço**: `volta_almoco` após 13:15
+- `--background`: cinza frio sutil (`220 14% 96%` ≈ #F3F4F6) — fim do branco puro de fundo
+- `--card`: branco puro (`0 0% 100%`)
+- `--foreground`: cinza muito escuro (`222 47% 11%` ≈ #111827)
+- `--muted-foreground`: cinza médio (`220 9% 46%` ≈ #6B7280)
+- `--primary`: Indigo-500 (`239 84% 67%` — já está, manter)
+- `--border`: cinza muito sutil, usado apenas como fallback
+- Nova sombra elevada: `--shadow-elevated: 0 4px 6px -1px rgba(0,0,0,.05), 0 2px 4px -1px rgba(0,0,0,.03)`
+- Nova sombra para alerta: `--shadow-alert: 0 0 0 1px hsl(var(--destructive)/.15), 0 8px 24px -6px hsl(var(--destructive)/.25)`
 
-Se anômala → chamar nova Edge Function `notify-ponto-anomalia` (passa funcionario_id, tipo, recorded_at, motivo, lat/lng).
+Tailwind: registrar `shadow-elevated` e `shadow-alert` em `boxShadow`. Manter Inter (já carregada) com `font-feature-settings` mais limpos.
 
-**Edge Function `notify-ponto-anomalia`:**
-1. Busca dados do funcionário e da empresa (nome, setor, telefone do RH em `integracao_whatsapp`)
-2. Monta mensagem: `⚠️ Alerta de Ponto — {Nome} ({Setor}) registrou {tipo} às {hora} — Motivo: {atraso/hora extra/fim de semana}. Localização: maps.google.com/?q={lat,lng}`
-3. POST para o webhook n8n existente: `https://nextage-n8n.brbss6.easypanel.host/webhook/notify-ponto-anomalia` (novo path no n8n, mesmo padrão dos outros)
-4. Insere também em `notificacoes` (sino do dashboard) com `tipo='alerta'`
+### 2. KpiCard (`src/components/KpiCard.tsx`)
 
-**Configuração**: parâmetros (horário esperado de entrada/saída/almoço) ficam hardcoded na v1 com defaults razoáveis (08:00 / 12:00-13:00 / 18:00, tolerância 15min). Configurabilidade fica para v2.
+Refazer:
+- Remover `border border-border`. Usar somente `bg-card shadow-elevated rounded-2xl p-6`.
+- Ícone: dentro de um círculo `h-10 w-10 rounded-full bg-primary/10`, ícone em `text-primary` sólido (h-5 w-5). Posicionado à esquerda ou topo direito conforme grid.
+- Título em `text-sm text-muted-foreground font-medium`.
+- Número grande: `text-3xl md:text-4xl font-bold tabular-nums text-foreground`.
+- Badge de tendência (já existe a prop `trend`) refinado: pill `rounded-full bg-success/10 text-success px-2 py-1 text-xs`, com `TrendingUp/Down` em 12px.
+- Estado de alerta (`alert` true): trocar `shadow-elevated` por `shadow-alert` + fina linha superior `border-t-2 border-destructive` (radius mantido via `before` ou wrapper) e número em `text-destructive`.
 
-### Parte 2 — Relatório PDF mensal de cartão de ponto
+### 3. Card de gráfico — Entregas na Semana (`src/components/charts/EntregasSemanaChart.tsx`)
 
-**Edge Function `gerar-cartao-ponto-mensal`:**
+Substituir `BarChart` por `AreaChart` spline:
+- `<defs>` com `linearGradient` id="entregasGradient" — stop topo `hsl(239 84% 67%)` opacity 0.35, stop base opacity 0.
+- `<Area type="monotone" dataKey="entregas" stroke="hsl(239 84% 67%)" strokeWidth={2.5} fill="url(#entregasGradient)" />`
+- Remover `CartesianGrid`. Eixos com `axisLine={false}`, `tickLine={false}`, ticks em `text-muted-foreground` 11px.
+- Tooltip com `rounded-lg`, sem borda, `shadow-elevated`, fundo branco.
+- Container: `bg-card shadow-elevated rounded-2xl p-6` (sem border). Header com título em `text-base font-semibold` e número total em `text-3xl font-bold`.
 
-Input: `{ empresa_id, mes, ano, funcionario_ids?: [] }` (se omitido, gera para todos com batidas no período).
+Aplicar a mesma estética nos outros charts já existentes (`CustoEpiObraChart`, `DistribuicaoEpiChart`, `EntregasSetorChart`) só onde houver borda/grid pesado — manter os tipos de gráfico originais para não mexer em semântica de dados, apenas refinar wrappers e cores.
 
-Para cada funcionário:
-1. Busca todas batidas do mês ordenadas por data
-2. Agrupa por dia → calcula horas trabalhadas (entrada→saída_almoco + volta_almoco→saída) e total mensal
-3. Gera PDF com `jsPDF` (já no Edge runtime via esm.sh) contendo:
-   - **Cabeçalho**: logo empresa + "Cartão de Ponto — {Mês}/{Ano}" + dados do funcionário (nome, matrícula, cargo, setor)
-   - **Tabela diária**: Data | Dia semana | Entrada | Saída Almoço | Volta Almoço | Saída | Horas | Observações (atraso/HE)
-   - **Resumo**: Total horas trabalhadas | Atrasos | Horas extras | Faltas
-   - **Rodapé com linha de assinatura**: "Declaro que as marcações acima conferem com minha jornada"
-4. Upload no bucket `employee_vault` em `{empresa_id}/{funcionario_id}/cartao-ponto-{ano}-{mes}.pdf`
-5. INSERT em `documents` com `doc_category='cartao_ponto'`, `signature_status='pendente'`, `reference_period='MM/YYYY'` → entra automaticamente no fluxo existente de assinatura digital + notificação WhatsApp já implementado
-6. Retorna `{ gerados: N, erros: [] }`
+### 4. Empty States
 
-**UI no Dashboard (`CartaoPonto.tsx` aba "Monitoramento em Tempo Real"):**
-- Botão no topo "Gerar Cartões do Mês" → abre modal com selects de Mês/Ano e checkbox "Apenas funcionários com batidas"
-- Confirmar → invoca `gerar-cartao-ponto-mensal` → toast progresso → ao final atualiza aba "Cartões Mensais" automaticamente
+Criar componente novo `src/components/EmptyState.tsx`:
+- Props: `icon: LucideIcon`, `title: string`, `description?: string`, `actionLabel?: string`, `onAction?: () => void`.
+- Layout vertical centralizado, padding `py-12`. Ícone em círculo `h-14 w-14 rounded-full bg-muted` com ícone `text-muted-foreground/60`. Título `text-sm font-medium`. Descrição `text-xs text-muted-foreground`. Botão `variant="outline"` discreto.
 
-### Arquivos a alterar/criar
-- `supabase/functions/notify-ponto-anomalia/index.ts` (novo) + entry em `config.toml`
-- `supabase/functions/gerar-cartao-ponto-mensal/index.ts` (novo) + entry em `config.toml`
-- `src/components/portal/RegistroPontoCard.tsx` — após INSERT, detectar anomalia e invocar edge function (fire-and-forget)
-- `src/pages/CartaoPonto.tsx` — botão + modal "Gerar Cartões do Mês" na aba Monitoramento
-- `src/components/GerarCartoesMensaisModal.tsx` (novo)
+Aplicar em:
+- `UltimasEntregasTable.tsx` quando `entregas.length === 0` (ícone `ClipboardList`, ação "+ Registrar Entrega" → navega para `/app/nova-entrega`)
+- `EntregasSemanaChart.tsx` quando `total === 0` (ícone `BarChart3`, sem ação)
+- `CustoEpiObraChart.tsx` em estado vazio análogo
 
-### Observações
-- **Não toca em `notify-ponto`** existente (esse é só para envio de PDFs já assinados)
-- **Webhook n8n**: você precisará criar 1 novo workflow no n8n com path `notify-ponto-anomalia` e ativar
-- **PDF gerado** entra no mesmo ciclo de cartões mensais que já existe → assinatura digital + envio WhatsApp herdados automaticamente
-- **Horários esperados** começam fixos (08:00/12:00/13:00/18:00 + 15min tolerância). Se quiser configurar por empresa/setor, fica para próxima iteração
+### 5. UltimasEntregasTable
 
+- Remover bordas externas; usar `shadow-elevated rounded-2xl p-6`.
+- Trocar `divide-border` por linhas mais sutis (`divide-muted`), cabeçalho com `text-xs uppercase tracking-wide text-muted-foreground`.
+- Aumentar padding vertical das linhas (`py-4`).
+- Botão "Ver Todas" como link em primary, mantendo função.
+
+### 6. AppSidebar (`src/components/AppSidebar.tsx`)
+
+- Remover `border-r border-sidebar-border` do `<Sidebar>` e `border-t` do footer. Usar separação por whitespace.
+- `SidebarGroupLabel`: já está sutil, ok.
+- Itens inativos: `text-muted-foreground hover:text-foreground hover:bg-muted/60`.
+- Item ativo: `bg-primary/10 text-primary font-medium` (já existe) + ícone em `text-primary`. Adicionar `rounded-lg` mais arredondado.
+- Bloco do rodapé (empresa): trocar `bg-accent` por `bg-muted/50` sem borda.
+
+### 7. AppLayout / página Dashboard
+
+- `AppLayout.tsx`: aumentar padding do `<main>` para `p-4 sm:p-6 md:p-8` para dar mais respiro.
+- `AdminDashboard.tsx`: aumentar gaps do grid (`gap-4 sm:gap-6`) e título da página para `text-2xl md:text-3xl font-bold tracking-tight`. Subtítulo em `text-sm text-muted-foreground mt-1`.
+
+### Escopo e não-escopo
+
+- **Em escopo**: tokens, KpiCard, EntregasSemanaChart, UltimasEntregasTable, EmptyState novo, AppSidebar, AppLayout, AdminDashboard.
+- **Não em escopo**: dashboards de outros papéis (RH/Técnico/Almoxarifado) e demais páginas — o usuário pediu o "Dashboard principal". Posso estender depois se quiser.
+- **Sem mudanças** em queries Supabase, RLS, edge functions, rotas ou contratos de dados.
+
+### Resultado esperado
+
+Dashboard com fundo cinza frio, cards brancos flutuantes (sem bordas), KPIs com ícones em badge roxo, gráfico de área com gradiente, empty states amigáveis e sidebar mais limpa — transmitindo a sensação de produto sênior B2B.

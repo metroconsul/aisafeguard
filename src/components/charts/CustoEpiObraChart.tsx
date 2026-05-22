@@ -4,6 +4,8 @@ import {
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { EmptyState } from "@/components/EmptyState";
+import { PackageOpen } from "lucide-react";
 
 interface ChartRow {
   obra: string;
@@ -38,22 +40,24 @@ export function CustoEpiObraChart() {
   }, [perfil?.empresa_id]);
 
   return (
-    <div className="rounded-xl border border-border bg-card p-5 shadow-card">
+    <div className="rounded-2xl bg-card p-6 shadow-elevated">
       <div className="mb-4">
-        <h3 className="text-sm font-semibold text-foreground">Entregas de EPI por Obra</h3>
-        <p className="text-xs text-muted-foreground">Mês atual</p>
+        <h3 className="text-base font-semibold text-foreground">Entregas de EPI por Obra</h3>
+        <p className="mt-0.5 text-xs text-muted-foreground">Mês atual</p>
       </div>
       {data.length === 0 ? (
-        <div className="flex h-[280px] items-center justify-center text-sm text-muted-foreground">
-          Nenhum dado disponível
-        </div>
+        <EmptyState
+          icon={PackageOpen}
+          title="Sem entregas neste mês"
+          description="Quando houver entregas por obra, o ranking aparecerá aqui."
+        />
       ) : (
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={data} layout="vertical" margin={{ left: 10 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(214, 32%, 91%)" horizontal={false} />
-            <XAxis type="number" tick={{ fontSize: 12, fill: "hsl(215, 16%, 47%)" }} axisLine={false} tickLine={false} />
-            <YAxis type="category" dataKey="obra" tick={{ fontSize: 11, fill: "hsl(215, 16%, 47%)" }} axisLine={false} tickLine={false} width={100} />
-            <Tooltip contentStyle={{ borderRadius: "8px", border: "1px solid hsl(214, 32%, 91%)", boxShadow: "0 4px 12px rgba(0,0,0,0.08)", fontSize: "12px" }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 14% 93%)" horizontal={false} />
+            <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(220 9% 46%)" }} axisLine={false} tickLine={false} />
+            <YAxis type="category" dataKey="obra" tick={{ fontSize: 11, fill: "hsl(220 9% 46%)" }} axisLine={false} tickLine={false} width={100} />
+            <Tooltip cursor={{ fill: "hsl(239 84% 67% / 0.06)" }} contentStyle={{ borderRadius: "10px", border: "none", boxShadow: "0 10px 24px -8px rgba(17,24,39,.18)", fontSize: "12px", padding: "8px 12px" }} />
             <Bar dataKey="entregas" fill="hsl(239, 84%, 67%)" radius={[0, 4, 4, 0]} />
           </BarChart>
         </ResponsiveContainer>

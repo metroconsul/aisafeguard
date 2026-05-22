@@ -83,10 +83,10 @@ export function AppSidebar() {
                   <NavLink
                     to={item.url}
                     end={item.url === "/app"}
-                    className="text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                    activeClassName="bg-primary/10 text-primary font-medium"
+                    className="rounded-lg text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors"
+                    activeClassName="bg-primary/10 text-primary font-medium hover:bg-primary/15 hover:text-primary [&_svg]:text-primary"
                   >
-                    <item.icon className="mr-2 h-4 w-4" strokeWidth={1.5} />
+                    <item.icon className="mr-2 h-4 w-4" strokeWidth={1.75} />
                     {!collapsed && <span>{item.title}</span>}
                   </NavLink>
                 </SidebarMenuButton>
@@ -99,7 +99,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+    <Sidebar collapsible="icon" className="border-r-0">
       <SidebarContent className="pt-4">
         {/* Logo */}
         <div className="flex items-center gap-2 px-4 pb-4">
@@ -119,9 +119,9 @@ export function AppSidebar() {
         {renderGroup("Suporte", visibleSupport)}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-3">
+      <SidebarFooter className="p-3">
         {!collapsed && (
-          <div className="flex items-center gap-2 rounded-lg bg-accent p-2">
+          <div className="flex items-center gap-2 rounded-xl bg-muted/50 p-2">
             <Avatar className="h-8 w-8 rounded-md">
               {empresa?.logo_url ? (
                 <AvatarImage src={empresa.logo_url} alt="Logo" className="object-contain" />
