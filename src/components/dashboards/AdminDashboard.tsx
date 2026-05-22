@@ -74,8 +74,8 @@ export function AdminDashboard() {
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Visão panorâmica e estratégica</p>
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">Dashboard</h1>
+        <p className="mt-1 text-base text-gray-500">Visão panorâmica e estratégica</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
