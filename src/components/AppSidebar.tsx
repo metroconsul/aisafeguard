@@ -83,8 +83,8 @@ export function AppSidebar() {
                   <NavLink
                     to={item.url}
                     end={item.url === "/app"}
-                    className="rounded-lg text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors"
-                    activeClassName="bg-primary/10 text-primary font-medium hover:bg-primary/15 hover:text-primary [&_svg]:text-primary"
+                    className="rounded-xl text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                    activeClassName="bg-indigo-50 text-indigo-700 font-bold hover:bg-indigo-100 hover:text-indigo-700 [&_svg]:text-indigo-700"
                   >
                     <item.icon className="mr-2 h-4 w-4" strokeWidth={1.75} />
                     {!collapsed && <span>{item.title}</span>}
@@ -99,7 +99,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r-0">
+    <Sidebar collapsible="icon" className="border-r-0 bg-white">
       <SidebarContent className="pt-4">
         {/* Logo */}
         <div className="flex items-center gap-2 px-4 pb-4">
