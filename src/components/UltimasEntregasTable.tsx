@@ -48,9 +48,9 @@ export function UltimasEntregasTable() {
 
   return (
     <>
-      <div className="rounded-2xl bg-card p-6 shadow-elevated">
+      <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100/50 p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-semibold text-foreground">Últimas Entregas</h3>
+          <h3 className="text-base font-bold text-gray-900">Últimas Entregas</h3>
           <button className="text-xs font-semibold text-primary hover:underline">Ver Todas</button>
         </div>
 

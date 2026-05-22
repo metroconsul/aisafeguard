@@ -40,9 +40,9 @@ export function CustoEpiObraChart() {
   }, [perfil?.empresa_id]);
 
   return (
-    <div className="rounded-2xl bg-card p-6 shadow-elevated">
+    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100/50 p-6">
       <div className="mb-4">
-        <h3 className="text-base font-semibold text-foreground">Entregas de EPI por Obra</h3>
+        <h3 className="text-base font-bold text-gray-900">Entregas de EPI por Obra</h3>
         <p className="mt-0.5 text-xs text-muted-foreground">Mês atual</p>
       </div>
       {data.length === 0 ? (

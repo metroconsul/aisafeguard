@@ -40,9 +40,9 @@ export function EntregasSemanaChart() {
   }, [perfil?.empresa_id]);
 
   return (
-    <div className="rounded-2xl bg-card p-6 shadow-elevated">
+    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100/50 p-6">
       <div className="mb-4">
-        <h3 className="text-base font-semibold text-foreground">Entregas na Semana</h3>
+        <h3 className="text-base font-bold text-gray-900">Entregas na Semana</h3>
         <p className="mt-1 text-3xl font-bold tabular-nums tracking-tight text-foreground">{total}</p>
       </div>
       {total === 0 ? (
