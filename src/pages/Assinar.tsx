@@ -5,6 +5,7 @@ import { triggerSignatureWebhook } from "@/lib/webhook";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CheckCircle2, Loader2, Camera, XCircle, ShieldCheck, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
 
 interface EntregaData {
   id: string;
@@ -185,16 +186,23 @@ export default function Assinar() {
     const signatureDataUrl = canvasRef.current.toDataURL("image/png");
     const now = new Date().toISOString();
 
-    const { error } = await supabase
-      .from("entregas")
-      .update({
-        imagem_assinatura: signatureDataUrl,
-        foto_assinatura: photoData,
-        status_assinatura: "Assinado",
-      })
-      .eq("id", id);
+    // Atualiza via edge function (service role) — garante que o status sempre seja
+    // gravado, sem depender de RLS de anon.
+    const { data: updateRes, error: updateErr } = await supabase.functions.invoke(
+      "update-signature",
+      {
+        body: {
+          entrega_id: id,
+          status_assinatura: "Assinado",
+          imagem_assinatura: signatureDataUrl,
+          foto_assinatura: photoData,
+        },
+      }
+    );
 
-    if (error) {
+    if (updateErr || (updateRes && (updateRes as any).error)) {
+      console.error("Falha ao registrar assinatura:", updateErr || (updateRes as any).error);
+      toast.error("Não foi possível registrar a assinatura. Tente novamente.");
       setSaving(false);
       return;
     }
