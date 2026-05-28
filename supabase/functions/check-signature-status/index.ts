@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
 
     const { data, error } = await supabase
       .from("entregas")
-      .select("id, status_assinatura, data_entrega, data_assinatura, funcionarios(nome, telefone_whatsapp), epis(nome_equipamento, numero_ca)")
+      .select("id, status_assinatura, data_entrega, funcionarios(nome, telefone_whatsapp), epis(nome_equipamento, numero_ca)")
       .eq("id", entregaId)
       .maybeSingle();
 
@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
         status_assinatura: status,
         assinado,
         data_entrega: data.data_entrega,
-        data_assinatura: (data as any).data_assinatura ?? null,
+        data_assinatura: null,
         funcionario: data.funcionarios,
         epi: data.epis,
       }),
