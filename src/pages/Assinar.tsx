@@ -298,11 +298,6 @@ export default function Assinar() {
               <AlertTriangle className="h-3 w-3" /> CPF não corresponde ao cadastro.
             </p>
           )}
-          {!entrega.funcionario.cpf && (
-            <p className="text-xs text-warning flex items-center gap-1">
-              <AlertTriangle className="h-3 w-3" /> CPF não cadastrado para este funcionário.
-            </p>
-          )}
         </div>
 
         {/* Camera / Photo */}
