@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { usePortalAuth } from "@/contexts/PortalAuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -21,7 +20,7 @@ interface Holerite {
 }
 
 export default function PortalHolerites() {
-  const { employee } = usePortalAuth();
+  const { employee, portalApi } = usePortalAuth();
   const [holerites, setHolerites] = useState<Holerite[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Holerite | null>(null);
@@ -36,38 +35,26 @@ export default function PortalHolerites() {
   const loadHolerites = async () => {
     if (!employee) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from("documents")
-      .select("id, title, reference_period, signature_status, signed_at, file_url, created_at")
-      .eq("funcionario_id", employee.id)
-      .eq("doc_category", "holerite")
-      .order("created_at", { ascending: false });
-
-    if (error) {
+    try {
+      const r = await portalApi<{ documents: Holerite[] }>("list_documents", { categories: ["holerite"] });
+      setHolerites(r.documents || []);
+    } catch {
       toast.error("Erro ao carregar holerites");
     }
-    setHolerites(data || []);
     setLoading(false);
   };
 
   const handleAssinar = async () => {
     if (!selected || !employee) return;
     setSigning(true);
-    const { error } = await supabase
-      .from("documents")
-      .update({
-        signature_status: "assinado",
-        signed_at: new Date().toISOString(),
-      })
-      .eq("id", selected.id);
-
-    if (error) {
-      toast.error("Erro ao assinar o holerite");
-    } else {
+    try {
+      await portalApi("sign_document", { document_id: selected.id, user_agent: navigator.userAgent });
       toast.success("Holerite assinado com sucesso!");
       setSelected(null);
       setConfirmado(false);
       await loadHolerites();
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao assinar o holerite");
     }
     setSigning(false);
   };
