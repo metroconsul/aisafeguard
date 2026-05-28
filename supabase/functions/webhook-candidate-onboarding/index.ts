@@ -21,27 +21,43 @@ serve(async (req) => {
       );
     }
 
-    const n8nUrl = "https://nextage-n8n.brbss6.easypanel.host/webhook/candidate-onboarding";
+    const n8nUrl =
+      Deno.env.get("N8N_ONBOARDING_WEBHOOK_URL") ||
+      "https://impecuniously-muzzy-maddie.ngrok-free.dev/webhook-test/webhook/candidate-onboarding";
     const onboardingUrl = `https://aisafeguard.lovable.app/onboarding/${candidate_id}?v=${Date.now()}`;
 
-    const n8nResponse = await fetch(n8nUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        candidate_id,
-        name,
-        phone: phone || null,
-        onboarding_url: onboardingUrl,
-      }),
-    });
+    // Fire-and-forget com timeout curto para evitar travar a Edge Function
+    // se o webhook do n8n estiver offline/lento.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    const responseText = await n8nResponse.text();
-    console.log(`webhook-candidate-onboarding: n8n responded ${n8nResponse.status}`, responseText);
-
-    return new Response(
-      JSON.stringify({ success: true, n8n_status: n8nResponse.status }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    try {
+      const n8nResponse = await fetch(n8nUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          candidate_id,
+          name,
+          phone: phone || null,
+          onboarding_url: onboardingUrl,
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      const responseText = await n8nResponse.text();
+      console.log(`webhook-candidate-onboarding: n8n responded ${n8nResponse.status}`, responseText);
+      return new Response(
+        JSON.stringify({ success: true, n8n_status: n8nResponse.status }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    } catch (fetchErr) {
+      clearTimeout(timeoutId);
+      console.warn("webhook-candidate-onboarding: n8n unreachable, continuing anyway", fetchErr);
+      return new Response(
+        JSON.stringify({ success: true, n8n_status: 0, warning: "n8n unreachable" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
   } catch (error) {
     console.error("webhook-candidate-onboarding error:", error);
     return new Response(
