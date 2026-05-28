@@ -1,55 +1,34 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePortalAuth } from "@/contexts/PortalAuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AlertTriangle, FileText, LogOut, ChevronRight } from "lucide-react";
 import { RegistroPontoCard } from "@/components/portal/RegistroPontoCard";
 
 export default function PortalHome() {
-  const { employee, logout } = usePortalAuth();
+  const { employee, logout, portalApi } = usePortalAuth();
   const navigate = useNavigate();
   const [holeritePendentes, setHoleritePendentes] = useState(0);
   const [nrsVencendo, setNrsVencendo] = useState<{ title: string; days: number }[]>([]);
 
   useEffect(() => {
     if (!employee) return;
-
-    // Holerites pendentes de assinatura
-    supabase
-      .from("documents")
-      .select("id", { count: "exact", head: true })
-      .eq("funcionario_id", employee.id)
-      .eq("doc_category", "holerite")
-      .eq("signature_status", "pendente")
-      .then(({ count }) => setHoleritePendentes(count ?? 0));
-
-    // NRs vencendo em 30 dias
-    const in30 = new Date();
-    in30.setDate(in30.getDate() + 30);
-    const in30Str = in30.toISOString().split("T")[0];
-    const todayStr = new Date().toISOString().split("T")[0];
-
-    supabase
-      .from("documents")
-      .select("title, expiration_date")
-      .eq("funcionario_id", employee.id)
-      .eq("doc_category", "treinamento_nr")
-      .not("expiration_date", "is", null)
-      .lte("expiration_date", in30Str)
-      .gte("expiration_date", todayStr)
-      .then(({ data }) => {
-        if (!data) return;
+    portalApi<{ count: number }>("count_pending_holerites")
+      .then((r) => setHoleritePendentes(r.count ?? 0))
+      .catch(() => {});
+    portalApi<{ items: { title: string; expiration_date: string }[] }>("list_nrs_vencendo")
+      .then((r) => {
         const today = new Date();
         setNrsVencendo(
-          data.map((d) => {
-            const exp = new Date(d.expiration_date!);
+          (r.items || []).map((d) => {
+            const exp = new Date(d.expiration_date);
             const diff = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
             return { title: d.title, days: diff };
           })
         );
-      });
+      })
+      .catch(() => {});
   }, [employee]);
 
   if (!employee) return null;
@@ -80,7 +59,7 @@ export default function PortalHome() {
           </div>
         </div>
         <button
-          onClick={() => { logout(); navigate("/portal/login", { replace: true }); }}
+          onClick={() => { void logout().then(() => navigate("/portal/login", { replace: true })); }}
           className="rounded-lg p-2 text-muted-foreground hover:bg-muted transition-colors"
           title="Sair"
         >
