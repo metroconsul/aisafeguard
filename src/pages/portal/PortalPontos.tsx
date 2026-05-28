@@ -61,22 +61,17 @@ export default function PortalPontos() {
 
     const now = new Date().toISOString();
 
-    const { error } = await supabase
-      .from("documents")
-      .update({ signature_status: "assinado", signed_at: now, signature_ip: ip })
-      .eq("id", selected.id);
-
-    if (!error) {
-      // Log signature
-      await supabase.from("signature_logs").insert({
+    const { error } = await supabase.functions.invoke("update-ponto-signature", {
+      body: {
+        document_id: selected.id,
         funcionario_id: employee.id,
         empresa_id: selected.empresa_id,
-        document_id: selected.id,
-        action_type: "assinatura_ponto",
         ip_address: ip,
         user_agent: navigator.userAgent,
-        signed_at: now,
-      });
+      },
+    });
+
+    if (!error) {
       toast.success("Cartão de ponto assinado!");
       setSelected(null);
       setConfirmado(false);
