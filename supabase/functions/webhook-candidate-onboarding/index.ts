@@ -23,7 +23,7 @@ serve(async (req) => {
 
     const n8nUrl =
       Deno.env.get("N8N_ONBOARDING_WEBHOOK_URL") ||
-      "https://impecuniously-muzzy-maddie.ngrok-free.dev/webhook-test/webhook/candidate-onboarding";
+      "https://impecuniously-muzzy-maddie.ngrok-free.dev/webhook/candidate-onboarding";
     const onboardingUrl = `https://aisafeguard.lovable.app/onboarding/${candidate_id}?v=${Date.now()}`;
 
     // Fire-and-forget com timeout curto para evitar travar a Edge Function

@@ -6,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const N8N_WEBHOOK_URL = "https://impecuniously-muzzy-maddie.ngrok-free.dev/webhook-test/webhook/notify-ponto";
+const N8N_WEBHOOK_URL = "https://impecuniously-muzzy-maddie.ngrok-free.dev/webhook/notify-ponto";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
