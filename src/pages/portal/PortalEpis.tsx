@@ -111,6 +111,35 @@ export default function PortalEpis() {
         <p className="text-sm text-muted-foreground">Equipamentos em posse</p>
       </div>
 
+      {/* Pendentes de assinatura */}
+      {!loading && epis.some((e) => e.status_assinatura !== "Assinado") && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold text-destructive uppercase tracking-wider">
+            Pendentes de assinatura
+          </h2>
+          {epis
+            .filter((e) => e.status_assinatura !== "Assinado")
+            .map((epi) => (
+              <div
+                key={`pend-${epi.id}`}
+                className="rounded-xl border-2 border-destructive/30 bg-destructive/5 p-4"
+              >
+                <p className="font-semibold text-foreground">{epi.epi_nome}</p>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  C.A.: {epi.numero_ca} · Confirme o recebimento para regularizar.
+                </p>
+                <Button
+                  onClick={() => navigate(`/assinar/${epi.id}`)}
+                  variant="destructive"
+                  className="mt-3 w-full h-12 text-base font-semibold"
+                >
+                  Assinar Recebimento
+                </Button>
+              </div>
+            ))}
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
