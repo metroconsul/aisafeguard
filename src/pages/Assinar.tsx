@@ -53,38 +53,31 @@ export default function Assinar() {
 
   useEffect(() => {
     if (!id) return;
-    supabase
-      .from("entregas")
-      .select("id, data_entrega, status_assinatura, funcionarios(nome, telefone_whatsapp, cpf), epis(nome_equipamento, numero_ca)")
-      .eq("id", id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) {
-          const funcData = data.funcionarios as unknown as { nome: string; telefone_whatsapp: string | null; cpf: string | null };
-          const epiData = data.epis as unknown as { nome_equipamento: string; numero_ca: string };
+    supabase.functions
+      .invoke("get-entrega-signing", { body: { entrega_id: id } })
+      .then(({ data, error }) => {
+        const ent = (data as any)?.entrega;
+        if (!error && ent) {
           setEntrega({
-            id: data.id,
-            funcionario: funcData,
-            epi: epiData,
-            data_entrega: data.data_entrega,
-            status_assinatura: data.status_assinatura,
+            id: ent.id,
+            funcionario: { ...ent.funcionario, cpf: null },
+            epi: ent.epi,
+            data_entrega: ent.data_entrega,
+            status_assinatura: ent.status_assinatura,
           });
-          if (data.status_assinatura === "Assinado") setDone(true);
+          if (ent.status_assinatura === "Assinado") setDone(true);
         }
         setLoading(false);
       });
   }, [id]);
 
-  // CPF validation
+  // CPF: validação real é feita no servidor (update-signature).
+  // Aqui só validamos formato (11 dígitos) para habilitar o botão.
   const handleCpfChange = (value: string) => {
     const formatted = formatCpf(value);
     setCpfInput(formatted);
     const raw = stripCpf(formatted);
-    if (raw.length === 11 && entrega?.funcionario.cpf) {
-      setCpfValid(raw === stripCpf(entrega.funcionario.cpf));
-    } else {
-      setCpfValid(null);
-    }
+    setCpfValid(raw.length === 11 ? true : null);
   };
 
   // Camera
@@ -196,13 +189,15 @@ export default function Assinar() {
           status_assinatura: "Assinado",
           imagem_assinatura: signatureDataUrl,
           foto_assinatura: photoData,
+          cpf: stripCpf(cpfInput),
         },
       }
     );
 
     if (updateErr || (updateRes && (updateRes as any).error)) {
       console.error("Falha ao registrar assinatura:", updateErr || (updateRes as any).error);
-      toast.error("Não foi possível registrar a assinatura. Tente novamente.");
+      const msg = (updateRes as any)?.error || "Não foi possível registrar a assinatura. Tente novamente.";
+      toast.error(msg);
       setSaving(false);
       return;
     }
@@ -301,11 +296,6 @@ export default function Assinar() {
           {cpfValid === false && (
             <p className="text-xs text-destructive flex items-center gap-1">
               <AlertTriangle className="h-3 w-3" /> CPF não corresponde ao cadastro.
-            </p>
-          )}
-          {!entrega.funcionario.cpf && (
-            <p className="text-xs text-warning flex items-center gap-1">
-              <AlertTriangle className="h-3 w-3" /> CPF não cadastrado para este funcionário.
             </p>
           )}
         </div>

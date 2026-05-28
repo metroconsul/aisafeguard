@@ -36,6 +36,7 @@ Deno.serve(async (req) => {
     const statusAssinatura: string = body.status_assinatura || "Assinado";
     const imagemAssinatura: string | undefined = body.imagem_assinatura;
     const fotoAssinatura: string | undefined = body.foto_assinatura;
+    const cpfInformado: string | undefined = body.cpf;
 
     if (!entregaId) {
       return new Response(
@@ -55,6 +56,24 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+
+    // Quando vier da tela pública de assinatura (status Assinado + imagem),
+    // validar o CPF informado contra o cadastro do funcionário.
+    if (statusAssinatura === "Assinado" && imagemAssinatura) {
+      const { data: entregaInfo } = await supabase
+        .from("entregas")
+        .select("funcionarios(cpf)")
+        .eq("id", entregaId)
+        .maybeSingle();
+      const cpfCadastro = ((entregaInfo?.funcionarios as any)?.cpf || "").replace(/\D/g, "");
+      const cpfLimpo = (cpfInformado || "").replace(/\D/g, "");
+      if (!cpfCadastro || cpfLimpo.length !== 11 || cpfLimpo !== cpfCadastro) {
+        return new Response(
+          JSON.stringify({ error: "CPF informado não confere com o cadastro do funcionário" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
 
     const updatePayload: Record<string, unknown> = {
       status_assinatura: statusAssinatura,
