@@ -609,6 +609,42 @@ export type Database = {
           },
         ]
       }
+      portal_sessions: {
+        Row: {
+          created_at: string
+          empresa_id: string
+          expires_at: string
+          funcionario_id: string
+          id: string
+          ip_address: string | null
+          last_seen_at: string
+          token: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          empresa_id: string
+          expires_at: string
+          funcionario_id: string
+          id?: string
+          ip_address?: string | null
+          last_seen_at?: string
+          token: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          empresa_id?: string
+          expires_at?: string
+          funcionario_id?: string
+          id?: string
+          ip_address?: string | null
+          last_seen_at?: string
+          token?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       setores: {
         Row: {
           created_at: string | null
