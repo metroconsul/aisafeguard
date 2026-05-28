@@ -1,18 +1,10 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, FileText, Camera, ShieldCheck } from "lucide-react";
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const PUBLIC_HEADERS = {
-  apikey: SUPABASE_PUBLISHABLE_KEY,
-  Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-  "Content-Type": "application/json",
-};
 
 const DOC_TYPES = [
   { type: "rg_cpf", label: "RG / CPF", required: true },
@@ -39,23 +31,6 @@ interface Doc {
 export default function OnboardingPublico() {
   const { id } = useParams<{ id: string }>();
 
-  const anonClient = useMemo(() => createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY,
-    {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false,
-      },
-      global: {
-        headers: {
-          Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-        },
-      },
-    }
-  ), []);
-
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [empresaName, setEmpresaName] = useState("");
   const [docs, setDocs] = useState<Doc[]>([]);
@@ -77,40 +52,19 @@ export default function OnboardingPublico() {
       return;
     }
 
-    const candidateResponse = await fetch(
-      `${SUPABASE_URL}/rest/v1/funcionarios?select=id,nome,cargo,setor,empresa_id,status&id=eq.${encodeURIComponent(id)}`,
-      { headers: PUBLIC_HEADERS }
-    );
-    const candidateRows = await candidateResponse.json();
-    const currentCandidate = Array.isArray(candidateRows) ? candidateRows[0] : null;
+    const { data, error } = await supabase.functions.invoke("onboarding-public", {
+      body: { action: "get_candidate", funcionario_id: id },
+    });
 
-    if (!candidateResponse.ok || !currentCandidate || currentCandidate.status !== "em_admissao") {
+    if (error || !data?.candidate) {
       setCandidate(null);
       setLoading(false);
       return;
     }
 
-    setCandidate(currentCandidate as Candidate);
-
-    const [empresaResponse, docsResponse] = await Promise.all([
-      fetch(
-        `${SUPABASE_URL}/rest/v1/empresas?select=nome_fantasia&id=eq.${encodeURIComponent(currentCandidate.empresa_id)}`,
-        { headers: PUBLIC_HEADERS }
-      ),
-      fetch(
-        `${SUPABASE_URL}/rest/v1/documents?select=id,doc_category,title,file_url&funcionario_id=eq.${encodeURIComponent(currentCandidate.id)}&doc_category=eq.admissao`,
-        { headers: PUBLIC_HEADERS }
-      ),
-    ]);
-
-    const empresaRows = await empresaResponse.json();
-    const docsRows = await docsResponse.json();
-
-    if (empresaResponse.ok && Array.isArray(empresaRows) && empresaRows[0]?.nome_fantasia) {
-      setEmpresaName(empresaRows[0].nome_fantasia);
-    }
-
-    setDocs(Array.isArray(docsRows) ? (docsRows as Doc[]) : []);
+    setCandidate(data.candidate as Candidate);
+    setEmpresaName(data.empresa_nome || "");
+    setDocs(Array.isArray(data.docs) ? (data.docs as Doc[]) : []);
     setLoading(false);
   };
 
@@ -119,26 +73,30 @@ export default function OnboardingPublico() {
     setUploading(docType);
 
     try {
-      const ext = file.name.split(".").pop();
-      const path = `admissao/${candidate.id}/${docType}_${Date.now()}.${ext}`;
-      const { error: upErr } = await anonClient.storage.from("admission-docs").upload(path, file);
-      if (upErr) throw upErr;
+      const file_base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.split(",")[1] || "");
+        };
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
 
-      const { data: urlData } = anonClient.storage.from("admission-docs").getPublicUrl(path);
-      const label = DOC_TYPES.find(d => d.type === docType)?.label || docType;
+      const { data, error } = await supabase.functions.invoke("onboarding-public", {
+        body: {
+          action: "upload_document",
+          funcionario_id: candidate.id,
+          doc_type: docType,
+          file_base64,
+          file_name: file.name,
+          content_type: file.type || "application/octet-stream",
+        },
+      });
 
-      const { data: newDoc, error: insertErr } = await anonClient.from("documents").insert({
-        funcionario_id: candidate.id,
-        empresa_id: candidate.empresa_id,
-        title: label,
-        doc_category: "admissao",
-        file_url: urlData.publicUrl,
-        signature_status: "nao_aplicavel",
-      }).select("id, doc_category, title, file_url").single();
-
-      if (insertErr) throw insertErr;
-      // Use title to track which type was uploaded
-      setDocs(prev => [...prev.filter(d => d.title !== label), newDoc as Doc]);
+      if (error || !data?.doc) throw new Error(error?.message || data?.error || "Falha no upload");
+      const newDoc = data.doc as Doc;
+      setDocs(prev => [...prev.filter(d => d.title !== newDoc.title), newDoc]);
       toast.success("Documento enviado!");
     } catch (err: any) {
       toast.error("Erro no upload: " + err.message);
@@ -147,7 +105,11 @@ export default function OnboardingPublico() {
     }
   };
 
-  const handleSubmitAll = () => {
+  const handleSubmitAll = async () => {
+    if (!candidate) return;
+    await supabase.functions.invoke("onboarding-public", {
+      body: { action: "submit", funcionario_id: candidate.id },
+    });
     setSubmitted(true);
     toast.success("Documentos enviados ao RH com sucesso!");
   };
