@@ -149,6 +149,7 @@ export default function NovaEntrega() {
       const linkPortal = `${PUBLIC_BASE_URL}/portal/login?next=${encodeURIComponent("/portal/epis")}`;
       results.push({ epiNome: epi.nome_equipamento, link: linkAssinatura });
       await triggerWebhook({
+        entrega_id: data.id,
         nome_funcionario: selectedFunc.nome,
         telefone_whatsapp: selectedFunc.telefone_whatsapp || "",
         nome_epi: epi.nome_equipamento,
