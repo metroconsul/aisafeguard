@@ -163,7 +163,74 @@ Deno.serve(async (req) => {
     }
 
     if (action === "submit") {
-      // Marca como em análise (não bloqueia se já estiver)
+      // Recarrega docs com signed URLs para enviar ao n8n
+      const { data: docs } = await supabase
+        .from("documents")
+        .select("id, doc_category, title, file_url")
+        .eq("funcionario_id", candidate.id)
+        .eq("doc_category", "admissao");
+
+      const docsSigned = await Promise.all(
+        (docs || []).map(async (d) => ({
+          id: d.id,
+          title: d.title,
+          doc_category: d.doc_category,
+          file_url: await signIfPath(d.file_url as string | null),
+        })),
+      );
+
+      const { data: empresa } = await supabase
+        .from("empresas")
+        .select("nome_fantasia, cnpj")
+        .eq("id", candidate.empresa_id)
+        .maybeSingle();
+
+      // Atualiza status para "em_analise" (não bloqueia se já estiver)
+      const { error: updErr } = await supabase
+        .from("funcionarios")
+        .update({ status: "em_analise" })
+        .eq("id", candidate.id)
+        .eq("status", "em_admissao");
+
+      if (updErr) {
+        console.error("onboarding-public submit: status update error", updErr);
+      }
+
+      // Dispara webhook n8n
+      const webhookUrl =
+        Deno.env.get("N8N_ONBOARDING_WEBHOOK_URL") ||
+        "https://impecuniously-muzzy-maddie.ngrok-free.dev/webhook-test/webhook/candidate-onboarding";
+
+      const payload = {
+        tipo: "onboarding_submetido",
+        funcionario: {
+          id: candidate.id,
+          nome: candidate.nome,
+          cargo: candidate.cargo,
+          setor: candidate.setor,
+          empresa_id: candidate.empresa_id,
+          status: "em_analise",
+        },
+        empresa: {
+          id: candidate.empresa_id,
+          nome_fantasia: empresa?.nome_fantasia || "",
+          cnpj: empresa?.cnpj || "",
+        },
+        documentos: docsSigned,
+        submitted_at: new Date().toISOString(),
+      };
+
+      try {
+        const resp = await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        console.log("onboarding-public webhook status:", resp.status);
+      } catch (e) {
+        console.error("onboarding-public webhook error:", e);
+      }
+
       return json({ success: true });
     }
 
