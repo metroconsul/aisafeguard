@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePortalAuth } from "@/contexts/PortalAuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,13 +18,16 @@ function formatCpf(value: string): string {
 export default function PortalLogin() {
   const { login, employee } = usePortalAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextParam = searchParams.get("next");
+  const safeNext = nextParam && nextParam.startsWith("/") ? nextParam : "/portal";
   const [cpf, setCpf] = useState("");
   const [pin, setPin] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   // Already logged in
   if (employee) {
-    navigate("/portal", { replace: true });
+    navigate(safeNext, { replace: true });
     return null;
   }
 
@@ -43,7 +46,7 @@ export default function PortalLogin() {
     setSubmitting(true);
     try {
       await login(cpfClean, pin);
-      navigate("/portal", { replace: true });
+      navigate(safeNext, { replace: true });
     } catch (err: any) {
       toast.error(err.message || "Erro ao fazer login");
     } finally {
