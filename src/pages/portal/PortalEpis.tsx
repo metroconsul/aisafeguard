@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { usePortalAuth } from "@/contexts/PortalAuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -18,12 +19,14 @@ interface MeuEpi {
   epi_nome: string;
   numero_ca: string;
   epi_id: string;
+  status_assinatura: string | null;
 }
 
 const MOTIVOS = ["Desgaste Natural", "Perda", "Defeito"];
 
 export default function PortalEpis() {
   const { employee } = usePortalAuth();
+  const navigate = useNavigate();
   const [epis, setEpis] = useState<MeuEpi[]>([]);
   const [loading, setLoading] = useState(true);
   const [showTroca, setShowTroca] = useState(false);
@@ -41,7 +44,7 @@ export default function PortalEpis() {
     setLoading(true);
     const { data, error } = await supabase
       .from("entregas")
-      .select("id, data_entrega, data_vencimento, epis(id, nome_equipamento, numero_ca)")
+      .select("id, data_entrega, data_vencimento, status_assinatura, epis(id, nome_equipamento, numero_ca)")
       .eq("funcionario_id", employee.id)
       .order("data_entrega", { ascending: false });
 
@@ -61,6 +64,7 @@ export default function PortalEpis() {
           epi_nome: epi?.nome_equipamento ?? "—",
           numero_ca: epi?.numero_ca ?? "—",
           epi_id: epi?.id ?? "",
+          status_assinatura: (row as any).status_assinatura ?? null,
         };
       })
     );
