@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Webhook de entrega de EPI — via Edge Function proxy (evita CORS)
 interface WebhookPayload {
+  entrega_id: string;
   nome_funcionario: string;
   telefone_whatsapp: string;
   nome_epi: string;
