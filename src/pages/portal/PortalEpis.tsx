@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { usePortalAuth } from "@/contexts/PortalAuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -18,12 +19,14 @@ interface MeuEpi {
   epi_nome: string;
   numero_ca: string;
   epi_id: string;
+  status_assinatura: string | null;
 }
 
 const MOTIVOS = ["Desgaste Natural", "Perda", "Defeito"];
 
 export default function PortalEpis() {
   const { employee } = usePortalAuth();
+  const navigate = useNavigate();
   const [epis, setEpis] = useState<MeuEpi[]>([]);
   const [loading, setLoading] = useState(true);
   const [showTroca, setShowTroca] = useState(false);
@@ -41,7 +44,7 @@ export default function PortalEpis() {
     setLoading(true);
     const { data, error } = await supabase
       .from("entregas")
-      .select("id, data_entrega, data_vencimento, epis(id, nome_equipamento, numero_ca)")
+      .select("id, data_entrega, data_vencimento, status_assinatura, epis(id, nome_equipamento, numero_ca)")
       .eq("funcionario_id", employee.id)
       .order("data_entrega", { ascending: false });
 
@@ -61,6 +64,7 @@ export default function PortalEpis() {
           epi_nome: epi?.nome_equipamento ?? "—",
           numero_ca: epi?.numero_ca ?? "—",
           epi_id: epi?.id ?? "",
+          status_assinatura: (row as any).status_assinatura ?? null,
         };
       })
     );
@@ -106,6 +110,35 @@ export default function PortalEpis() {
         <h1 className="text-xl font-bold text-foreground">Meus EPIs</h1>
         <p className="text-sm text-muted-foreground">Equipamentos em posse</p>
       </div>
+
+      {/* Pendentes de assinatura */}
+      {!loading && epis.some((e) => e.status_assinatura !== "Assinado") && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold text-destructive uppercase tracking-wider">
+            Pendentes de assinatura
+          </h2>
+          {epis
+            .filter((e) => e.status_assinatura !== "Assinado")
+            .map((epi) => (
+              <div
+                key={`pend-${epi.id}`}
+                className="rounded-xl border-2 border-destructive/30 bg-destructive/5 p-4"
+              >
+                <p className="font-semibold text-foreground">{epi.epi_nome}</p>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  C.A.: {epi.numero_ca} · Confirme o recebimento para regularizar.
+                </p>
+                <Button
+                  onClick={() => navigate(`/assinar/${epi.id}`)}
+                  variant="destructive"
+                  className="mt-3 w-full h-12 text-base font-semibold"
+                >
+                  Assinar Recebimento
+                </Button>
+              </div>
+            ))}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-12">
