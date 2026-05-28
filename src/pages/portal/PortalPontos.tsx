@@ -59,8 +59,6 @@ export default function PortalPontos() {
       ip = json.ip;
     } catch {}
 
-    const now = new Date().toISOString();
-
     const { error } = await supabase.functions.invoke("update-ponto-signature", {
       body: {
         document_id: selected.id,
