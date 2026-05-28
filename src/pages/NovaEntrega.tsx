@@ -142,9 +142,11 @@ export default function NovaEntrega() {
         toast.error(`Erro ao registrar ${epi.nome_equipamento}`);
         continue;
       }
-      const linkAssinatura = `${window.location.origin}/assinar/${data.id}`;
+      // Sempre usa o domínio público para que o funcionário acesse pelo celular sem login Lovable
+      const PUBLIC_BASE_URL = "https://aisafeguard.lovable.app";
+      const linkAssinatura = `${PUBLIC_BASE_URL}/assinar/${data.id}`;
       // Envia link do Portal do Colaborador (com redirect para a tela de EPIs após login)
-      const linkPortal = `${window.location.origin}/portal/login?next=${encodeURIComponent("/portal/epis")}`;
+      const linkPortal = `${PUBLIC_BASE_URL}/portal/login?next=${encodeURIComponent("/portal/epis")}`;
       results.push({ epiNome: epi.nome_equipamento, link: linkAssinatura });
       await triggerWebhook({
         nome_funcionario: selectedFunc.nome,
