@@ -199,7 +199,7 @@ Deno.serve(async (req) => {
       // Dispara webhook n8n
       const webhookUrl =
         Deno.env.get("N8N_ONBOARDING_WEBHOOK_URL") ||
-        "https://impecuniously-muzzy-maddie.ngrok-free.dev/webhook-test/webhook/candidate-onboarding";
+        "https://impecuniously-muzzy-maddie.ngrok-free.dev/webhook/candidate-onboarding";
 
       const payload = {
         tipo: "onboarding_submetido",

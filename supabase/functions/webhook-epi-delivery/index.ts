@@ -3,7 +3,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const WEBHOOK_URL = "https://impecuniously-muzzy-maddie.ngrok-free.dev/webhook-test/webhook/epi-delivery";
+const WEBHOOK_URL = "https://impecuniously-muzzy-maddie.ngrok-free.dev/webhook/epi-delivery";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
