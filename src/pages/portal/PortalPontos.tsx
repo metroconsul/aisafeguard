@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { usePortalAuth } from "@/contexts/PortalAuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -22,7 +21,7 @@ interface Ponto {
 }
 
 export default function PortalPontos() {
-  const { employee } = usePortalAuth();
+  const { employee, portalApi } = usePortalAuth();
   const [pontos, setPontos] = useState<Ponto[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Ponto | null>(null);
@@ -37,45 +36,29 @@ export default function PortalPontos() {
   const loadPontos = async () => {
     if (!employee) return;
     setLoading(true);
-    const { data } = await supabase
-      .from("documents")
-      .select("id, title, reference_period, signature_status, signed_at, file_url, created_at, empresa_id")
-      .eq("funcionario_id", employee.id)
-      .eq("doc_category", "cartao_ponto")
-      .order("created_at", { ascending: false });
-    setPontos((data as Ponto[]) || []);
+    try {
+      const r = await portalApi<{ documents: Ponto[] }>("list_documents", { categories: ["cartao_ponto"] });
+      setPontos(r.documents || []);
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao carregar cartões de ponto");
+    }
     setLoading(false);
   };
 
   const handleAssinar = async () => {
     if (!selected || !employee) return;
     setSigning(true);
-
-    // Capture IP
-    let ip = "";
     try {
-      const res = await fetch("https://api.ipify.org?format=json");
-      const json = await res.json();
-      ip = json.ip;
-    } catch {}
-
-    const { error } = await supabase.functions.invoke("update-ponto-signature", {
-      body: {
+      await portalApi("sign_document", {
         document_id: selected.id,
-        funcionario_id: employee.id,
-        empresa_id: selected.empresa_id,
-        ip_address: ip,
         user_agent: navigator.userAgent,
-      },
-    });
-
-    if (!error) {
+      });
       toast.success("Cartão de ponto assinado!");
       setSelected(null);
       setConfirmado(false);
       await loadPontos();
-    } else {
-      toast.error("Erro ao assinar.");
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao assinar.");
     }
     setSigning(false);
   };

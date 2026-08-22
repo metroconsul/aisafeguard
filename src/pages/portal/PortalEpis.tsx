@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePortalAuth } from "@/contexts/PortalAuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -25,7 +24,7 @@ interface MeuEpi {
 const MOTIVOS = ["Desgaste Natural", "Perda", "Defeito"];
 
 export default function PortalEpis() {
-  const { employee } = usePortalAuth();
+  const { employee, portalApi } = usePortalAuth();
   const navigate = useNavigate();
   const [epis, setEpis] = useState<MeuEpi[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,32 +41,25 @@ export default function PortalEpis() {
   const loadEpis = async () => {
     if (!employee) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from("entregas")
-      .select("id, data_entrega, data_vencimento, status_assinatura, epis(id, nome_equipamento, numero_ca)")
-      .eq("funcionario_id", employee.id)
-      .order("data_entrega", { ascending: false });
-
-    if (error) {
-      toast.error("Erro ao carregar EPIs");
-      setLoading(false);
-      return;
+    try {
+      const r = await portalApi<{ entregas: any[] }>("list_entregas");
+      setEpis(
+        (r.entregas || []).map((row) => {
+          const epi = row.epis as { id: string; nome_equipamento: string; numero_ca: string } | null;
+          return {
+            id: row.id,
+            data_entrega: row.data_entrega,
+            data_vencimento: row.data_vencimento,
+            epi_nome: epi?.nome_equipamento ?? "—",
+            numero_ca: epi?.numero_ca ?? "—",
+            epi_id: epi?.id ?? "",
+            status_assinatura: row.status_assinatura ?? null,
+          };
+        })
+      );
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao carregar EPIs");
     }
-
-    setEpis(
-      (data || []).map((row) => {
-        const epi = row.epis as unknown as { id: string; nome_equipamento: string; numero_ca: string } | null;
-        return {
-          id: row.id,
-          data_entrega: row.data_entrega,
-          data_vencimento: row.data_vencimento,
-          epi_nome: epi?.nome_equipamento ?? "—",
-          numero_ca: epi?.numero_ca ?? "—",
-          epi_id: epi?.id ?? "",
-          status_assinatura: (row as any).status_assinatura ?? null,
-        };
-      })
-    );
     setLoading(false);
   };
 
@@ -77,19 +69,14 @@ export default function PortalEpis() {
       return;
     }
     setSubmitting(true);
-    const { error } = await supabase.from("epi_solicitacoes" as any).insert({
-      funcionario_id: employee.id,
-      empresa_id: employee.empresa_id,
-      epi_id: selectedEpi,
-      motivo,
-    });
-    if (error) {
-      toast.error("Erro ao enviar solicitação");
-    } else {
+    try {
+      await portalApi("submit_epi_request", { epi_id: selectedEpi, motivo });
       toast.success("Solicitação enviada com sucesso!");
       setShowTroca(false);
       setSelectedEpi("");
       setMotivo("");
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao enviar solicitação");
     }
     setSubmitting(false);
   };
