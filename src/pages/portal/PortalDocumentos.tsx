@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { usePortalAuth } from "@/contexts/PortalAuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,7 +18,7 @@ interface Documento {
 }
 
 export default function PortalDocumentos() {
-  const { employee } = usePortalAuth();
+  const { employee, portalApi } = usePortalAuth();
   const [docs, setDocs] = useState<Documento[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,17 +30,14 @@ export default function PortalDocumentos() {
   const loadDocs = async () => {
     if (!employee) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from("documents")
-      .select("id, title, doc_category, expiration_date, file_url, created_at")
-      .eq("funcionario_id", employee.id)
-      .in("doc_category", ["treinamento_nr", "admissao", "aso_exames", "aso", "contrato", "demissao"])
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      toast.error("Erro ao carregar documentos");
+    try {
+      const r = await portalApi<{ documents: Documento[] }>("list_documents", {
+        categories: ["treinamento_nr", "admissao", "aso_exames", "aso", "contrato", "demissao"],
+      });
+      setDocs(r.documents || []);
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao carregar documentos");
     }
-    setDocs(data || []);
     setLoading(false);
   };
 

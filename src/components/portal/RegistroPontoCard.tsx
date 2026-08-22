@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import type { PortalEmployee } from "@/contexts/PortalAuthContext";
+import { usePortalAuth, type PortalEmployee } from "@/contexts/PortalAuthContext";
 
 const TIPO_LABEL: Record<string, string> = {
   entrada: "Entrada",
@@ -37,6 +37,7 @@ interface Coords {
 }
 
 export function RegistroPontoCard({ employee }: { employee: PortalEmployee }) {
+  const { portalApi } = usePortalAuth();
   const [now, setNow] = useState(new Date());
   const [capturing, setCapturing] = useState(false);
   const [coords, setCoords] = useState<Coords | null>(null);
@@ -54,14 +55,8 @@ export function RegistroPontoCard({ employee }: { employee: PortalEmployee }) {
   const { data: hoje = [], refetch } = useQuery({
     queryKey: ["time_entries", "today", employee.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("time_entries")
-        .select("*")
-        .eq("funcionario_id", employee.id)
-        .gte("recorded_at", todayStart.toISOString())
-        .order("recorded_at", { ascending: true });
-      if (error) throw error;
-      return data || [];
+      const r = await portalApi<{ entries: any[] }>("list_time_entries_today");
+      return r.entries || [];
     },
     refetchInterval: 60000,
   });
@@ -102,16 +97,13 @@ export function RegistroPontoCard({ employee }: { employee: PortalEmployee }) {
     if (!coords) return;
     setSaving(true);
     try {
-      const { error } = await supabase.from("time_entries").insert({
-        empresa_id: employee.empresa_id,
-        funcionario_id: employee.id,
+      await portalApi("submit_time_entry", {
         tipo: proximoTipo,
         latitude: coords.latitude,
         longitude: coords.longitude,
         accuracy: coords.accuracy,
         device_info: navigator.userAgent.substring(0, 200),
       });
-      if (error) throw error;
       toast.success(`Ponto registrado às ${format(new Date(), "HH:mm")}!`, {
         icon: <CheckCircle2 className="h-5 w-5 text-success" />,
       });
