@@ -606,21 +606,21 @@ const slides: { title: string; render: () => JSX.Element }[] = [
     render: () => (
       <Frame variant="hero">
         <Kicker>A proposta</Kicker>
-        <Title size={96}>Você entra na infra. Eu entrego o produto.</Title>
+        <Title size={84}>Você leva a operação e as vendas. Eu fico no T.I.</Title>
         <div className="mt-14 grid grid-cols-2 gap-8">
-          <Card icon={Handshake} title="Você">
-            Hospedagem em VPS, número de WhatsApp e operação da infraestrutura.
+          <Card icon={Handshake} title="Você — sócio operativo">
+            Sua empresa de engenharia entra como cliente piloto sem custo. Além da VPS, WhatsApp e operação, você conversa com construtoras e fecha os primeiros contratos pela sua credibilidade no setor.
           </Card>
-          <Card icon={ShieldCheck} title="Eu" accent={BLUE}>
-            Produto, desenvolvimento, automações e atendimento aos primeiros clientes.
+          <Card icon={ShieldCheck} title="Eu — produto e tecnologia" accent={BLUE}>
+            Foco no desenvolvimento, automações, suporte técnico e evolução da plataforma enquanto você valida o produto no mercado.
           </Card>
         </div>
         <div className="mt-12">
           <Bullets
             items={[
-              "30 dias: automações em produção na VPS e primeiro cliente piloto",
+              "30 dias: automações na VPS e sua empresa usando como piloto",
               "60 dias: 3 clientes pagantes e cobrança recorrente ativa",
-              "90 dias: 10 clientes e definição formal da divisão societária",
+              "90 dias: 10 clientes e divisão societária formalizada",
             ]}
           />
         </div>
