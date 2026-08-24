@@ -595,16 +595,17 @@ const slides: { title: string; render: () => JSX.Element }[] = [
               Plano de 24 meses (R$ 1.055,76 à vista) com domínio grátis. Renovação a R$ 77,99/mês.
             </Card>
             <Card icon={Smartphone} title="Backup diário: R$ 32,99/mês" accent={BLUE}>
-              Opcional recomendado. Com backup, a infra fica em R$ 76,98/mês.
+              Opcional recomendado pela Hostinger para as automações em produção.
             </Card>
           </div>
           <div className="flex flex-col gap-6">
-            <Card icon={TrendingUp} title="Break-even no 1º cliente">
-              Uma construtora média já cobre toda a infraestrutura do mês com folga.
+            <Card icon={CheckCircle2} title="Domínio: R$ 467,98/ano">
+              Também na Hostinger, cerca de R$ 39/mês. Infra total: ~R$ 116/mês.
             </Card>
-            <Card icon={CheckCircle2} title="Escala barata" accent={BLUE}>
-              A mesma VPS atende os primeiros clientes sem aumento de custo.
+            <Card icon={TrendingUp} title="Break-even no 1º cliente" accent={BLUE}>
+              Um contrato de R$ 2.500/mês cobre a infra inteira mais de 20 vezes.
             </Card>
+
           </div>
         </div>
       </Frame>
