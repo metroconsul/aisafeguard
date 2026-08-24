@@ -559,13 +559,14 @@ const slides: { title: string; render: () => JSX.Element }[] = [
         <Kicker>Mercado e modelo</Kicker>
         <Title>SaaS por colaborador, receita recorrente</Title>
         <div className="mt-6" style={{ fontSize: 26, color: "rgba(255,255,255,0.55)" }}>
-          Números de referência para a conversa <EstBadge />
+          Números do plano comercial
         </div>
         <div className="mt-10 grid grid-cols-3 gap-8">
-          <Stat value="R$ 8" label="por colaborador/mês no plano base" />
-          <Stat value="R$ 1.200" label="ticket médio mensal por construtora de 150 pessoas" accent={BLUE} />
-          <Stat value="R$ 12k" label="MRR com 10 clientes ativos" />
+          <Stat value="R$ 2.500" label="ticket médio mensal por construtora" />
+          <Stat value="R$ 30 mil" label="meta de receita recorrente em até 3 meses" accent={BLUE} />
+          <Stat value="12" label="clientes ativos para bater a meta" />
         </div>
+
         <div className="mt-12">
           <Bullets
             items={[
