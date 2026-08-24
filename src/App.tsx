@@ -30,6 +30,7 @@ import Unsubscribe from "@/pages/Unsubscribe";
 import Admissoes from "@/pages/Admissoes";
 import CartaoPonto from "@/pages/CartaoPonto";
 import OnboardingPublico from "@/pages/OnboardingPublico";
+import Pitch from "@/pages/Pitch";
 import NotFound from "@/pages/NotFound";
 
 // Portal pages
@@ -55,6 +56,7 @@ const App = () => (
               <Route path="/" element={<LandingPage />} />
               <Route path="/site" element={<LandingPage />} />
               <Route path="/sobre-o-portal" element={<SobrePortal />} />
+              <Route path="/pitch" element={<Pitch />} />
               <Route path="/login" element={<Login />} />
               <Route path="/cadastro" element={<Cadastro />} />
               <Route path="/assinar/:id" element={<Assinar />} />
