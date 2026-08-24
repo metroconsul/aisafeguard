@@ -606,8 +606,6 @@ const slides: { title: string; render: () => JSX.Element }[] = [
             </Card>
           </div>
         </div>
-
-        </div>
       </Frame>
     ),
   },
