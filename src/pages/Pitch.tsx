@@ -122,16 +122,6 @@ function Stat({ value, label, accent = LIME }: { value: string; label: string; a
   );
 }
 
-function EstBadge() {
-  return (
-    <span
-      className="ml-3 inline-block rounded-full px-4 py-1 align-middle font-bold"
-      style={{ background: "rgba(245,158,11,0.16)", color: "#f59e0b", fontSize: 20, whiteSpace: "nowrap" }}
-    >
-      ESTIMADO — ajustar
-    </span>
-  );
-}
 
 function Frame({
   children,
