@@ -1,72 +1,34 @@
-# Redesign Funcionários — Kanban por Setor
+# Pitch SafeGuard — Deck de Sociedade
 
-Substituir a tabela atual em `src/pages/Funcionarios.tsx` por um Kanban Board sofisticado, agrupando funcionários pelo setor (`setor_id` → `setores.nome`, com fallback para o campo legado `setor`). Apenas UI/UX — sem mudanças de schema, RLS ou regras de negócio.
+Objetivo: material completo para você apresentar a plataforma a um sócio potencial que entraria bancando a VPS das automações (n8n + WhatsApp).
 
-## Estrutura da página
+Entrega em duas frentes: uma rota `/pitch` navegável dentro do app (para apresentar ao vivo, em tela cheia) e um arquivo `.pptx` editável em Documentos (para enviar por WhatsApp/e-mail).
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│  Funcionários                                                │
-│  N registros · X setores                                     │
-│                                                              │
-│  [🔍 Buscar funcionário...        ]      [+ Novo Funcionário]│
-├─────────────────────────────────────────────────────────────┤
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  →    │
-│  │LOGÍSTICA5│ │ OBRAS  12│ │ ADMIN   3│ │SEM SETOR2│        │
-│  │          │ │          │ │          │ │          │        │
-│  │ [card]   │ │ [card]   │ │ [card]   │ │ [card]   │        │
-│  │ [card]   │ │ [card]   │ │ [card]   │ │          │        │
-│  │ ...      │ │ ...      │ │          │ │          │        │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘        │
-└─────────────────────────────────────────────────────────────┘
-```
+## Estrutura do deck (16 slides)
 
-## Header e ações globais
+1. Capa — SafeGuard: gestão de EPI, RH e ponto para construtoras
+2. O problema — multas de NR-6, fichas de EPI em papel, ponto manual, ASO/NR vencidos sem aviso
+3. A solução — plataforma web + Portal do Colaborador no celular + automações WhatsApp
+4. Como funciona — fluxo em 3 camadas (App → Backend → n8n/WhatsApp)
+5. Módulo EPI — cadastro, entrega multi-seleção, assinatura digital, alerta de vencimento
+6. Módulo Ponto — registro pelo celular com geolocalização, cartão mensal automático, assinatura, alerta de anomalia
+7. Módulo RH — holerites com confirmação de recebimento, cofre de documentos da empresa e do colaborador
+8. Módulo Admissão — onboarding digital do candidato por link público, upload de documentos, kanban de aprovação
+9. Portal do Colaborador — login por CPF + PIN, pendências, EPIs, holerites, pontos, documentos
+10. Automações (o que a VPS destrava) — os 7 fluxos n8n já construídos e testados
+11. Compliance e prova jurídica — trilha de assinatura com IP, data/hora e imagem da assinatura
+12. Arquitetura e segurança — multi-tenant, RBAC de 4 papéis, isolamento por empresa, storage privado com URL assinada
+13. O que já está pronto — inventário do que foi construído (páginas, funções de backend, fluxos)
+14. Mercado e modelo de receita — SaaS por colaborador/mês, ticket e cenários (números estimados, marcados para você ajustar)
+15. Custos e o papel do sócio — custo de VPS/infra, o que a entrada dele resolve, break-even estimado
+16. Proposta e próximos passos — divisão de responsabilidades, roadmap de 90 dias, pedido claro
 
-- Wrapper externo: `bg-slate-50 min-h-full -m-* p-6` (compatível com o padding existente do `AppLayout`).
-- Título: `text-3xl font-extrabold text-gray-900 tracking-tight` + subtítulo `text-sm text-gray-500` com contagem total e nº de setores.
-- Barra de ações `flex items-center justify-between gap-4 mt-6`:
-  - Busca: `<Input>` customizado com ícone `Search` à esquerda; classes: `w-96 bg-white border-gray-200 rounded-xl px-4 py-3 shadow-sm focus-visible:ring-indigo-500`.
-  - Botão "+ Novo Funcionário" (mantém o `Dialog` existente): `bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-200`.
+## Conteúdo real, sem invenção
 
-## Container do Kanban
-
-- `mt-6 flex gap-6 overflow-x-auto pb-8 pt-4 w-full` com scroll horizontal suave.
-- Agrupamento client-side: gera uma coluna por setor existente em `setores` + coluna final "Sem setor" para funcionários sem `setor_id`. Filtro de busca aplicado por `nome`, `matricula`, `cargo` antes do agrupamento.
-
-## Coluna (setor)
-
-- Container: `min-w-[320px] max-w-[320px] bg-slate-100/70 border border-slate-200 rounded-2xl flex flex-col max-h-[calc(100vh-280px)]`.
-- Header: `p-4 border-b border-slate-200 flex justify-between items-center`.
-  - Título: `text-sm font-bold text-gray-700 uppercase tracking-wider`.
-  - Badge de contagem: `bg-slate-200 text-gray-600 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center`.
-- Área de cards: `p-4 flex flex-col gap-4 flex-1 overflow-y-auto`.
-- Empty state da coluna: texto sutil "Nenhum funcionário" em `text-xs text-slate-400 text-center py-8`.
-
-## Card do funcionário
-
-Componente novo `src/components/funcionarios/FuncionarioKanbanCard.tsx`.
-
-- Base: `bg-white rounded-xl p-5 shadow-sm border border-gray-100 cursor-grab hover:shadow-md hover:border-indigo-300 hover:-translate-y-0.5 transition-all duration-200 relative` — clique navega para `/app/funcionarios/:id`.
-- Topo (`flex justify-between items-start`):
-  - Matrícula: `text-xs font-semibold text-slate-400` (ex: `#1234`).
-  - Status "Ativo": badge `bg-green-50 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase` com ponto verde (`w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse`).
-- Corpo:
-  - Nome: `text-base font-bold text-gray-900 mt-2`.
-  - Cargo: `text-sm font-medium text-indigo-600 mt-0.5`.
-- Rodapé: `mt-4 pt-3 border-t border-slate-50 flex justify-between items-center`.
-  - Botão WhatsApp (ícone `MessageCircle` da lucide): `flex items-center gap-1.5 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors`, abre `https://wa.me/<telefone>` quando disponível, senão desabilitado.
-  - Botão de perfil: ícone `Eye` em `text-gray-400 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-slate-50` que navega para o detalhe.
+Todo o inventário de features e automações sai do próprio código (páginas, edge functions, webhooks n8n, tabelas). Nos slides 14 e 15 os valores de preço, custo de VPS e break-even entram como **estimativas marcadas visualmente** (ex.: `[ESTIMADO — ajustar]`), para você trocar pelos seus números antes de apresentar.
 
 ## Detalhes técnicos
 
-- Edita `src/pages/Funcionarios.tsx`: remove blocos mobile-table e desktop-table, mantém Dialog de cadastro e carregamento de dados (`load()`, `funcionarios`/`setores`).
-- Adiciona estado `query` (busca) e memo `colunas` (`{ setor, funcionarios[] }[]`).
-- Mobile (<640px): mesma estrutura Kanban com scroll horizontal — colunas continuam `min-w-[320px]`, garantindo UX consistente (sem reverter para tabela).
-- Sem drag-and-drop por enquanto (o card já comunica "arrastável" via `cursor-grab` e hover; mover funcionário entre setores fica fora do escopo desta etapa visual).
-- Tokens: usado Tailwind direto conforme especificado pelo usuário; sem alterações em `index.css`/`tailwind.config.ts`.
-
-## Arquivos
-
-- Editar: `src/pages/Funcionarios.tsx`
-- Criar: `src/components/funcionarios/FuncionarioKanbanCard.tsx`
+- Rota `/pitch` pública (fora do `/app`), estilo Dark Premium da landing (#000c24 + verde neon, Plus Jakarta Sans), slides em 1920x1080 com scale-to-fit, navegação por setas/clique, contador de slides e modo tela cheia.
+- Componentes novos em `src/components/pitch/` + `src/pages/Pitch.tsx`; rota registrada em `src/App.tsx`. Nenhuma alteração em lógica de negócio, banco ou edge functions.
+- Deck `.pptx` gerado com pptxgenjs, paleta escura alinhada à marca, salvo em Documentos como `SafeGuard-Pitch-Socio.pptx`, com validação e revisão visual slide a slide.
