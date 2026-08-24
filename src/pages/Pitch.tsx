@@ -586,25 +586,27 @@ const slides: { title: string; render: () => JSX.Element }[] = [
         <Kicker>O papel do sócio</Kicker>
         <Title>A infra é o que falta para vender</Title>
         <div className="mt-6" style={{ fontSize: 26, color: "rgba(255,255,255,0.55)" }}>
-          Custos de referência <EstBadge />
+          Custo real de infraestrutura (Hostinger VPS KVM 2)
         </div>
         <div className="mt-10 grid grid-cols-[1fr_1fr] gap-14">
           <div className="flex flex-col gap-6">
-            <Card icon={Server} title="VPS + n8n: R$ 120/mês">
-              Servidor dedicado para as automações rodarem 24/7, com domínio e backup.
+            <Card icon={Server} title="VPS KVM 2: R$ 43,99/mês">
+              Plano de 24 meses (R$ 1.055,76 à vista) com domínio grátis. Renovação a R$ 77,99/mês.
             </Card>
-            <Card icon={Smartphone} title="API de WhatsApp: R$ 100/mês" accent={BLUE}>
-              Número oficial e envio em escala para todos os clientes.
+            <Card icon={Smartphone} title="Backup diário: R$ 32,99/mês" accent={BLUE}>
+              Opcional recomendado. Com backup, a infra fica em R$ 76,98/mês.
             </Card>
           </div>
           <div className="flex flex-col gap-6">
             <Card icon={TrendingUp} title="Break-even no 1º cliente">
-              Uma construtora média já cobre toda a infraestrutura do mês.
+              Uma construtora média já cobre toda a infraestrutura do mês com folga.
             </Card>
             <Card icon={CheckCircle2} title="Escala barata" accent={BLUE}>
               A mesma VPS atende os primeiros clientes sem aumento de custo.
             </Card>
           </div>
+        </div>
+
         </div>
       </Frame>
     ),
