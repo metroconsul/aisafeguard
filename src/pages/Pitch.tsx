@@ -547,7 +547,7 @@ const slides: { title: string; render: () => JSX.Element }[] = [
     render: () => (
       <Frame>
         <Kicker>Mercado e modelo</Kicker>
-        <Title>SaaS por colaborador, receita recorrente</Title>
+        <Title>Receita recorrente por contrato</Title>
         <div className="mt-6" style={{ fontSize: 26, color: "rgba(255,255,255,0.55)" }}>
           Números do plano comercial
         </div>
