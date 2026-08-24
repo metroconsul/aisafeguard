@@ -30,6 +30,7 @@ import Unsubscribe from "@/pages/Unsubscribe";
 import Admissoes from "@/pages/Admissoes";
 import CartaoPonto from "@/pages/CartaoPonto";
 import OnboardingPublico from "@/pages/OnboardingPublico";
+import Pitch from "@/pages/Pitch";
 import NotFound from "@/pages/NotFound";
 
 // Portal pages
