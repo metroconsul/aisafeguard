@@ -122,16 +122,6 @@ function Stat({ value, label, accent = LIME }: { value: string; label: string; a
   );
 }
 
-function EstBadge() {
-  return (
-    <span
-      className="ml-3 inline-block rounded-full px-4 py-1 align-middle font-bold"
-      style={{ background: "rgba(245,158,11,0.16)", color: "#f59e0b", fontSize: 20, whiteSpace: "nowrap" }}
-    >
-      ESTIMADO — ajustar
-    </span>
-  );
-}
 
 function Frame({
   children,
@@ -557,15 +547,16 @@ const slides: { title: string; render: () => JSX.Element }[] = [
     render: () => (
       <Frame>
         <Kicker>Mercado e modelo</Kicker>
-        <Title>SaaS por colaborador, receita recorrente</Title>
+        <Title>Receita recorrente por contrato</Title>
         <div className="mt-6" style={{ fontSize: 26, color: "rgba(255,255,255,0.55)" }}>
-          Números de referência para a conversa <EstBadge />
+          Números do plano comercial
         </div>
         <div className="mt-10 grid grid-cols-3 gap-8">
-          <Stat value="R$ 8" label="por colaborador/mês no plano base" />
-          <Stat value="R$ 1.200" label="ticket médio mensal por construtora de 150 pessoas" accent={BLUE} />
-          <Stat value="R$ 12k" label="MRR com 10 clientes ativos" />
+          <Stat value="R$ 2.500" label="ticket médio mensal por construtora" />
+          <Stat value="R$ 30 mil" label="meta de receita recorrente em até 3 meses" accent={BLUE} />
+          <Stat value="12" label="clientes ativos para bater a meta" />
         </div>
+
         <div className="mt-12">
           <Bullets
             items={[
@@ -594,16 +585,17 @@ const slides: { title: string; render: () => JSX.Element }[] = [
               Plano de 24 meses (R$ 1.055,76 à vista) com domínio grátis. Renovação a R$ 77,99/mês.
             </Card>
             <Card icon={Smartphone} title="Backup diário: R$ 32,99/mês" accent={BLUE}>
-              Opcional recomendado. Com backup, a infra fica em R$ 76,98/mês.
+              Opcional recomendado pela Hostinger para as automações em produção.
             </Card>
           </div>
           <div className="flex flex-col gap-6">
-            <Card icon={TrendingUp} title="Break-even no 1º cliente">
-              Uma construtora média já cobre toda a infraestrutura do mês com folga.
+            <Card icon={CheckCircle2} title="Domínio: R$ 467,98/ano">
+              Também na Hostinger, cerca de R$ 39/mês. Infra total: ~R$ 116/mês.
             </Card>
-            <Card icon={CheckCircle2} title="Escala barata" accent={BLUE}>
-              A mesma VPS atende os primeiros clientes sem aumento de custo.
+            <Card icon={TrendingUp} title="Break-even no 1º cliente" accent={BLUE}>
+              Um contrato de R$ 2.500/mês cobre a infra inteira mais de 20 vezes.
             </Card>
+
           </div>
         </div>
       </Frame>
