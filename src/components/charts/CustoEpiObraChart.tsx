@@ -40,10 +40,16 @@ export function CustoEpiObraChart() {
   }, [perfil?.empresa_id]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100/50 p-6">
-      <div className="mb-4">
-        <h3 className="text-base font-bold text-gray-900">Entregas de EPI por Obra</h3>
-        <p className="mt-0.5 text-xs text-muted-foreground">Mês atual</p>
+    <div className="rounded-xl border border-border bg-card p-6 shadow-card">
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="text-base font-semibold text-foreground">Entregas de EPI por Obra</h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">Distribuição no mês atual</p>
+        </div>
+        <div className="flex gap-2">
+          <span className="rounded-full bg-primary-500 px-3 py-1 text-xs font-medium text-white">Mês atual</span>
+          <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">Por obra</span>
+        </div>
       </div>
       {data.length === 0 ? (
         <EmptyState
@@ -52,15 +58,17 @@ export function CustoEpiObraChart() {
           description="Quando houver entregas por obra, o ranking aparecerá aqui."
         />
       ) : (
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={data} layout="vertical" margin={{ left: 10 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 14% 93%)" horizontal={false} />
-            <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(220 9% 46%)" }} axisLine={false} tickLine={false} />
-            <YAxis type="category" dataKey="obra" tick={{ fontSize: 11, fill: "hsl(220 9% 46%)" }} axisLine={false} tickLine={false} width={100} />
-            <Tooltip cursor={{ fill: "hsl(239 84% 67% / 0.06)" }} contentStyle={{ borderRadius: "10px", border: "none", boxShadow: "0 10px 24px -8px rgba(17,24,39,.18)", fontSize: "12px", padding: "8px 12px" }} />
-            <Bar dataKey="entregas" fill="hsl(239, 84%, 67%)" radius={[0, 4, 4, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        <div className="mt-4">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={data} layout="vertical" margin={{ left: 10 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" horizontal={false} />
+              <XAxis type="number" tick={{ fontSize: 11, fill: "#6F8CAA" }} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="obra" tick={{ fontSize: 11, fill: "#6F8CAA" }} axisLine={false} tickLine={false} width={100} />
+              <Tooltip cursor={{ fill: "rgba(0,55,138,0.06)" }} contentStyle={{ borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 12px 32px -8px rgba(0,55,138,0.12)", fontSize: "12px", padding: "8px 12px" }} />
+              <Bar dataKey="entregas" fill="#00378A" radius={[0, 6, 6, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </div>
   );
