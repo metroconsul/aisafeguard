@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipboardList } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
 import { EntregaDetailModal } from "@/components/EntregaDetailModal";
 import { EmptyState } from "@/components/EmptyState";
 
@@ -13,6 +12,21 @@ interface EntregaRow {
   epi: string;
   ca: string;
   status: string;
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const assinado = status === "Assinado";
+  return (
+    <span
+      className={
+        assinado
+          ? "inline-flex rounded-full border border-success/15 bg-success/10 px-2.5 py-0.5 text-[11px] font-semibold text-success"
+          : "inline-flex rounded-full border border-warning/15 bg-warning/10 px-2.5 py-0.5 text-[11px] font-semibold text-warning"
+      }
+    >
+      {assinado ? "Assinado" : "Pendente"}
+    </span>
+  );
 }
 
 export function UltimasEntregasTable() {
@@ -48,104 +62,92 @@ export function UltimasEntregasTable() {
 
   return (
     <>
-      <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100/50 p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-bold text-gray-900">Últimas Entregas</h3>
-          <button className="text-xs font-semibold text-primary hover:underline">Ver Todas</button>
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-card">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <h3 className="text-base font-semibold text-foreground">Últimas Entregas</h3>
+          <button
+            onClick={() => navigate("/app/nova-entrega")}
+            className="text-sm font-medium text-secondary-400 transition-colors hover:text-secondary-500"
+          >
+            Ver Todas →
+          </button>
         </div>
 
         {entregas.length === 0 ? (
-          <EmptyState
-            icon={ClipboardList}
-            title="Sem entregas registradas ainda"
-            description="Comece registrando a primeira entrega de EPI para sua equipe."
-            actionLabel="+ Registrar Entrega"
-            onAction={() => navigate("/app/nova-entrega")}
-          />
+          <div className="p-5">
+            <EmptyState
+              icon={ClipboardList}
+              title="Sem entregas registradas ainda"
+              description="Comece registrando a primeira entrega de EPI para sua equipe."
+              actionLabel="+ Registrar Entrega"
+              onAction={() => navigate("/app/nova-entrega")}
+            />
+          </div>
         ) : (
           <>
-
-        {/* Mobile: card layout */}
-        <div className="block sm:hidden space-y-3">
-          {entregas.map((e) => (
-            <div
-              key={e.id}
-              className="rounded-xl bg-muted/40 p-3 cursor-pointer active:bg-muted/70"
-              onClick={() => setSelectedId(e.id)}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                    {e.funcionario.split(" ").map((n) => n[0]).join("")}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-foreground text-sm truncate">{e.funcionario}</p>
-                    <p className="text-xs text-muted-foreground truncate">{e.epi}</p>
-                  </div>
-                </div>
-                <Badge
-                  variant={e.status === "Assinado" ? "default" : "outline"}
-                  className={
-                    e.status === "Assinado"
-                      ? "bg-success/10 text-success border-success/20 shrink-0"
-                      : "bg-warning/10 text-warning border-warning/20 shrink-0"
-                  }
-                >
-                  {e.status === "Assinado" ? "Assinado" : "Aguardando"}
-                </Badge>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Desktop: table layout */}
-        <div className="hidden sm:block overflow-x-auto">
-          <table className="w-full text-sm min-w-[480px]">
-            <thead>
-              <tr className="border-b border-muted text-left">
-                <th className="pb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">Funcionário</th>
-                <th className="pb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">EPI</th>
-                <th className="pb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground hidden md:table-cell">CA</th>
-                <th className="pb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-muted">
+            {/* Mobile: card layout */}
+            <div className="block space-y-3 p-4 sm:hidden">
               {entregas.map((e) => (
-                <tr
+                <div
                   key={e.id}
-                  className="cursor-pointer transition-colors hover:bg-muted/40"
+                  className="cursor-pointer rounded-xl border border-border bg-card p-3 shadow-card active:bg-primary-50/30"
                   onClick={() => setSelectedId(e.id)}
                 >
-                  <td className="py-4">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                        {e.funcionario.split(" ").map((n) => n[0]).join("")}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-600">
+                        {e.funcionario.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-foreground truncate">{e.funcionario}</p>
-                        <p className="text-xs text-muted-foreground truncate">{e.setor}</p>
+                        <p className="truncate text-sm font-medium text-foreground">{e.funcionario}</p>
+                        <p className="truncate text-xs text-muted-foreground">{e.epi}</p>
                       </div>
                     </div>
-                  </td>
-                  <td className="py-4 text-foreground">{e.epi}</td>
-                  <td className="py-4 tabular-nums text-muted-foreground hidden md:table-cell">{e.ca}</td>
-                  <td className="py-4">
-                    <Badge
-                      variant={e.status === "Assinado" ? "default" : "outline"}
-                      className={
-                        e.status === "Assinado"
-                          ? "bg-success/10 text-success border-success/20 hover:bg-success/20"
-                          : "bg-warning/10 text-warning border-warning/20 hover:bg-warning/20"
-                      }
-                    >
-                      {e.status === "Assinado" ? "Assinado" : "Aguardando"}
-                    </Badge>
-                  </td>
-                </tr>
+                    <StatusBadge status={e.status} />
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+
+            {/* Desktop: table layout */}
+            <div className="hidden overflow-x-auto sm:block">
+              <table className="w-full min-w-[480px] text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/50 text-left">
+                    <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Funcionário</th>
+                    <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">EPI</th>
+                    <th className="hidden px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground md:table-cell">CA</th>
+                    <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {entregas.map((e) => (
+                    <tr
+                      key={e.id}
+                      className="cursor-pointer border-b border-border/50 transition-colors duration-100 even:bg-muted/30 hover:bg-primary-50/40"
+                      onClick={() => setSelectedId(e.id)}
+                    >
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-600">
+                            {e.funcionario.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium text-foreground">{e.funcionario}</p>
+                            <p className="truncate text-xs text-muted-foreground">{e.setor}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 text-sm text-foreground">{e.epi}</td>
+                      <td className="hidden px-5 py-3.5 text-sm tabular-nums text-muted-foreground md:table-cell">{e.ca}</td>
+                      <td className="px-5 py-3.5">
+                        <StatusBadge status={e.status} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </>
         )}
       </div>
