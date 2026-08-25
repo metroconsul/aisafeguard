@@ -74,7 +74,7 @@ export default function Unsubscribe() {
               <AlertTriangle className="mx-auto h-10 w-10 text-warning" />
               <h2 className="text-lg font-semibold text-foreground">Cancelar inscrição</h2>
               <p className="text-sm text-muted-foreground">
-                Ao confirmar, você deixará de receber e-mails automáticos do SafeGuard.
+                Ao confirmar, você deixará de receber e-mails automáticos do Ava Safeguard.
               </p>
               <Button onClick={handleUnsubscribe} disabled={processing} className="w-full">
                 {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmar cancelamento"}
@@ -95,7 +95,7 @@ export default function Unsubscribe() {
               <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-500" />
               <h2 className="text-lg font-semibold text-foreground">Inscrição cancelada</h2>
               <p className="text-sm text-muted-foreground">
-                Você não receberá mais e-mails automáticos do SafeGuard.
+                Você não receberá mais e-mails automáticos do Ava Safeguard.
               </p>
             </>
           )}

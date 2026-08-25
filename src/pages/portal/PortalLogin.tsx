@@ -61,7 +61,7 @@ export default function PortalLogin() {
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary shadow-lg">
           <ShieldCheck className="h-8 w-8 text-primary-foreground" />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">SafeGuard</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Ava Safeguard</h1>
         <p className="text-sm text-muted-foreground">Portal do Colaborador</p>
       </div>
 

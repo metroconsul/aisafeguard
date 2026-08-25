@@ -18,7 +18,7 @@ export default function FuncionarioKanbanCard({ id, nome, matricula, cargo, tele
   return (
     <div
       onClick={goDetail}
-      className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 cursor-grab hover:shadow-md hover:border-indigo-300 hover:-translate-y-0.5 transition-all duration-200 relative"
+      className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 cursor-grab hover:shadow-md hover:border-primary-200 hover:-translate-y-0.5 transition-all duration-200 relative"
     >
       <div className="flex justify-between items-start">
         <span className="text-xs font-semibold text-slate-400">#{matricula || "----"}</span>
@@ -29,7 +29,7 @@ export default function FuncionarioKanbanCard({ id, nome, matricula, cargo, tele
       </div>
 
       <p className="text-base font-bold text-gray-900 mt-2 leading-tight">{nome}</p>
-      <p className="text-sm font-medium text-indigo-600 mt-0.5">{cargo || "—"}</p>
+      <p className="text-sm font-medium text-primary-500 mt-0.5">{cargo || "—"}</p>
 
       <div className="mt-4 pt-3 border-t border-slate-50 flex justify-between items-center">
         {waHref ? (
@@ -51,7 +51,7 @@ export default function FuncionarioKanbanCard({ id, nome, matricula, cargo, tele
             e.stopPropagation();
             goDetail();
           }}
-          className="text-gray-400 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+          className="text-gray-400 hover:text-primary-500 p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
           aria-label="Ver perfil"
         >
           <Eye className="h-4 w-4" />

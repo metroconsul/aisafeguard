@@ -135,7 +135,7 @@ const pricingPlans = [
 
 /* ───────── FAQ data ───────── */
 const faqs = [
-  { q: "Como o sistema beneficia minha construtora?", a: "O SafeGuard elimina processos em papel, automatiza notificações por WhatsApp e gera um cofre digital com assinaturas auditáveis. Isso reduz o risco de multas trabalhistas e economiza horas da sua equipe de RH e SST." },
+  { q: "Como o sistema beneficia minha construtora?", a: "O Ava Safeguard elimina processos em papel, automatiza notificações por WhatsApp e gera um cofre digital com assinaturas auditáveis. Isso reduz o risco de multas trabalhistas e economiza horas da sua equipe de RH e SST." },
   { q: "Os dados dos meus funcionários estão seguros?", a: "Sim. Utilizamos isolamento completo de dados por empresa (Row Level Security), hospedagem em nuvem com backups automáticos e estamos em conformidade com a LGPD." },
   { q: "O sistema é adequado para pequenas empresas?", a: "Absolutamente. O plano Padrão foi pensado para obras menores, com interface simplificada e preço acessível. Você escala conforme cresce." },
 ];
@@ -157,7 +157,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5 text-xl font-bold text-white">
             <ShieldCheck className="h-6 w-6" style={{ color: LIME }} />
-            SafeGuard
+            Ava Safeguard
           </Link>
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium" style={{ color: "rgba(255,255,255,0.7)" }}>
@@ -229,7 +229,7 @@ export default function LandingPage() {
               <div className="rounded-xl bg-white p-4 md:p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: NAVY }}><ShieldCheck className="h-4 w-4" style={{ color: LIME }} /></div>
-                  <span className="text-sm font-bold" style={{ color: NAVY }}>SafeGuard Dashboard</span>
+                  <span className="text-sm font-bold" style={{ color: NAVY }}>Ava Safeguard Dashboard</span>
                   <div className="ml-auto flex gap-2">
                     <div className="h-3 w-3 rounded-full bg-red-400" />
                     <div className="h-3 w-3 rounded-full bg-yellow-400" />
@@ -274,7 +274,7 @@ export default function LandingPage() {
                     <span className="text-[9px] font-bold text-slate-700">WhatsApp</span>
                   </div>
                   <div className="rounded-lg bg-green-50 p-2">
-                    <p className="text-[8px] text-slate-600 leading-relaxed">Olá João! Seu holerite de Abril/2026 já está disponível para assinatura digital. Acesse o Portal SafeGuard. 📄✅</p>
+                    <p className="text-[8px] text-slate-600 leading-relaxed">Olá João! Seu holerite de Abril/2026 já está disponível para assinatura digital. Acesse o Portal Ava Safeguard. 📄✅</p>
                   </div>
                 </div>
               </div>
@@ -328,7 +328,7 @@ export default function LandingPage() {
                 Automação Inteligente via WhatsApp & E-mail
               </h2>
               <p className="mt-4 text-slate-500 leading-relaxed">
-                O motor n8n integra o SafeGuard ao WhatsApp do colaborador. Cada ação gera uma notificação automática — sem intervenção manual.
+                O motor n8n integra o Ava Safeguard ao WhatsApp do colaborador. Cada ação gera uma notificação automática — sem intervenção manual.
               </p>
               <div className="mt-8 space-y-6">
                 {[
@@ -355,9 +355,9 @@ export default function LandingPage() {
               <div className="rounded-3xl p-6 md:p-8 w-72 md:w-80" style={{ background: `linear-gradient(160deg, ${NAVY}, ${NAVY_MID})`, border: "1px solid rgba(255,255,255,0.1)" }}>
                 <div className="space-y-3">
                   {[
-                    { from: "SafeGuard", msg: "📄 Novo holerite disponível para João Silva. Clique para assinar →", time: "09:32" },
-                    { from: "SafeGuard", msg: "🦺 EPI entregue: Capacete MSA (CA 12345). Assine a ficha de entrega →", time: "14:15" },
-                    { from: "SafeGuard", msg: "📋 Documentos de admissão solicitados. Envie pelo link abaixo →", time: "10:48" },
+                    { from: "Ava Safeguard", msg: "📄 Novo holerite disponível para João Silva. Clique para assinar →", time: "09:32" },
+                    { from: "Ava Safeguard", msg: "🦺 EPI entregue: Capacete MSA (CA 12345). Assine a ficha de entrega →", time: "14:15" },
+                    { from: "Ava Safeguard", msg: "📋 Documentos de admissão solicitados. Envie pelo link abaixo →", time: "10:48" },
                   ].map((m, i) => (
                     <div key={i} className="rounded-xl bg-white p-3">
                       <div className="flex items-center gap-2 mb-1">
@@ -527,7 +527,7 @@ export default function LandingPage() {
             <div className="max-w-xs">
               <Link to="/" className="flex items-center gap-2 text-lg font-bold" style={{ color: NAVY }}>
                 <ShieldCheck className="h-5 w-5" style={{ color: BLUE }} />
-                SafeGuard
+                Ava Safeguard
               </Link>
               <p className="mt-3 text-sm text-slate-500 leading-relaxed">
                 A plataforma completa de Gestão de SST, RH e Conformidade Legal para construtoras e indústrias.
@@ -551,7 +551,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 sm:flex-row" style={{ borderColor: "#e5e7eb" }}>
-            <p className="text-xs text-slate-400">© {new Date().getFullYear()} SafeGuard. Todos os direitos reservados.</p>
+            <p className="text-xs text-slate-400">© {new Date().getFullYear()} Ava Safeguard. Todos os direitos reservados.</p>
             <div className="flex gap-4 text-xs text-slate-400">
               <a href="#" className="hover:text-slate-600">Termos de Uso</a>
               <a href="#" className="hover:text-slate-600">Privacidade</a>

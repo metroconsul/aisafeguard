@@ -102,12 +102,12 @@ export default function Funcionarios() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar funcionário..."
-            className="w-full bg-white border border-gray-200 rounded-xl pl-11 pr-4 py-3 shadow-sm text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full bg-white border border-gray-200 rounded-xl pl-11 pr-4 py-3 shadow-sm text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <button className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-200 transition-colors">
+            <button className="inline-flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-primary-100 transition-colors">
               <Plus className="h-4 w-4" /> Novo Funcionário
             </button>
           </DialogTrigger>

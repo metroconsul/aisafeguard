@@ -105,7 +105,7 @@ function handlePrint(func: Funcionario, docs: Document[], category: string, empr
       .sig-label { font-size: 11px; color: #6b7280; margin-top: 4px; }
       @media print { body { margin: 20mm; } }
     </style></head><body>
-    <h1>${empresa?.nome_fantasia || "SafeGuard"}</h1>
+    <h1>${empresa?.nome_fantasia || "Ava Safeguard"}</h1>
     <p class="subtitle">Ficha de ${category === "epi" ? "EPIs Entregues" : "Holerites"}</p>
     <p><strong>Funcionário:</strong> ${func.nome}</p>
     <p><strong>CPF:</strong> ${func.cpf || "—"} &nbsp; <strong>Cargo:</strong> ${func.cargo}</p>
