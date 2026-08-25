@@ -43,7 +43,7 @@ const stagger = {
 };
 
 /* ───────── palette ───────── */
-const LIME = "#def320";
+const ACCENT = "#4dd8ff";
 const NAVY = "#000c24";
 const NAVY_MID = "#0a193a";
 const BLUE = "#0047ff";
@@ -87,7 +87,7 @@ function LeadModal({ open, onClose }: { open: boolean; onClose: () => void }) {
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10 w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
         <button onClick={onClose} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"><X className="h-5 w-5" /></button>
-        <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: NAVY }}><ShieldCheck className="h-5 w-5" style={{ color: LIME }} /></div>
+        <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: NAVY }}><ShieldCheck className="h-5 w-5" style={{ color: ACCENT }} /></div>
         <h3 className="mt-3 text-xl font-bold text-slate-900">Agendar Demonstração</h3>
         <p className="mt-1 text-sm text-slate-500">Preencha seus dados e um consultor entrará em contato.</p>
         <form onSubmit={handleSubmit} className="mt-5 space-y-3.5">
@@ -95,7 +95,7 @@ function LeadModal({ open, onClose }: { open: boolean; onClose: () => void }) {
           <div><label className="text-xs font-semibold text-slate-600">Empresa *</label><input type="text" value={empresa} onChange={(e) => setEmpresa(e.target.value)} placeholder="Nome da empresa" className={inputClass} required /></div>
           <div><label className="text-xs font-semibold text-slate-600">E-mail Corporativo *</label><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@empresa.com.br" className={inputClass} required /></div>
           <div><label className="text-xs font-semibold text-slate-600">WhatsApp</label><input type="tel" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="(11) 99999-9999" className={inputClass} /></div>
-          <button type="submit" disabled={loading} className="mt-2 flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-sm font-bold transition-all hover:-translate-y-0.5 disabled:opacity-60" style={{ background: LIME, color: NAVY }}>
+          <button type="submit" disabled={loading} className="mt-2 flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-sm font-bold transition-all hover:-translate-y-0.5 disabled:opacity-60" style={{ background: ACCENT, color: NAVY }}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {loading ? "Enviando..." : "Solicitar Demonstração"}
           </button>
@@ -156,7 +156,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50" style={{ background: "rgba(0,12,36,0.85)", backdropFilter: "blur(12px)" }}>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5 text-xl font-bold text-white">
-            <ShieldCheck className="h-6 w-6" style={{ color: LIME }} />
+            <ShieldCheck className="h-6 w-6" style={{ color: ACCENT }} />
             Ava Safeguard
           </Link>
 
@@ -170,7 +170,7 @@ export default function LandingPage() {
             <Link to="/sobre-o-portal" className="rounded-full border border-white/20 px-5 py-2 text-sm font-medium text-white/80 transition-all hover:bg-white/10 hover:-translate-y-0.5">
               Portal do Colaborador
             </Link>
-            <a href="#precos" className="rounded-full px-5 py-2 text-sm font-bold transition-all hover:-translate-y-0.5" style={{ background: LIME, color: NAVY }}>
+            <a href="#precos" className="rounded-full px-5 py-2 text-sm font-bold transition-all hover:-translate-y-0.5" style={{ background: ACCENT, color: NAVY }}>
               Começar Agora
             </a>
           </div>
@@ -187,7 +187,7 @@ export default function LandingPage() {
               <a href="#automacoes" className="text-sm font-medium text-white/70" onClick={() => setMenuOpen(false)}>Automações</a>
               <a href="#precos" className="text-sm font-medium text-white/70" onClick={() => setMenuOpen(false)}>Preços</a>
               <Link to="/sobre-o-portal" className="text-sm font-medium text-white/70" onClick={() => setMenuOpen(false)}>Portal do Colaborador</Link>
-              <a href="#precos" className="rounded-full px-5 py-2.5 text-center text-sm font-bold" style={{ background: LIME, color: NAVY }} onClick={() => setMenuOpen(false)}>Começar Agora</a>
+              <a href="#precos" className="rounded-full px-5 py-2.5 text-center text-sm font-bold" style={{ background: ACCENT, color: NAVY }} onClick={() => setMenuOpen(false)}>Começar Agora</a>
             </div>
           </motion.div>
         )}
@@ -202,7 +202,7 @@ export default function LandingPage() {
           <motion.div initial="hidden" animate="visible" variants={stagger} className="text-center">
             <motion.h1 variants={fadeUp} className="text-4xl font-extrabold leading-[1.08] sm:text-5xl lg:text-6xl text-white" style={{ letterSpacing: "-0.02em" }}>
               Adeus Papel. A Gestão Definitiva de{" "}
-              <span style={{ background: `linear-gradient(90deg, ${BLUE}, ${LIME})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              <span style={{ background: `linear-gradient(90deg, ${BLUE}, ${ACCENT})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 SST e RH
               </span>{" "}
               para a Construção Civil.
@@ -213,7 +213,7 @@ export default function LandingPage() {
             </motion.p>
 
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap justify-center gap-4">
-              <button onClick={openModal} className="rounded-full px-8 py-3.5 text-sm font-bold transition-all hover:-translate-y-0.5 shadow-lg" style={{ background: LIME, color: NAVY, boxShadow: `0 8px 30px -8px ${LIME}60` }}>
+              <button onClick={openModal} className="rounded-full px-8 py-3.5 text-sm font-bold transition-all hover:-translate-y-0.5 shadow-lg" style={{ background: ACCENT, color: NAVY, boxShadow: `0 8px 30px -8px ${ACCENT}60` }}>
                 Começar Agora
               </button>
               <button onClick={openModal} className="rounded-full border border-white/20 px-8 py-3.5 text-sm font-semibold text-white transition-all hover:bg-white/10 hover:-translate-y-0.5">
@@ -228,20 +228,20 @@ export default function LandingPage() {
               {/* Fake dashboard UI */}
               <div className="rounded-xl bg-white p-4 md:p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: NAVY }}><ShieldCheck className="h-4 w-4" style={{ color: LIME }} /></div>
+                  <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: NAVY }}><ShieldCheck className="h-4 w-4" style={{ color: ACCENT }} /></div>
                   <span className="text-sm font-bold" style={{ color: NAVY }}>Ava Safeguard Dashboard</span>
                   <div className="ml-auto flex gap-2">
                     <div className="h-3 w-3 rounded-full bg-red-400" />
-                    <div className="h-3 w-3 rounded-full bg-yellow-400" />
+                    <div className="h-3 w-3 rounded-full bg-sky-400" />
                     <div className="h-3 w-3 rounded-full bg-green-400" />
                   </div>
                 </div>
                 <div className="grid grid-cols-4 gap-3">
                   {[
                     { label: "Funcionários", val: "312", color: BLUE },
-                    { label: "EPIs Entregues", val: "1.847", color: "#10b981" },
-                    { label: "Holerites Assinados", val: "98%", color: LIME },
-                    { label: "Treinamentos", val: "45", color: "#f59e0b" },
+                    { label: "EPIs Entregues", val: "1.847", color: "#1e9fd8" },
+                    { label: "Holerites Assinados", val: "98%", color: ACCENT },
+                    { label: "Treinamentos", val: "45", color: "#0082B8" },
                   ].map((k) => (
                     <div key={k.label} className="rounded-lg p-3" style={{ background: LIGHT_BG }}>
                       <p className="text-[10px] font-medium text-slate-500 truncate">{k.label}</p>
@@ -253,12 +253,12 @@ export default function LandingPage() {
                   <div className="flex-1 rounded-lg p-3" style={{ background: LIGHT_BG }}>
                     <div className="flex items-end gap-1 h-16">
                       {[40, 60, 45, 80, 65, 75, 55, 70, 85, 50, 68, 90].map((h, i) => (
-                        <div key={i} className="flex-1 rounded-sm" style={{ height: `${h}%`, background: i >= 10 ? LIME : BLUE, opacity: i >= 10 ? 1 : 0.6 + i * 0.03 }} />
+                        <div key={i} className="flex-1 rounded-sm" style={{ height: `${h}%`, background: i >= 10 ? ACCENT : BLUE, opacity: i >= 10 ? 1 : 0.6 + i * 0.03 }} />
                       ))}
                     </div>
                   </div>
                   <div className="w-28 rounded-lg p-3 flex flex-col items-center justify-center" style={{ background: LIGHT_BG }}>
-                    <div className="h-12 w-12 rounded-full border-4 flex items-center justify-center text-xs font-bold" style={{ borderColor: LIME, color: NAVY }}>98%</div>
+                    <div className="h-12 w-12 rounded-full border-4 flex items-center justify-center text-xs font-bold" style={{ borderColor: ACCENT, color: NAVY }}>98%</div>
                     <p className="text-[9px] mt-1 text-slate-500">Conformidade</p>
                   </div>
                 </div>
@@ -299,9 +299,9 @@ export default function LandingPage() {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { icon: BarChart3, title: "Administrador", desc: "Visão gerencial de custos com EPI, riscos jurídicos e painel financeiro.", color: BLUE },
-              { icon: HardHat, title: "Técnico (SST)", desc: "Dashboard de conformidade, NRs vencendo e gestão de treinamentos.", color: "#f59e0b" },
-              { icon: FileText, title: "Recursos Humanos", desc: "Gestão de holerites em lote, ASOs e funil de admissão inteligente.", color: "#8b5cf6" },
-              { icon: Boxes, title: "Almoxarifado", desc: "Visão operacional para baixa e entrega de EPIs no canteiro.", color: "#10b981" },
+              { icon: HardHat, title: "Técnico (SST)", desc: "Dashboard de conformidade, NRs vencendo e gestão de treinamentos.", color: "#0082B8" },
+              { icon: FileText, title: "Recursos Humanos", desc: "Gestão de holerites em lote, ASOs e funil de admissão inteligente.", color: "#0047ff" },
+              { icon: Boxes, title: "Almoxarifado", desc: "Visão operacional para baixa e entrega de EPIs no canteiro.", color: "#1e9fd8" },
             ].map((card) => {
               const Icon = card.icon;
               return (
@@ -398,7 +398,7 @@ export default function LandingPage() {
                 <motion.div key={step.num} variants={fadeUp} className="relative rounded-2xl p-7 transition-all hover:-translate-y-1" style={{ background: `linear-gradient(160deg, ${NAVY}, ${NAVY_MID})`, border: "1px solid rgba(255,255,255,0.1)", boxShadow: `0 20px 60px -15px ${BLUE}25` }}>
                   <span className="text-xs font-bold uppercase tracking-widest" style={{ color: BLUE }}>Passo {step.num}</span>
                   <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-xl" style={{ background: "rgba(255,255,255,0.08)" }}>
-                    <Icon className="h-6 w-6" style={{ color: LIME }} />
+                    <Icon className="h-6 w-6" style={{ color: ACCENT }} />
                   </div>
                   <h3 className="mt-4 text-xl font-bold text-white">{step.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>{step.desc}</p>
@@ -433,7 +433,7 @@ export default function LandingPage() {
                 }
               >
                 {plan.highlighted && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-bold" style={{ background: LIME, color: NAVY }}>
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-bold" style={{ background: ACCENT, color: NAVY }}>
                     Mais Popular
                   </span>
                 )}
@@ -450,7 +450,7 @@ export default function LandingPage() {
                 <ul className="mt-6 space-y-3">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-center gap-3">
-                      <Check className="h-4 w-4 flex-shrink-0" style={{ color: plan.highlighted ? LIME : "#10b981" }} />
+                      <Check className="h-4 w-4 flex-shrink-0" style={{ color: plan.highlighted ? ACCENT : "#1e9fd8" }} />
                       <span className={`text-sm ${plan.highlighted ? "text-white/80" : "text-slate-600"}`}>{f}</span>
                     </li>
                   ))}
@@ -459,7 +459,7 @@ export default function LandingPage() {
                   onClick={openModal}
                   className="mt-8 w-full rounded-full py-3 text-sm font-bold transition-all hover:-translate-y-0.5"
                   style={plan.highlighted
-                    ? { background: LIME, color: NAVY }
+                    ? { background: ACCENT, color: NAVY }
                     : { background: LIGHT_BG, color: NAVY }
                   }
                 >
@@ -514,7 +514,7 @@ export default function LandingPage() {
           <p className="mx-auto mt-4 max-w-lg text-sm md:text-base" style={{ color: "rgba(255,255,255,0.55)" }}>
             Do canteiro de obras ao RH, a burocracia é com a gente.
           </p>
-          <button onClick={openModal} className="mt-8 rounded-full px-10 py-4 text-sm font-bold transition-all hover:-translate-y-0.5 shadow-lg" style={{ background: LIME, color: NAVY, boxShadow: `0 8px 30px -8px ${LIME}60` }}>
+          <button onClick={openModal} className="mt-8 rounded-full px-10 py-4 text-sm font-bold transition-all hover:-translate-y-0.5 shadow-lg" style={{ background: ACCENT, color: NAVY, boxShadow: `0 8px 30px -8px ${ACCENT}60` }}>
             Começar Agora
           </button>
         </motion.div>
