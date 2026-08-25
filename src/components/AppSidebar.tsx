@@ -72,21 +72,26 @@ export function AppSidebar() {
     if (items.length === 0) return null;
     return (
       <SidebarGroup className="px-0">
-        <SidebarGroupLabel className="mb-1 mt-4 px-4 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/30">
-          {label}
-        </SidebarGroupLabel>
+        {!collapsed && (
+          <SidebarGroupLabel className="mb-1 mt-4 px-4 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/30">
+            {label}
+          </SidebarGroupLabel>
+        )}
         <SidebarGroupContent>
-          <SidebarMenu className="gap-0.5">
+          <SidebarMenu className={collapsed ? "gap-1" : "gap-0.5"}>
             {items.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <NavLink
                     to={item.url}
                     end={item.url === "/app"}
-                    className="mx-3 h-auto rounded-lg border-l-[3px] border-transparent px-3 py-2 text-sm font-medium text-white/60 transition-all duration-150 hover:bg-white/10 hover:text-white"
+                    className={[
+                      "h-auto rounded-lg border-l-[3px] border-transparent text-sm font-medium text-white/60 transition-all duration-150 hover:bg-white/10 hover:text-white",
+                      collapsed ? "mx-1 justify-center px-0 py-3" : "mx-3 px-3 py-2",
+                    ].join(" ")}
                     activeClassName="border-l-secondary-400 bg-white/[0.12] font-semibold text-white shadow-inner-glow backdrop-blur-sm hover:bg-white/[0.16] hover:text-white [&_svg]:opacity-100"
                   >
-                    <item.icon className="mr-3 h-5 w-5 opacity-70" strokeWidth={1.75} />
+                    <item.icon className={collapsed ? "h-6 w-6 opacity-90" : "mr-3 h-5 w-5 opacity-70"} strokeWidth={1.75} />
                     {!collapsed && <span>{item.title}</span>}
                   </NavLink>
                 </SidebarMenuButton>
