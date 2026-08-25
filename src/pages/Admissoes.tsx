@@ -16,7 +16,7 @@ type Stage = "dados_iniciais" | "aso_pendente" | "assinatura" | "pronto_efetivar
 const COLUMNS: { id: Stage; title: string; color: string }[] = [
   { id: "dados_iniciais", title: "Dados Pessoais", color: "border-t-blue-500" },
   { id: "aso_pendente", title: "Aguardando ASO", color: "border-t-amber-500" },
-  { id: "assinatura", title: "Assinatura de Contrato", color: "border-t-purple-500" },
+  { id: "assinatura", title: "Assinatura de Contrato", color: "border-t-primary-500" },
   { id: "pronto_efetivar", title: "Pronto para Efetivar", color: "border-t-green-500" },
 ];
 

@@ -71,22 +71,22 @@ export function AppSidebar() {
   const renderGroup = (label: string, items: typeof generalItems) => {
     if (items.length === 0) return null;
     return (
-      <SidebarGroup>
-        <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+      <SidebarGroup className="px-0">
+        <SidebarGroupLabel className="mb-1 mt-4 px-4 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/30">
           {label}
         </SidebarGroupLabel>
         <SidebarGroupContent>
-          <SidebarMenu>
+          <SidebarMenu className="gap-0.5">
             {items.map((item) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild tooltip={item.title}>
                   <NavLink
                     to={item.url}
                     end={item.url === "/app"}
-                    className="rounded-xl text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
-                    activeClassName="bg-indigo-50 text-indigo-700 font-bold hover:bg-indigo-100 hover:text-indigo-700 [&_svg]:text-indigo-700"
+                    className="mx-3 h-auto rounded-lg border-l-[3px] border-transparent px-3 py-2 text-sm font-medium text-white/60 transition-all duration-150 hover:bg-white/10 hover:text-white"
+                    activeClassName="border-l-secondary-400 bg-white/[0.12] font-semibold text-white shadow-inner-glow backdrop-blur-sm hover:bg-white/[0.16] hover:text-white [&_svg]:opacity-100"
                   >
-                    <item.icon className="mr-2 h-4 w-4" strokeWidth={1.75} />
+                    <item.icon className="mr-3 h-5 w-5 opacity-70" strokeWidth={1.75} />
                     {!collapsed && <span>{item.title}</span>}
                   </NavLink>
                 </SidebarMenuButton>
@@ -99,17 +99,18 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r-0 bg-white">
-      <SidebarContent className="pt-4">
+    <Sidebar collapsible="icon" className="border-r border-white/[0.06] bg-primary-500 [&>div]:bg-primary-500">
+      <SidebarContent className="bg-primary-500 pt-5">
         {/* Logo */}
-        <div className="flex items-center gap-2 px-4 pb-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <ShieldCheck className="h-4 w-4 text-primary-foreground" />
+        <div className="flex items-center gap-2.5 px-4 pb-2">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/15">
+            <ShieldCheck className="h-5 w-5 text-white" />
           </div>
           {!collapsed && (
-            <span className="text-lg font-semibold tracking-tight text-foreground">
-              SafeGuard
-            </span>
+            <div className="min-w-0">
+              <p className="truncate text-lg font-bold tracking-tight text-white">Ava Safeguard</p>
+              <p className="text-[10px] font-medium uppercase tracking-widest text-white/40">Gestão Industrial</p>
+            </div>
           )}
         </div>
 
@@ -119,24 +120,22 @@ export function AppSidebar() {
         {renderGroup("Suporte", visibleSupport)}
       </SidebarContent>
 
-      <SidebarFooter className="p-3">
+      <SidebarFooter className="border-t border-white/[0.06] bg-primary-500 p-3">
         {!collapsed && (
-          <div className="flex items-center gap-2 rounded-xl bg-muted/50 p-2">
-            <Avatar className="h-8 w-8 rounded-md">
+          <div className="flex items-center gap-2.5 rounded-lg px-1 py-1.5">
+            <Avatar className="h-8 w-8 rounded-full border-2 border-secondary-400/40">
               {empresa?.logo_url ? (
                 <AvatarImage src={empresa.logo_url} alt="Logo" className="object-contain" />
               ) : null}
-              <AvatarFallback className="rounded-md bg-primary/10">
-                <Building2 className="h-4 w-4 text-primary" strokeWidth={1.5} />
+              <AvatarFallback className="rounded-full bg-white/10">
+                <Building2 className="h-4 w-4 text-white" strokeWidth={1.5} />
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-foreground truncate">
-                {empresa?.nome_fantasia || "Equipe"}
-              </p>
-              <p className="text-[11px] text-muted-foreground truncate">Seg. do Trabalho</p>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-white">{empresa?.nome_fantasia || "Equipe"}</p>
+              <p className="truncate text-[11px] text-white/50">Seg. do Trabalho</p>
             </div>
-            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            <ChevronUp className="h-4 w-4 text-white/40" />
           </div>
         )}
       </SidebarFooter>

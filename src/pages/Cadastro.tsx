@@ -66,7 +66,7 @@ export default function Cadastro() {
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
             <ShieldCheck className="h-6 w-6 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-semibold text-foreground">SafeGuard</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Ava Safeguard</h1>
           <p className="text-sm text-muted-foreground">Crie sua conta empresarial</p>
         </div>
 

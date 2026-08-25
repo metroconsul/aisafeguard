@@ -165,7 +165,7 @@ const slides: { title: string; render: () => JSX.Element }[] = [
               <ShieldCheck className="h-11 w-11" style={{ color: NAVY }} />
             </div>
             <span className="font-extrabold text-white" style={{ fontSize: 44 }}>
-              SafeGuard
+              Ava Safeguard
             </span>
           </div>
           <h1
@@ -664,7 +664,7 @@ export default function Pitch() {
   }, [go]);
 
   useEffect(() => {
-    document.title = `${index + 1}/${slides.length} — ${slides[index].title} | Pitch SafeGuard`;
+    document.title = `${index + 1}/${slides.length} — ${slides[index].title} | Pitch Ava Safeguard`;
   }, [index]);
 
   const fullscreen = () => {
@@ -695,7 +695,7 @@ export default function Pitch() {
       >
         <div className="flex items-center gap-2 text-sm font-medium text-white/60">
           <ShieldCheck className="h-4 w-4" style={{ color: LIME }} />
-          <span>Pitch SafeGuard</span>
+          <span>Pitch Ava Safeguard</span>
         </div>
         <div className="flex items-center gap-3">
           <button

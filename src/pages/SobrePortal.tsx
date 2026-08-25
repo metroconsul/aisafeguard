@@ -34,7 +34,7 @@ export default function SobrePortal() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5 text-xl font-bold text-white">
             <ShieldCheck className="h-6 w-6" style={{ color: LIME }} />
-            SafeGuard
+            Ava Safeguard
           </Link>
           <a
             href="/#precos"
@@ -82,7 +82,7 @@ export default function SobrePortal() {
                   <div className="p-5" style={{ background: NAVY }}>
                     <div className="flex items-center gap-2">
                       <ShieldCheck className="h-5 w-5" style={{ color: LIME }} />
-                      <span className="text-xs font-bold text-white">Portal SafeGuard</span>
+                      <span className="text-xs font-bold text-white">Portal Ava Safeguard</span>
                     </div>
                     <p className="mt-3 text-xl font-bold text-white">Olá, João 👷</p>
                     <p className="mt-1 text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>Operador — Construtora Alpha</p>
@@ -179,7 +179,7 @@ export default function SobrePortal() {
                 Integração Automática com WhatsApp
               </h3>
               <p className="mt-3 text-sm md:text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
-                O sistema SafeGuard avisa você no seu WhatsApp quando um novo EPI for entregue ou quando seu pagamento estiver disponível. É só clicar no link e assinar.
+                O sistema Ava Safeguard avisa você no seu WhatsApp quando um novo EPI for entregue ou quando seu pagamento estiver disponível. É só clicar no link e assinar.
               </p>
             </motion.div>
           </motion.div>
@@ -191,7 +191,7 @@ export default function SobrePortal() {
         <div className="mx-auto max-w-4xl flex flex-col items-center gap-8 text-center">
           <Link to="/" className="flex items-center gap-2.5 text-xl font-bold" style={{ color: NAVY }}>
             <ShieldCheck className="h-6 w-6" style={{ color: BLUE }} />
-            SafeGuard
+            Ava Safeguard
           </Link>
 
           <a
@@ -207,7 +207,7 @@ export default function SobrePortal() {
             Voltar para o site da Empresa (Gestão)
           </Link>
 
-          <p className="text-xs text-slate-400">© {new Date().getFullYear()} SafeGuard. Todos os direitos reservados.</p>
+          <p className="text-xs text-slate-400">© {new Date().getFullYear()} Ava Safeguard. Todos os direitos reservados.</p>
         </div>
       </footer>
     </div>

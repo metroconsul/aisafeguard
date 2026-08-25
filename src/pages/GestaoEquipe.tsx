@@ -25,7 +25,7 @@ interface TeamMember {
 const ROLE_CONFIG: Record<string, { label: string; color: string; description: string }> = {
   admin: {
     label: "Administrador",
-    color: "bg-purple-100 text-purple-800 border-purple-200",
+    color: "bg-primary-100 text-primary-700 border-primary-100",
     description: "Acesso total ao sistema. Pode convidar e remover usuários, editar configurações e visualizar todos os dados.",
   },
   tecnico_seguranca: {

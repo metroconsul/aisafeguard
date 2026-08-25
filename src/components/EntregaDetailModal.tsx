@@ -147,7 +147,7 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(150);
-    doc.text(`Documento gerado em ${new Date().toLocaleDateString("pt-BR")} — SafeGuard EPI`, margin, y);
+    doc.text(`Documento gerado em ${new Date().toLocaleDateString("pt-BR")} — Ava Safeguard EPI`, margin, y);
 
     // Salvar localmente
     doc.save(`ficha-epi-${data.funcionario_nome.replace(/\s+/g, "-").toLowerCase()}.pdf`);

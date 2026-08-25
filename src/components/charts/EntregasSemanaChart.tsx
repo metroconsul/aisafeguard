@@ -40,10 +40,11 @@ export function EntregasSemanaChart() {
   }, [perfil?.empresa_id]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100/50 p-6">
+    <div className="rounded-xl border border-border bg-card p-6 shadow-card">
       <div className="mb-4">
-        <h3 className="text-base font-bold text-gray-900">Entregas na Semana</h3>
-        <p className="mt-1 text-3xl font-bold tabular-nums tracking-tight text-foreground">{total}</p>
+        <h3 className="text-base font-semibold text-foreground">Entregas na Semana</h3>
+        <p className="text-xs text-muted-foreground">Volume diário consolidado</p>
+        <p className="mt-2 text-3xl font-extrabold tracking-tight tabular-nums text-foreground">{total}</p>
       </div>
       {total === 0 ? (
         <EmptyState
@@ -56,18 +57,18 @@ export function EntregasSemanaChart() {
           <AreaChart data={data} margin={{ top: 10, right: 8, left: -8, bottom: 0 }}>
             <defs>
               <linearGradient id="entregasGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="hsl(239 84% 67%)" stopOpacity={0.35} />
-                <stop offset="100%" stopColor="hsl(239 84% 67%)" stopOpacity={0} />
+                <stop offset="0%" stopColor="#0082B8" stopOpacity={0.18} />
+                <stop offset="100%" stopColor="#0082B8" stopOpacity={0.01} />
               </linearGradient>
             </defs>
-            <XAxis dataKey="dia" tick={{ fontSize: 11, fill: "hsl(220 9% 46%)" }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fontSize: 11, fill: "hsl(220 9% 46%)" }} axisLine={false} tickLine={false} width={28} />
+            <XAxis dataKey="dia" tick={{ fontSize: 11, fill: "#6F8CAA" }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 11, fill: "#6F8CAA" }} axisLine={false} tickLine={false} width={28} />
             <Tooltip
-              cursor={{ stroke: "hsl(239 84% 67%)", strokeWidth: 1, strokeDasharray: "3 3" }}
+              cursor={{ stroke: "#0082B8", strokeWidth: 1, strokeDasharray: "3 3" }}
               contentStyle={{
-                borderRadius: "10px",
-                border: "none",
-                boxShadow: "0 10px 24px -8px rgba(17,24,39,.18)",
+                borderRadius: "12px",
+                border: "1px solid #E2E8F0",
+                boxShadow: "0 12px 32px -8px rgba(0,55,138,0.12)",
                 fontSize: "12px",
                 padding: "8px 12px",
               }}
@@ -75,8 +76,9 @@ export function EntregasSemanaChart() {
             <Area
               type="monotone"
               dataKey="entregas"
-              stroke="hsl(239 84% 67%)"
+              stroke="#0082B8"
               strokeWidth={2.5}
+              strokeLinecap="round"
               fill="url(#entregasGradient)"
             />
           </AreaChart>

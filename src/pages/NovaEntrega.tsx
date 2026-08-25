@@ -49,7 +49,7 @@ function SearchCombobox({
         <PopoverTrigger asChild>
           <button
             type="button"
-            className="w-full bg-slate-50 border border-slate-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm font-medium flex items-center gap-2 outline-none"
+            className="w-full bg-slate-50 border border-slate-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm font-medium flex items-center gap-2 outline-none"
           >
             <Search className="w-4 h-4 text-gray-400 shrink-0" />
             <span className={cn("truncate", !selected && "text-gray-400 font-normal")}>
@@ -69,7 +69,7 @@ function SearchCombobox({
                     value={it.label}
                     onSelect={() => { onChange(it.value); setOpen(false); }}
                   >
-                    <Check className={cn("mr-2 h-4 w-4", value === it.value ? "opacity-100 text-indigo-600" : "opacity-0")} />
+                    <Check className={cn("mr-2 h-4 w-4", value === it.value ? "opacity-100 text-primary-500" : "opacity-0")} />
                     {it.label}
                   </CommandItem>
                 ))}
@@ -220,12 +220,12 @@ export default function NovaEntrega() {
                     className={cn(
                       "flex flex-col items-center justify-center p-4 rounded-2xl border-2 bg-white cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all duration-200 relative text-left",
                       isSelected
-                        ? "border-indigo-600 bg-indigo-50/50"
-                        : "border-gray-100 hover:border-indigo-300",
+                        ? "border-primary-500 bg-primary-50/50"
+                        : "border-gray-100 hover:border-primary-200",
                     )}
                   >
                     {isSelected && (
-                      <div className="absolute top-3 right-3 w-6 h-6 bg-indigo-600 text-white rounded-full p-1 shadow-sm">
+                      <div className="absolute top-3 right-3 w-6 h-6 bg-primary-500 text-white rounded-full p-1 shadow-sm">
                         <Check className="w-full h-full" strokeWidth={3} />
                       </div>
                     )}
@@ -259,7 +259,7 @@ export default function NovaEntrega() {
               type="button"
               onClick={handleSubmit}
               disabled={loading || !funcId || !obra || selectedEpis.size === 0}
-              className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 disabled:shadow-none text-white font-bold py-4 px-8 rounded-xl shadow-lg shadow-indigo-200/50 transition-all flex items-center gap-2 disabled:cursor-not-allowed"
+              className="bg-primary-500 hover:bg-primary-600 disabled:bg-gray-300 disabled:shadow-none text-white font-bold py-4 px-8 rounded-xl shadow-lg shadow-primary-100/50 transition-all flex items-center gap-2 disabled:cursor-not-allowed"
             >
               <Send className="w-4 h-4" />
               {loading ? "Gerando…" : `Gerar Entrega${selectedEpis.size > 0 ? ` (${selectedEpis.size})` : ""}`}
@@ -281,7 +281,7 @@ export default function NovaEntrega() {
           <div className="space-y-3 mt-6">
             {geradas.map((g, i) => (
               <div key={i} className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 border border-gray-100">
-                <ShieldCheck className="w-5 h-5 text-indigo-600 shrink-0" />
+                <ShieldCheck className="w-5 h-5 text-primary-500 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-gray-800 truncate">{g.epiNome}</p>
                   <p className="text-xs text-gray-500 truncate font-mono">{g.link}</p>
@@ -309,7 +309,7 @@ export default function NovaEntrega() {
           <button
             type="button"
             onClick={reset}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200/50 transition-all"
+            className="w-full bg-primary-500 hover:bg-primary-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary-100/50 transition-all"
           >
             Registrar nova entrega
           </button>
