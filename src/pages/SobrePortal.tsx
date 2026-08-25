@@ -19,7 +19,7 @@ const fadeUp = {
 };
 const stagger = { visible: { transition: { staggerChildren: 0.1 } } };
 
-const LIME = "#def320";
+const ACCENT = "#4dd8ff";
 const NAVY = "#000c24";
 const NAVY_MID = "#0a193a";
 const BLUE = "#0047ff";
@@ -33,13 +33,13 @@ export default function SobrePortal() {
       <nav className="fixed top-0 left-0 right-0 z-50" style={{ background: "rgba(0,12,36,0.9)", backdropFilter: "blur(12px)" }}>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5 text-xl font-bold text-white">
-            <ShieldCheck className="h-6 w-6" style={{ color: LIME }} />
+            <ShieldCheck className="h-6 w-6" style={{ color: ACCENT }} />
             Ava Safeguard
           </Link>
           <a
             href="/#precos"
             className="rounded-full px-6 py-2 text-sm font-bold transition-all hover:-translate-y-0.5"
-            style={{ background: LIME, color: NAVY }}
+            style={{ background: ACCENT, color: NAVY }}
           >
             Acessar Meu Portal
           </a>
@@ -56,7 +56,7 @@ export default function SobrePortal() {
             <motion.div variants={fadeUp} className="flex-1 text-center lg:text-left">
               <h1 className="text-4xl font-extrabold leading-[1.08] sm:text-5xl lg:text-6xl text-white" style={{ letterSpacing: "-0.02em" }}>
                 A sua obra na{" "}
-                <span style={{ background: `linear-gradient(90deg, ${BLUE}, ${LIME})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                <span style={{ background: `linear-gradient(90deg, ${BLUE}, ${ACCENT})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                   palma da mão.
                 </span>
               </h1>
@@ -68,7 +68,7 @@ export default function SobrePortal() {
               <a
                 href="/#precos"
                 className="mt-10 inline-flex rounded-full px-10 py-4 text-sm font-bold transition-all hover:-translate-y-0.5 shadow-lg"
-                style={{ background: LIME, color: NAVY, boxShadow: `0 8px 30px -8px ${LIME}60` }}
+                style={{ background: ACCENT, color: NAVY, boxShadow: `0 8px 30px -8px ${ACCENT}60` }}
               >
                 Acessar Meu Portal
               </a>
@@ -81,7 +81,7 @@ export default function SobrePortal() {
                   {/* Phone header */}
                   <div className="p-5" style={{ background: NAVY }}>
                     <div className="flex items-center gap-2">
-                      <ShieldCheck className="h-5 w-5" style={{ color: LIME }} />
+                      <ShieldCheck className="h-5 w-5" style={{ color: ACCENT }} />
                       <span className="text-xs font-bold text-white">Portal Ava Safeguard</span>
                     </div>
                     <p className="mt-3 text-xl font-bold text-white">Olá, João 👷</p>
@@ -90,8 +90,8 @@ export default function SobrePortal() {
                   {/* Phone content */}
                   <div className="p-4 space-y-3">
                     {[
-                      { icon: FileText, label: "Meus Holerites", badge: "1 novo", badgeColor: LIME },
-                      { icon: HardHat, label: "Meus EPIs", badge: "3 ativos", badgeColor: "#10b981" },
+                      { icon: FileText, label: "Meus Holerites", badge: "1 novo", badgeColor: ACCENT },
+                      { icon: HardHat, label: "Meus EPIs", badge: "3 ativos", badgeColor: "#1e9fd8" },
                       { icon: Award, label: "Treinamentos", badge: "NR-35 ✓", badgeColor: BLUE },
                       { icon: Lock, label: "Documentos", badge: "", badgeColor: "" },
                     ].map((item) => {
@@ -137,19 +137,19 @@ export default function SobrePortal() {
                 icon: FileText,
                 title: "Seu Cofre Financeiro",
                 desc: "Assine e baixe seus holerites mensais na hora, sem filas no RH. Tudo salvo com assinatura digital auditável.",
-                color: "#10b981",
+                color: "#1e9fd8",
               },
               {
                 icon: HardHat,
                 title: "Gestão de EPIs",
                 desc: "Sua bota rasgou? Abra um chamado de troca pelo celular e o almoxarifado já deixa separado pra você.",
-                color: "#f59e0b",
+                color: "#0082B8",
               },
               {
                 icon: Award,
                 title: "Treinamentos na Mão",
                 desc: "Mostre seus certificados de NRs válidos direto na portaria da obra. Tudo digital e sempre atualizado.",
-                color: "#8b5cf6",
+                color: "#0047ff",
               },
             ].map((card) => {
               const Icon = card.icon;
@@ -197,7 +197,7 @@ export default function SobrePortal() {
           <a
             href="/#precos"
             className="rounded-full px-10 py-4 text-sm font-bold transition-all hover:-translate-y-0.5 shadow-lg"
-            style={{ background: LIME, color: NAVY, boxShadow: `0 8px 30px -8px ${LIME}60` }}
+            style={{ background: ACCENT, color: NAVY, boxShadow: `0 8px 30px -8px ${ACCENT}60` }}
           >
             Acessar Meu Portal
           </a>
