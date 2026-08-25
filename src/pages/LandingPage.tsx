@@ -283,17 +283,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Social Proof ─── */}
-      <section className="px-5 py-10 border-b" style={{ background: LIGHT_BG, borderColor: "#e5e7eb" }}>
-        <div className="mx-auto max-w-5xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">Projetado para a realidade do canteiro de obras</p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-8 md:gap-14 opacity-40">
-            {["Construtora Alpha", "Engeset", "Obra Segura", "IndústriaBR", "TechBuild"].map((logo) => (
-              <span key={logo} className="text-sm font-bold text-slate-500 tracking-wide">{logo}</span>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ─── Feature Grid (RBAC) ─── */}
       <section id="funcionalidades" className="px-5 py-20 md:py-28" style={{ background: LIGHT_BG }}>
