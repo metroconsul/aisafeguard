@@ -107,9 +107,12 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-white/[0.06] bg-primary-500 [&>div]:bg-primary-500">
       <SidebarContent className="bg-primary-500 pt-5">
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-4 pb-2">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/15">
-            <ShieldCheck className="h-5 w-5 text-white" />
+        <div className={["flex items-center pb-2", collapsed ? "justify-center px-2" : "gap-2.5 px-4"].join(" ")}>
+          <div className={[
+            "flex shrink-0 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/15",
+            collapsed ? "h-10 w-10" : "h-9 w-9",
+          ].join(" ")}>
+            <ShieldCheck className={collapsed ? "h-6 w-6 text-white" : "h-5 w-5 text-white"} />
           </div>
           {!collapsed && (
             <div className="min-w-0">
@@ -126,7 +129,18 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-white/[0.06] bg-primary-500 p-3">
-        {!collapsed && (
+        {collapsed ? (
+          <div className="flex justify-center">
+            <Avatar className="h-9 w-9 rounded-full border-2 border-secondary-400/40">
+              {empresa?.logo_url ? (
+                <AvatarImage src={empresa.logo_url} alt="Logo" className="object-contain" />
+              ) : null}
+              <AvatarFallback className="rounded-full bg-white/10">
+                <Building2 className="h-5 w-5 text-white" strokeWidth={1.5} />
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        ) : (
           <div className="flex items-center gap-2.5 rounded-lg px-1 py-1.5">
             <Avatar className="h-8 w-8 rounded-full border-2 border-secondary-400/40">
               {empresa?.logo_url ? (
