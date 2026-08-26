@@ -207,27 +207,13 @@ export default function GestaoEquipe() {
     ROLE_CONFIG[role] || { label: role, color: "bg-muted text-muted-foreground", description: "" };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-foreground flex items-center gap-2">
-            <ShieldCheck className="h-6 w-6 text-primary" />
-            Gestão de Acessos
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Gerencie quem tem acesso ao painel da empresa
-          </p>
-        </div>
-        <Button onClick={() => setModalOpen(true)} className="gap-2">
-          <UserPlus className="h-4 w-4" />
-          Convidar Usuário
-        </Button>
-      </div>
+    <div className="mx-auto max-w-[1240px] space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="app-eyebrow">Administração e segurança</p><h1 className="mt-1 text-[27px] font-bold tracking-tight text-foreground">Gestão de acessos</h1><p className="mt-2 text-sm text-muted-foreground">Controle quem pode operar cada área do painel.</p></div><Button onClick={() => setModalOpen(true)}><UserPlus className="h-4 w-4" />Convidar usuário</Button></div>
 
-      {/* Team Table */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3"><div className="data-summary"><div className="summary-icon blue"><Users className="h-4 w-4" /></div><div><span>Membros ativos</span><strong>{members.filter((m) => (m as any).status !== "removido" && (m as any).status !== "pendente").length}</strong><small>acessos liberados</small></div></div><div className="data-summary"><div className="summary-icon amber"><MailPlus className="h-4 w-4" /></div><div><span>Convites pendentes</span><strong>{members.filter((m) => (m as any).status === "pendente").length}</strong><small>aguardando ativação</small></div></div><div className="data-summary"><div className="summary-icon cyan"><ShieldCheck className="h-4 w-4" /></div><div><span>Proteção</span><strong>Ativa</strong><small>papéis por permissão</small></div></div></div>
+
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="p-0"><div className="border-b border-border/80 px-4 py-4"><p className="app-eyebrow">Equipe do workspace</p><h2 className="mt-1 text-sm font-bold text-foreground">Membros e permissões</h2></div>
           {loading ? (
             <div className="flex items-center justify-center h-40">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -240,14 +226,7 @@ export default function GestaoEquipe() {
           ) : (
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Usuário</TableHead>
-                    <TableHead>Nível de Acesso</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
+                <TableHeader><TableRow className="bg-muted/25"><TableHead className="app-eyebrow">Usuário</TableHead><TableHead className="app-eyebrow">Nível de acesso</TableHead><TableHead className="app-eyebrow">Status</TableHead><TableHead className="text-right app-eyebrow">Ações</TableHead></TableRow></TableHeader>
                 <TableBody>
                   {members
                     .filter((m) => (m as any).status !== "removido")

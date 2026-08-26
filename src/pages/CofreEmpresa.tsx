@@ -1,275 +1,50 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AlertTriangle, CalendarDays, Eye, FileText, FolderLock, Loader2, Plus, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, FolderLock, FileText, Eye, Loader2, Upload, X } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 
-interface Doc {
-  id: string;
-  title: string;
-  worksite: string | null;
-  file_url: string | null;
-  issue_date: string | null;
-  expiration_date: string | null;
-  provider_or_lead: string | null;
-  created_at: string | null;
-}
-
-const TIPOS_LAUDO = [
-  { value: "PGR", label: "PGR" },
-  { value: "PCMSO", label: "PCMSO" },
-  { value: "LTCAT", label: "LTCAT" },
-  { value: "AVCB", label: "AVCB" },
-  { value: "Alvará", label: "Alvará" },
-  { value: "Outros", label: "Outros" },
-];
-
+interface Doc { id: string; title: string; worksite: string | null; file_url: string | null; issue_date: string | null; expiration_date: string | null; provider_or_lead: string | null; created_at: string | null; }
+const TIPOS_LAUDO = ["PGR", "PCMSO", "LTCAT", "AVCB", "Alvará", "Outros"];
 const OBRAS = ["Sede", "Filial", "Obra 01", "Obra 02", "Campo"];
 
 export default function CofreEmpresa() {
   const { perfil } = useAuth();
-  const [docs, setDocs] = useState<Doc[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [docs, setDocs] = useState<Doc[]>([]); const [loading, setLoading] = useState(true); const [modalOpen, setModalOpen] = useState(false);
+  const [tipo, setTipo] = useState(""); const [obra, setObra] = useState(""); const [emissao, setEmissao] = useState(""); const [vencimento, setVencimento] = useState(""); const [responsavel, setResponsavel] = useState(""); const [file, setFile] = useState<File | null>(null); const [saving, setSaving] = useState(false); const [dragOver, setDragOver] = useState(false); const inputRef = useRef<HTMLInputElement>(null);
 
-  // Form state
-  const [tipo, setTipo] = useState("");
-  const [obra, setObra] = useState("");
-  const [emissao, setEmissao] = useState("");
-  const [vencimento, setVencimento] = useState("");
-  const [responsavel, setResponsavel] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const loadDocs = () => {
+  const loadDocs = useCallback(() => {
     if (!perfil?.empresa_id) return;
-    supabase
-      .from("documents")
-      .select("id, title, worksite, file_url, issue_date, expiration_date, provider_or_lead, created_at")
-      .eq("empresa_id", perfil.empresa_id)
-      .eq("doc_category", "laudo_empresa")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        if (data) setDocs(data as Doc[]);
-        setLoading(false);
-      });
-  };
+    supabase.from("documents").select("id, title, worksite, file_url, issue_date, expiration_date, provider_or_lead, created_at").eq("empresa_id", perfil.empresa_id).eq("doc_category", "laudo_empresa").order("created_at", { ascending: false }).then(({ data }) => { if (data) setDocs(data as Doc[]); setLoading(false); });
+  }, [perfil?.empresa_id]);
+  useEffect(() => { loadDocs(); }, [loadDocs]);
 
-  useEffect(() => { loadDocs(); }, [perfil?.empresa_id]);
+  const worksites = Array.from(new Set(docs.map((d) => d.worksite || "Geral"))); if (worksites.length === 0) worksites.push("Geral");
+  const expiringSoon = useMemo(() => docs.filter((doc) => { if (!doc.expiration_date) return false; const days = differenceInDays(new Date(doc.expiration_date), new Date()); return days >= 0 && days <= 30; }).length, [docs]);
+  const expired = useMemo(() => docs.filter((doc) => doc.expiration_date && differenceInDays(new Date(doc.expiration_date), new Date()) < 0).length, [docs]);
 
-  const worksites = Array.from(new Set(docs.map((d) => d.worksite || "Geral")));
-  if (worksites.length === 0) worksites.push("Geral");
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault(); setDragOver(false);
-    const f = e.dataTransfer.files[0];
-    if (f && f.type === "application/pdf") setFile(f);
-    else toast.error("Apenas PDFs.");
-  }, []);
-
+  const handleDrop = useCallback((e: React.DragEvent) => { e.preventDefault(); setDragOver(false); const dropped = e.dataTransfer.files[0]; if (dropped && dropped.type === "application/pdf") setFile(dropped); else toast.error("Apenas PDFs."); }, []);
   const handleSave = async () => {
-    if (!tipo || !obra || !emissao || !vencimento || !file) {
-      toast.error("Preencha todos os campos obrigatórios e selecione um PDF.");
-      return;
-    }
-    if (!perfil?.empresa_id) return;
-
-    setSaving(true);
+    if (!tipo || !obra || !emissao || !vencimento || !file) return toast.error("Preencha todos os campos obrigatórios e selecione um PDF.");
+    if (!perfil?.empresa_id) return; setSaving(true);
     try {
-      const filePath = `${perfil.empresa_id}/laudos/${Date.now()}_${file.name}`;
-      const { error: upErr } = await supabase.storage.from("company_vault").upload(filePath, file);
-      if (upErr) throw upErr;
-      const { data: urlData } = supabase.storage.from("company_vault").getPublicUrl(filePath);
-
-      const { error } = await supabase.from("documents").insert({
-        empresa_id: perfil.empresa_id,
-        funcionario_id: null as any, // company-level doc
-        title: tipo,
-        doc_category: "laudo_empresa",
-        worksite: obra,
-        file_url: urlData.publicUrl,
-        issue_date: emissao,
-        expiration_date: vencimento,
-        provider_or_lead: responsavel || null,
-        signature_status: "nao_aplicavel",
-      } as any);
-
-      if (error) throw error;
-      toast.success("Laudo salvo!");
-      setTipo(""); setObra(""); setEmissao(""); setVencimento(""); setResponsavel(""); setFile(null);
-      setModalOpen(false);
-      loadDocs();
-    } catch (err: any) {
-      toast.error("Erro: " + err.message);
-    } finally {
-      setSaving(false);
-    }
+      const filePath = `${perfil.empresa_id}/laudos/${Date.now()}_${file.name}`; const { error: upErr } = await supabase.storage.from("company_vault").upload(filePath, file); if (upErr) throw upErr; const { data: urlData } = supabase.storage.from("company_vault").getPublicUrl(filePath);
+      const { error } = await supabase.from("documents").insert({ empresa_id: perfil.empresa_id, funcionario_id: null as any, title: tipo, doc_category: "laudo_empresa", worksite: obra, file_url: urlData.publicUrl, issue_date: emissao, expiration_date: vencimento, provider_or_lead: responsavel || null, signature_status: "nao_aplicavel" } as any); if (error) throw error;
+      toast.success("Laudo salvo!"); setTipo(""); setObra(""); setEmissao(""); setVencimento(""); setResponsavel(""); setFile(null); setModalOpen(false); loadDocs();
+    } catch (err: any) { toast.error("Erro: " + err.message); } finally { setSaving(false); }
   };
 
-  return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-foreground flex items-center gap-2">
-            <FolderLock className="h-6 w-6 text-primary" /> Cofre da Empresa
-          </h1>
-          <p className="text-sm text-muted-foreground">Laudos e documentos organizados por Obra</p>
-        </div>
-        <Button onClick={() => setModalOpen(true)} className="w-full sm:w-auto">
-          <Plus className="mr-1.5 h-4 w-4" /> Novo Laudo
-        </Button>
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
-      ) : (
-        <Tabs defaultValue={worksites[0]}>
-          <TabsList className="w-full flex overflow-x-auto">
-            {worksites.map((w) => (
-              <TabsTrigger key={w} value={w} className="flex-1 min-w-[100px]">{w}</TabsTrigger>
-            ))}
-          </TabsList>
-          {worksites.map((w) => {
-            const filtered = docs.filter((d) => (d.worksite || "Geral") === w);
-            return (
-              <TabsContent key={w} value={w}>
-                <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
-                  {filtered.length === 0 ? (
-                    <p className="py-8 text-center text-sm text-muted-foreground">Nenhum laudo nesta obra.</p>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm min-w-[600px]">
-                        <thead>
-                          <tr className="border-b border-border bg-muted/50">
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Tipo</th>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Emissão</th>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Vencimento</th>
-                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Responsável</th>
-                            <th className="px-4 py-3 text-right font-medium text-muted-foreground">Ações</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border">
-                          {filtered.map((doc) => {
-                            const days = doc.expiration_date ? differenceInDays(new Date(doc.expiration_date), new Date()) : null;
-                            const isExpired = days !== null && days < 0;
-                            const isNear = days !== null && days >= 0 && days <= 30;
-                            return (
-                              <tr key={doc.id} className="hover:bg-muted/30 transition-colors">
-                                <td className="px-4 py-3 font-medium text-foreground flex items-center gap-2">
-                                  <FileText className="h-4 w-4 text-primary shrink-0" />
-                                  {doc.title}
-                                </td>
-                                <td className="px-4 py-3 text-muted-foreground">
-                                  {doc.issue_date ? format(new Date(doc.issue_date), "dd/MM/yyyy") : "—"}
-                                </td>
-                                <td className="px-4 py-3">
-                                  <span className={isExpired ? "text-destructive font-semibold" : isNear ? "text-amber-600 font-medium" : "text-foreground"}>
-                                    {doc.expiration_date ? format(new Date(doc.expiration_date), "dd/MM/yyyy") : "—"}
-                                    {isExpired && " (Vencido)"}
-                                    {isNear && ` (${days}d)`}
-                                  </span>
-                                </td>
-                                <td className="px-4 py-3 text-muted-foreground">{doc.provider_or_lead || "—"}</td>
-                                <td className="px-4 py-3 text-right">
-                                  {doc.file_url && (
-                                    <Button variant="ghost" size="sm" asChild>
-                                      <a href={doc.file_url} target="_blank" rel="noopener noreferrer"><Eye className="h-4 w-4 mr-1" /> Ver</a>
-                                    </Button>
-                                  )}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-            );
-          })}
-        </Tabs>
-      )}
-
-      {/* Modal Novo Laudo */}
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-[95vw] sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <FolderLock className="h-5 w-5 text-primary" /> Novo Laudo
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label>Tipo *</Label>
-              <Select value={tipo} onValueChange={setTipo}>
-                <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
-                <SelectContent>{TIPOS_LAUDO.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Obra *</Label>
-              <Select value={obra} onValueChange={setObra}>
-                <SelectTrigger><SelectValue placeholder="Selecione a obra" /></SelectTrigger>
-                <SelectContent>{OBRAS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label>Emissão *</Label>
-                <Input type="date" value={emissao} onChange={(e) => setEmissao(e.target.value)} />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Vencimento *</Label>
-                <Input type="date" value={vencimento} onChange={(e) => setVencimento(e.target.value)} />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Responsável Técnico</Label>
-              <Input value={responsavel} onChange={(e) => setResponsavel(e.target.value)} placeholder="Nome do Engenheiro" />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Documento PDF *</Label>
-              <div
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={handleDrop}
-                onClick={() => inputRef.current?.click()}
-                className={`cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
-                  dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-                }`}
-              >
-                {file ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <FileText className="h-5 w-5 text-primary" />
-                    <span className="text-sm font-medium text-foreground">{file.name}</span>
-                    <button onClick={(e) => { e.stopPropagation(); setFile(null); }} className="text-muted-foreground hover:text-destructive"><X className="h-4 w-4" /></button>
-                  </div>
-                ) : (
-                  <div className="space-y-1">
-                    <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Arraste o PDF ou clique</p>
-                  </div>
-                )}
-                <input ref={inputRef} type="file" accept=".pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setFile(f); }} />
-              </div>
-            </div>
-            <Button onClick={handleSave} disabled={saving} className="w-full">
-              {saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Salvando...</> : "Salvar Laudo"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
+  return <div className="mx-auto max-w-[1240px] space-y-6">
+    <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="app-eyebrow">Documentos críticos</p><h1 className="mt-1 text-[27px] font-bold tracking-tight text-foreground">Cofre da empresa</h1><p className="mt-2 text-sm text-muted-foreground">Laudos, licenças e documentos organizados por obra.</p></div><Button onClick={() => setModalOpen(true)}><Plus className="h-4 w-4" />Novo laudo</Button></div>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3"><div className="data-summary"><div className="summary-icon blue"><FolderLock className="h-4 w-4" /></div><div><span>Documentos ativos</span><strong>{docs.length}</strong><small>arquivos no cofre</small></div></div><div className="data-summary"><div className="summary-icon amber"><AlertTriangle className="h-4 w-4" /></div><div><span>Vencendo em 30 dias</span><strong>{expiringSoon}</strong><small>priorize a renovação</small></div></div><div className="data-summary"><div className="summary-icon" style={{ background: "hsl(var(--destructive) / .1)", color: "hsl(var(--destructive))" }}><CalendarDays className="h-4 w-4" /></div><div><span>Vencidos</span><strong>{expired}</strong><small>{expired ? "requer ação imediata" : "nenhum documento vencido"}</small></div></div></div>
+    {loading ? <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div> : <Tabs defaultValue={worksites[0]}><TabsList className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-lg border border-border/80 bg-card p-1 shadow-card">{worksites.map((w) => <TabsTrigger key={w} value={w} className="min-w-[110px] rounded-md text-xs">{w}<span className="ml-2 text-[10px] text-muted-foreground">{docs.filter((d) => (d.worksite || "Geral") === w).length}</span></TabsTrigger>)}</TabsList>{worksites.map((w) => { const filtered = docs.filter((d) => (d.worksite || "Geral") === w); return <TabsContent key={w} value={w}><div className="overflow-hidden rounded-lg border border-border/80 bg-card shadow-card"><div className="flex items-center justify-between border-b border-border/80 px-4 py-4"><div><p className="app-eyebrow">Obra selecionada</p><h2 className="mt-1 text-sm font-bold text-foreground">Documentos de {w}</h2></div><span className="text-xs text-muted-foreground">{filtered.length} registro{filtered.length === 1 ? "" : "s"}</span></div>{filtered.length === 0 ? <div className="px-5 py-14 text-center"><div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-muted-foreground"><FileText className="h-4 w-4" /></div><p className="mt-3 text-sm font-semibold text-foreground">Nenhum laudo nesta obra</p><p className="mt-1 text-xs text-muted-foreground">Adicione o primeiro documento para acompanhar a validade.</p></div> : <div className="overflow-x-auto"><table className="w-full min-w-[680px] text-sm"><thead><tr className="border-b border-border/80 bg-muted/25"><th className="px-4 py-3 text-left app-eyebrow">Documento</th><th className="px-4 py-3 text-left app-eyebrow">Emissão</th><th className="px-4 py-3 text-left app-eyebrow">Vencimento</th><th className="px-4 py-3 text-left app-eyebrow">Responsável</th><th className="px-4 py-3 text-right app-eyebrow">Ação</th></tr></thead><tbody className="divide-y divide-border/70">{filtered.map((doc) => { const days = doc.expiration_date ? differenceInDays(new Date(doc.expiration_date), new Date()) : null; const isExpired = days !== null && days < 0; const isNear = days !== null && days >= 0 && days <= 30; return <tr key={doc.id} className="transition-colors hover:bg-primary-50/45"><td className="px-4 py-3"><div className="flex items-center gap-3"><div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary-50 text-primary-500"><FileText className="h-4 w-4" /></div><div><p className="font-semibold text-foreground">{doc.title}</p><p className="mt-1 text-[10px] text-muted-foreground">PDF · armazenado no cofre</p></div></div></td><td className="px-4 py-3 text-xs text-muted-foreground">{doc.issue_date ? format(new Date(doc.issue_date), "dd/MM/yyyy") : "—"}</td><td className="px-4 py-3 text-xs"><span className={isExpired ? "font-bold text-destructive" : isNear ? "font-semibold text-warning" : "text-foreground"}>{doc.expiration_date ? format(new Date(doc.expiration_date), "dd/MM/yyyy") : "—"}{isExpired && " · vencido"}{isNear && ` · ${days}d`}</span></td><td className="px-4 py-3 text-xs text-muted-foreground">{doc.provider_or_lead || "Não informado"}</td><td className="px-4 py-3 text-right">{doc.file_url && <Button variant="ghost" size="sm" asChild><a href={doc.file_url} target="_blank" rel="noopener noreferrer"><Eye className="mr-1 h-4 w-4" />Visualizar</a></Button>}</td></tr>; })}</tbody></table></div>}</div></TabsContent>; })}</Tabs>}
+    <Dialog open={modalOpen} onOpenChange={setModalOpen}><DialogContent className="max-w-[95vw] sm:max-w-lg"><DialogHeader><DialogTitle className="text-lg">Adicionar documento ao cofre</DialogTitle></DialogHeader><div className="space-y-4"><div className="space-y-1.5"><Label>Tipo de documento *</Label><Select value={tipo} onValueChange={setTipo}><SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger><SelectContent>{TIPOS_LAUDO.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent></Select></div><div className="space-y-1.5"><Label>Obra *</Label><Select value={obra} onValueChange={setObra}><SelectTrigger><SelectValue placeholder="Selecione a obra" /></SelectTrigger><SelectContent>{OBRAS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent></Select></div><div className="grid grid-cols-2 gap-3"><div className="space-y-1.5"><Label>Emissão *</Label><Input type="date" value={emissao} onChange={(e) => setEmissao(e.target.value)} /></div><div className="space-y-1.5"><Label>Vencimento *</Label><Input type="date" value={vencimento} onChange={(e) => setVencimento(e.target.value)} /></div></div><div className="space-y-1.5"><Label>Responsável técnico</Label><Input value={responsavel} onChange={(e) => setResponsavel(e.target.value)} placeholder="Nome do engenheiro" /></div><div className={`cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors ${dragOver ? "border-primary bg-primary/5" : "border-border/80 hover:border-secondary/70"}`} onDragOver={(e) => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)} onDrop={handleDrop} onClick={() => inputRef.current?.click()}>{file ? <div className="flex items-center justify-center gap-2"><FileText className="h-5 w-5 text-primary" /><span className="max-w-[220px] truncate text-sm font-semibold">{file.name}</span><button onClick={(e) => { e.stopPropagation(); setFile(null); }} className="text-muted-foreground hover:text-destructive"><X className="h-4 w-4" /></button></div> : <div><Upload className="mx-auto h-7 w-7 text-muted-foreground" /><p className="mt-2 text-sm font-semibold text-foreground">Arraste um PDF ou clique para selecionar</p><p className="mt-1 text-xs text-muted-foreground">Somente arquivos PDF</p></div>}<input ref={inputRef} type="file" accept=".pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setFile(f); }} /></div><Button onClick={() => void handleSave()} disabled={saving} className="w-full">{saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Salvando...</> : "Salvar documento"}</Button></div></DialogContent></Dialog>
+  </div>;
 }

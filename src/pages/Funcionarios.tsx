@@ -87,27 +87,28 @@ export default function Funcionarios() {
   }, [data, setores, query]);
 
   return (
-    <div>
+    <div className="mx-auto max-w-[1500px]">
       <div>
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Funcionários</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="app-eyebrow">Cadastro e operação</p>
+        <h1 className="mt-1 text-[26px] font-bold tracking-tight text-foreground">Funcionários</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           {data.length} {data.length === 1 ? "registro" : "registros"} · {setores.length} {setores.length === 1 ? "setor" : "setores"}
         </p>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-6">
-        <div className="relative w-full sm:w-96">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="group relative w-full sm:w-96">
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/65 transition-colors group-focus-within:text-primary" strokeWidth={1.8} />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar funcionário..."
-            className="w-full bg-white border border-gray-200 rounded-xl pl-11 pr-4 py-3 shadow-sm text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="h-10 w-full rounded-lg border border-border/80 bg-card py-2.5 pl-10 pr-4 text-sm text-foreground shadow-card outline-none transition-all placeholder:text-muted-foreground/65 focus:border-secondary/60 focus:ring-2 focus:ring-secondary/15"
           />
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <button className="inline-flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-primary-100 transition-colors">
+            <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary-500 px-4 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-600 hover:shadow-md active:scale-[0.98]">
               <Plus className="h-4 w-4" /> Novo Funcionário
             </button>
           </DialogTrigger>
@@ -140,21 +141,21 @@ export default function Funcionarios() {
         </Dialog>
       </div>
 
-      <div className="mt-6 flex gap-6 overflow-x-auto pb-8 pt-4 w-full">
+      <div className="mt-6 flex w-full gap-4 overflow-x-auto pb-8 pt-2">
         {colunas.map((col) => (
           <div
             key={col.id}
-            className="min-w-[320px] max-w-[320px] bg-slate-100/70 border border-slate-200 rounded-2xl flex flex-col max-h-[calc(100vh-280px)]"
+            className="flex min-h-[360px] max-h-[calc(100vh-280px)] min-w-[320px] max-w-[320px] flex-col rounded-lg border border-border/80 bg-card shadow-card"
           >
-            <div className="p-4 border-b border-slate-200 flex justify-between items-center">
-              <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wider">{col.nome}</h2>
-              <span className="bg-slate-200 text-gray-600 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
+            <div className="flex items-center justify-between border-b border-border/80 px-4 py-4">
+              <h2 className="text-xs font-bold uppercase tracking-[0.1em] text-foreground">{col.nome}</h2>
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-muted text-xs font-bold tabular-nums text-muted-foreground">
                 {col.funcionarios.length}
               </span>
             </div>
-            <div className="p-4 flex flex-col gap-4 flex-1 overflow-y-auto">
+            <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-3">
               {col.funcionarios.length === 0 ? (
-                <p className="text-xs text-slate-400 text-center py-8">Nenhum funcionário</p>
+                <p className="rounded-lg border border-dashed border-border/80 px-3 py-8 text-center text-xs text-muted-foreground">Nenhum funcionário neste setor</p>
               ) : (
                 col.funcionarios.map((f) => (
                   <FuncionarioKanbanCard

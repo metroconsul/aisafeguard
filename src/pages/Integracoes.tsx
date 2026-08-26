@@ -68,19 +68,12 @@ export default function Integracoes() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Integrações WhatsApp</h1>
-          <p className="text-sm text-muted-foreground">
-            Conecte até 3 números para automação ({integracoes.length}/3)
-          </p>
-        </div>
-        <Button onClick={() => setShowCreate(true)} disabled={integracoes.length >= 3} className="w-full sm:w-auto">
-          <Plus className="mr-2 h-4 w-4" />
-          Nova Integração
-        </Button>
+    <div className="mx-auto max-w-[1240px] space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="app-eyebrow">Automação operacional</p><h1 className="mt-1 text-[27px] font-bold tracking-tight text-foreground">Integrações</h1><p className="mt-2 text-sm text-muted-foreground">Conecte o WhatsApp para disparar avisos e acompanhar o status da operação.</p></div>
+        <Button onClick={() => setShowCreate(true)} disabled={integracoes.length >= 3}><Plus className="h-4 w-4" />Nova conexão</Button>
       </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3"><div className="data-summary"><div className="summary-icon blue"><Smartphone className="h-4 w-4" /></div><div><span>Conexões ativas</span><strong>{integracoes.filter((i) => i.status === "conectado").length}</strong><small>de {integracoes.length}/3 configuradas</small></div></div><div className="data-summary"><div className="summary-icon cyan"><span>↗</span></div><div><span>Automação</span><strong>{integracoes.length ? "Pronta" : "—"}</strong><small>avisos via WhatsApp</small></div></div><div className="data-summary"><div className="summary-icon amber"><span>!</span></div><div><span>Limite da conta</span><strong>{integracoes.length}/3</strong><small>conexões permitidas</small></div></div></div>
 
       {integracoes.length === 0 ? (
         <Card className="border-dashed">
@@ -95,11 +88,11 @@ export default function Integracoes() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {integracoes.map((integ) => {
             const config = statusConfig[integ.status] || statusConfig.pendente;
             return (
-              <Card key={integ.id}>
+              <Card key={integ.id} className="overflow-hidden">
                 <CardHeader className="pb-3 px-4 sm:px-6">
                   <div className="flex items-start justify-between gap-2">
                     <CardTitle className="text-base truncate">{integ.nome}</CardTitle>

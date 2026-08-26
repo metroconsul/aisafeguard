@@ -1,7 +1,7 @@
 import { Draggable } from "@hello-pangea/dnd";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Paperclip, Send } from "lucide-react";
+import { FileCheck2, Paperclip, Send } from "lucide-react";
 
 interface CardProps {
   employee: {
@@ -26,29 +26,41 @@ export default function AdmissaoKanbanCard({ employee, index, onClick, onResendL
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           onClick={onClick}
-          className={`rounded-lg border bg-card p-4 shadow-sm cursor-pointer transition-shadow hover:shadow-md ${
-            snapshot.isDragging ? "shadow-lg ring-2 ring-primary/30" : ""
+          className={`group cursor-pointer rounded-lg border border-border/80 bg-card p-4 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-card-hover ${
+            snapshot.isDragging ? "ring-2 ring-secondary/30 shadow-elevated" : ""
           }`}
         >
-          <p className="font-semibold text-sm text-foreground leading-tight">{employee.nome}</p>
-          <p className="text-xs text-muted-foreground mt-1">{employee.cargo}</p>
-          <div className="flex items-center justify-between mt-3">
-            <Badge variant="secondary" className="text-[11px] px-2 py-0.5">{employee.setor}</Badge>
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Paperclip className="h-3 w-3" />
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold leading-tight text-foreground">{employee.nome}</p>
+              <p className="mt-1 truncate text-xs text-muted-foreground">{employee.cargo}</p>
+            </div>
+            <span className="flex shrink-0 items-center gap-1 text-[11px] font-medium text-muted-foreground" title="Documentos anexados">
+              <Paperclip className="h-3 w-3" strokeWidth={1.8} />
               {employee.doc_count}
             </span>
           </div>
+
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <Badge variant="secondary" className="max-w-[150px] truncate rounded-md px-2 py-1 text-[10px] font-semibold">
+              {employee.setor}
+            </Badge>
+            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
+              <FileCheck2 className="h-3 w-3 text-secondary-400" strokeWidth={1.8} />
+              {employee.doc_count ? "Em análise" : "Sem documentos"}
+            </span>
+          </div>
+
           <Button
             variant="ghost"
             size="sm"
-            className="w-full mt-3 text-xs h-7 text-primary hover:text-primary"
+            className="mt-3 h-8 w-full justify-start rounded-md border-t border-border/70 px-0 pt-2 text-xs font-semibold text-primary hover:bg-transparent hover:text-secondary-500"
             onClick={(e) => {
               e.stopPropagation();
               onResendLink(employee.id, employee.nome, employee.telefone_whatsapp);
             }}
           >
-            <Send className="h-3 w-3 mr-1" />
+            <Send className="mr-1.5 h-3 w-3" strokeWidth={1.8} />
             Reenviar link
           </Button>
         </div>

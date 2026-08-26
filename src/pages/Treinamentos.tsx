@@ -42,15 +42,11 @@ export default function Treinamentos() {
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-semibold text-foreground flex items-center gap-2">
-          <GraduationCap className="h-6 w-6 text-primary" /> Treinamentos (NRs)
-        </h1>
-        <p className="text-sm text-muted-foreground">{docs.length} treinamentos registrados</p>
-      </div>
+    <div className="mx-auto max-w-[1240px] space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="app-eyebrow">Conformidade e capacitação</p><h1 className="mt-1 text-[27px] font-bold tracking-tight text-foreground">Treinamentos (NRs)</h1><p className="mt-2 text-sm text-muted-foreground">Certificados, validade e histórico de capacitações da equipe.</p></div><div className="flex items-center gap-2 rounded-lg border border-border/80 bg-card px-3 py-2 text-xs font-semibold text-primary-500 shadow-card"><GraduationCap className="h-4 w-4" />{docs.length} registros</div></div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3"><div className="data-summary"><div className="summary-icon blue"><GraduationCap className="h-4 w-4" /></div><div><span>Treinamentos ativos</span><strong>{docs.length}</strong><small>registros encontrados</small></div></div><div className="data-summary"><div className="summary-icon amber"><span>!</span></div><div><span>Vencendo em 30 dias</span><strong>{docs.filter((d) => { if (!d.expiration_date) return false; const days = differenceInDays(new Date(d.expiration_date), new Date()); return days >= 0 && days <= 30; }).length}</strong><small>priorize a renovação</small></div></div><div className="data-summary"><div className="summary-icon" style={{ background: "hsl(var(--destructive) / .1)", color: "hsl(var(--destructive))" }}><span>×</span></div><div><span>Vencidos</span><strong>{docs.filter((d) => d.expiration_date && differenceInDays(new Date(d.expiration_date), new Date()) < 0).length}</strong><small>requerem atualização</small></div></div></div>
 
-      <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
+      <div className="overflow-hidden rounded-lg border border-border/80 bg-card shadow-card"><div className="border-b border-border/80 px-4 py-4"><p className="app-eyebrow">Matriz de capacitação</p><h2 className="mt-1 text-sm font-bold text-foreground">Certificados e validade</h2></div>
         {docs.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">Nenhum treinamento registrado. Adicione pelo perfil do funcionário.</p>
         ) : (

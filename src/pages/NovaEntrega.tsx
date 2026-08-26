@@ -1,12 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { triggerWebhook } from "@/lib/webhook";
 import { toast } from "sonner";
-import {
-  Search, Check, Send, CheckCircle2, Copy, ExternalLink,
-  HardHat, Glasses, Hand, Footprints, Shield, ShieldCheck,
-} from "lucide-react";
+import { Check, CheckCircle2, Copy, ExternalLink, Footprints, Glasses, Hand, HardHat, Search, Send, Shield, ShieldCheck } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { EmptyState } from "@/components/EmptyState";
@@ -31,45 +28,29 @@ function iconForEpi(nome: string) {
   return Shield;
 }
 
-function SearchCombobox({
-  label, placeholder, items, value, onChange,
-}: {
-  label: string;
-  placeholder: string;
-  items: { value: string; label: string }[];
-  value: string;
-  onChange: (v: string) => void;
-}) {
+function SearchCombobox({ label, placeholder, items, value, onChange }: { label: string; placeholder: string; items: { value: string; label: string }[]; value: string; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false);
   const selected = items.find((i) => i.value === value);
   return (
     <div>
-      <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">{label}</label>
+      <label className="app-eyebrow mb-2 block">{label}</label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <button
-            type="button"
-            className="w-full bg-slate-50 border border-slate-200 text-gray-900 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm font-medium flex items-center gap-2 outline-none"
-          >
-            <Search className="w-4 h-4 text-gray-400 shrink-0" />
-            <span className={cn("truncate", !selected && "text-gray-400 font-normal")}>
-              {selected ? selected.label : placeholder}
-            </span>
+          <button type="button" className="flex h-11 w-full items-center gap-2 rounded-lg border border-border/80 bg-muted/30 px-3.5 text-left text-sm font-medium text-foreground outline-none transition-all hover:border-primary-200 focus:border-secondary/60 focus:ring-2 focus:ring-secondary/15">
+            <Search className="h-4 w-4 shrink-0 text-muted-foreground/70" strokeWidth={1.8} />
+            <span className={cn("truncate", !selected && "font-normal text-muted-foreground")}>{selected ? selected.label : placeholder}</span>
+            <span className="ml-auto text-xs text-muted-foreground">⌄</span>
           </button>
         </PopoverTrigger>
-        <PopoverContent className="p-0 w-[--radix-popover-trigger-width]" align="start">
+        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
           <Command>
             <CommandInput placeholder={placeholder} />
             <CommandList>
               <CommandEmpty>Nenhum resultado.</CommandEmpty>
               <CommandGroup>
                 {items.map((it) => (
-                  <CommandItem
-                    key={it.value}
-                    value={it.label}
-                    onSelect={() => { onChange(it.value); setOpen(false); }}
-                  >
-                    <Check className={cn("mr-2 h-4 w-4", value === it.value ? "opacity-100 text-primary-500" : "opacity-0")} />
+                  <CommandItem key={it.value} value={it.label} onSelect={() => { onChange(it.value); setOpen(false); }}>
+                    <Check className={cn("mr-2 h-4 w-4", value === it.value ? "text-primary opacity-100" : "opacity-0")} />
                     {it.label}
                   </CommandItem>
                 ))}
@@ -95,12 +76,8 @@ export default function NovaEntrega() {
 
   useEffect(() => {
     if (!perfil?.empresa_id) return;
-    supabase.from("funcionarios").select("id, nome, telefone_whatsapp")
-      .eq("empresa_id", perfil.empresa_id).order("nome")
-      .then(({ data }) => { if (data) setFuncionarios(data); });
-    supabase.from("epis").select("id, nome_equipamento, numero_ca, dias_validade")
-      .eq("empresa_id", perfil.empresa_id).order("nome_equipamento")
-      .then(({ data }) => { if (data) setEpis(data); });
+    supabase.from("funcionarios").select("id, nome, telefone_whatsapp").eq("empresa_id", perfil.empresa_id).order("nome").then(({ data }) => { if (data) setFuncionarios(data); });
+    supabase.from("epis").select("id, nome_equipamento, numero_ca, dias_validade").eq("empresa_id", perfil.empresa_id).order("nome_equipamento").then(({ data }) => { if (data) setEpis(data); });
   }, [perfil?.empresa_id]);
 
   const funcItems = useMemo(() => funcionarios.map((f) => ({ value: f.id, label: f.nome })), [funcionarios]);
@@ -120,201 +97,60 @@ export default function NovaEntrega() {
     if (selectedEpis.size === 0) return toast.error("Selecione ao menos um EPI.");
     if (!perfil?.empresa_id || !selectedFunc) return;
     setLoading(true);
-
     const results: { epiNome: string; link: string }[] = [];
     for (const epiId of selectedEpis) {
       const epi = epis.find((e) => e.id === epiId);
       if (!epi) continue;
       const dataVencimento = new Date();
       dataVencimento.setDate(dataVencimento.getDate() + epi.dias_validade);
-
-      const { data, error } = await supabase
-        .from("entregas")
-        .insert({
-          funcionario_id: funcId,
-          epi_id: epiId,
-          data_vencimento: dataVencimento.toISOString(),
-          empresa_id: perfil.empresa_id,
-        })
-        .select().single();
-
-      if (error || !data) {
-        toast.error(`Erro ao registrar ${epi.nome_equipamento}`);
-        continue;
-      }
-      // Sempre usa o domínio público para que o funcionário acesse pelo celular sem login Lovable
+      const { data, error } = await supabase.from("entregas").insert({ funcionario_id: funcId, epi_id: epiId, data_vencimento: dataVencimento.toISOString(), empresa_id: perfil.empresa_id }).select().single();
+      if (error || !data) { toast.error(`Erro ao registrar ${epi.nome_equipamento}`); continue; }
       const PUBLIC_BASE_URL = "https://aisafeguard.lovable.app";
       const linkAssinatura = `${PUBLIC_BASE_URL}/assinar/${data.id}`;
-      // Envia link do Portal do Colaborador (com redirect para a tela de EPIs após login)
       const linkPortal = `${PUBLIC_BASE_URL}/portal/login?next=${encodeURIComponent("/portal/epis")}`;
       results.push({ epiNome: epi.nome_equipamento, link: linkAssinatura });
-      await triggerWebhook({
-        entrega_id: data.id,
-        nome_funcionario: selectedFunc.nome,
-        telefone_whatsapp: selectedFunc.telefone_whatsapp || "",
-        nome_epi: epi.nome_equipamento,
-        link_assinatura: linkPortal,
-      });
+      await triggerWebhook({ entrega_id: data.id, nome_funcionario: selectedFunc.nome, telefone_whatsapp: selectedFunc.telefone_whatsapp || "", nome_epi: epi.nome_equipamento, link_assinatura: linkPortal });
     }
-
     setGeradas(results);
     setLoading(false);
     if (results.length > 0) toast.success(`${results.length} entrega(s) registrada(s)!`);
   };
 
-  const reset = () => {
-    setGeradas([]); setFuncId(""); setObra(""); setSelectedEpis(new Set());
-  };
+  const reset = () => { setGeradas([]); setFuncId(""); setObra(""); setSelectedEpis(new Set()); };
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/40 border border-gray-100 p-8 max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Nova Entrega de EPI</h1>
-        <p className="mt-1 text-sm text-gray-500">Selecione o funcionário, a obra e os equipamentos a entregar.</p>
+    <div className="mx-auto max-w-[1180px] space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div><p className="app-eyebrow">Operação de EPI</p><h1 className="mt-1 text-[27px] font-bold tracking-tight text-foreground">Nova entrega</h1><p className="mt-2 text-sm text-muted-foreground">Registre os equipamentos e envie a assinatura digital.</p></div>
+        <div className="rounded-lg border border-primary-100 bg-card px-3 py-2 text-xs font-semibold text-primary-500 shadow-card">Fluxo guiado · 3 etapas</div>
       </div>
 
-      {geradas.length === 0 ? (
-        <>
-          {/* Seção 1: seleção */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <SearchCombobox
-              label="Funcionário"
-              placeholder="Buscar funcionário…"
-              items={funcItems}
-              value={funcId}
-              onChange={setFuncId}
-            />
-            <SearchCombobox
-              label="Obra / Centro de Custo"
-              placeholder="Buscar obra…"
-              items={OBRAS}
-              value={obra}
-              onChange={setObra}
-            />
+      <div className="grid gap-4 lg:grid-cols-[190px_minmax(0,1fr)]">
+        <aside className="rounded-lg border border-border/80 bg-card p-4 shadow-card lg:self-start">
+          <p className="app-eyebrow">Novo registro</p>
+          <div className="mt-5 space-y-1">
+            <div className="flex items-start gap-3 rounded-lg bg-primary-50 px-3 py-3"><span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary-500 text-xs font-bold text-white">1</span><div><p className="text-xs font-bold text-primary-600">Destino</p><p className="mt-1 text-[10px] leading-relaxed text-primary-500/70">Quem vai receber</p></div></div>
+            <div className="flex items-start gap-3 rounded-lg px-3 py-3"><span className="flex h-6 w-6 items-center justify-center rounded-md bg-muted text-xs font-bold text-muted-foreground">2</span><div><p className="text-xs font-bold text-foreground">Equipamentos</p><p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">Selecione os EPIs</p></div></div>
+            <div className="flex items-start gap-3 rounded-lg px-3 py-3"><span className="flex h-6 w-6 items-center justify-center rounded-md bg-muted text-xs font-bold text-muted-foreground">3</span><div><p className="text-xs font-bold text-foreground">Revisão</p><p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">Confirme e envie</p></div></div>
           </div>
+          <div className="mt-8 border-t border-border/70 pt-4"><div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground"><ShieldCheck className="h-4 w-4 text-secondary-400" />Assinatura auditável</div><p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">Cada entrega gera um registro digital para sua operação.</p></div>
+        </aside>
 
-          {/* Seção 2: grid de EPIs */}
-          <div className="flex items-end justify-between mt-10 mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Selecione os Equipamentos</h2>
-            <span className="text-xs font-medium text-gray-500">{epis.length} disponíveis</span>
-          </div>
-
-          {epis.length === 0 ? (
-            <EmptyState
-              icon={HardHat}
-              title="Nenhum EPI cadastrado"
-              description="Cadastre os equipamentos da sua empresa para começar a registrar entregas."
-              actionLabel="+ Cadastrar EPI"
-              onAction={() => navigate("/app/epis")}
-            />
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-              {epis.map((epi) => {
-                const Icon = iconForEpi(epi.nome_equipamento);
-                const isSelected = selectedEpis.has(epi.id);
-                return (
-                  <button
-                    type="button"
-                    key={epi.id}
-                    onClick={() => toggleEpi(epi.id)}
-                    className={cn(
-                      "flex flex-col items-center justify-center p-4 rounded-2xl border-2 bg-white cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all duration-200 relative text-left",
-                      isSelected
-                        ? "border-primary-500 bg-primary-50/50"
-                        : "border-gray-100 hover:border-primary-200",
-                    )}
-                  >
-                    {isSelected && (
-                      <div className="absolute top-3 right-3 w-6 h-6 bg-primary-500 text-white rounded-full p-1 shadow-sm">
-                        <Check className="w-full h-full" strokeWidth={3} />
-                      </div>
-                    )}
-                    <div className="w-24 h-24 bg-slate-50 rounded-xl mb-3 flex items-center justify-center">
-                      <Icon className="w-10 h-10 text-slate-400" strokeWidth={1.5} />
-                    </div>
-                    <p className="text-sm font-bold text-gray-800 text-center line-clamp-2">{epi.nome_equipamento}</p>
-                    <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded-md mt-2">
-                      CA {epi.numero_ca}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Rodapé */}
-          <div className="h-px w-full bg-gray-100 my-8" />
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold text-gray-700">
-                {selectedEpis.size} EPI{selectedEpis.size === 1 ? "" : "s"} selecionado{selectedEpis.size === 1 ? "" : "s"}
-              </p>
-              <p className="text-xs text-gray-500 mt-0.5">
-                {selectedFunc ? `Funcionário: ${selectedFunc.nome}` : "Funcionário não selecionado"}
-                {" • "}
-                {obra ? `Obra: ${obra}` : "Obra não selecionada"}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={loading || !funcId || !obra || selectedEpis.size === 0}
-              className="bg-primary-500 hover:bg-primary-600 disabled:bg-gray-300 disabled:shadow-none text-white font-bold py-4 px-8 rounded-xl shadow-lg shadow-primary-100/50 transition-all flex items-center gap-2 disabled:cursor-not-allowed"
-            >
-              <Send className="w-4 h-4" />
-              {loading ? "Gerando…" : `Gerar Entrega${selectedEpis.size > 0 ? ` (${selectedEpis.size})` : ""}`}
-            </button>
-          </div>
-        </>
-      ) : (
-        <div>
-          <div className="flex flex-col items-center text-center py-6">
-            <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center">
-              <CheckCircle2 className="w-9 h-9 text-emerald-600" />
-            </div>
-            <h2 className="mt-4 text-2xl font-extrabold text-gray-900">Entregas geradas!</h2>
-            <p className="mt-1 text-sm text-gray-500">
-              {geradas.length} link{geradas.length === 1 ? "" : "s"} de assinatura pronto{geradas.length === 1 ? "" : "s"} para enviar.
-            </p>
-          </div>
-
-          <div className="space-y-3 mt-6">
-            {geradas.map((g, i) => (
-              <div key={i} className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 border border-gray-100">
-                <ShieldCheck className="w-5 h-5 text-primary-500 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-gray-800 truncate">{g.epiNome}</p>
-                  <p className="text-xs text-gray-500 truncate font-mono">{g.link}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => { navigator.clipboard.writeText(g.link); toast.success("Link copiado!"); }}
-                  className="p-2 rounded-lg hover:bg-white text-gray-600"
-                  title="Copiar link"
-                >
-                  <Copy className="w-4 h-4" />
-                </button>
-                <a
-                  href={g.link} target="_blank" rel="noopener noreferrer"
-                  className="p-2 rounded-lg hover:bg-white text-gray-600"
-                  title="Abrir link"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                </a>
+        <div className="overflow-hidden rounded-lg border border-border/80 bg-card shadow-card">
+          {geradas.length === 0 ? (
+            <>
+              <div className="border-b border-border/80 px-5 py-5"><p className="app-eyebrow">Etapa 1 · Destino</p><h2 className="mt-1 text-lg font-bold text-foreground">Quem vai receber?</h2><p className="mt-1 text-xs text-muted-foreground">Defina o funcionário e a obra antes de escolher os equipamentos.</p></div>
+              <div className="border-b border-border/80 px-5 py-5"><div className="grid grid-cols-1 gap-4 md:grid-cols-2"><SearchCombobox label="Funcionário" placeholder="Buscar funcionário..." items={funcItems} value={funcId} onChange={setFuncId} /><SearchCombobox label="Obra / centro de custo" placeholder="Buscar obra..." items={OBRAS} value={obra} onChange={setObra} /></div></div>
+              <div className="px-5 py-5"><div className="mb-4 flex items-end justify-between gap-3"><div><p className="app-eyebrow">Etapa 2 · Equipamentos</p><h2 className="mt-1 text-lg font-bold text-foreground">Selecione os EPIs</h2></div><span className="text-xs font-medium text-muted-foreground">{epis.length} disponíveis</span></div>
+                {epis.length === 0 ? <EmptyState icon={HardHat} title="Nenhum EPI cadastrado" description="Cadastre os equipamentos da sua empresa para começar a registrar entregas." actionLabel="Cadastrar EPI" onAction={() => navigate("/app/epis")} /> : <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">{epis.map((epi) => { const Icon = iconForEpi(epi.nome_equipamento); const isSelected = selectedEpis.has(epi.id); return <button type="button" key={epi.id} onClick={() => toggleEpi(epi.id)} className={cn("group relative rounded-lg border p-3 text-left transition-all duration-150 hover:-translate-y-0.5 hover:border-secondary/70 hover:shadow-card-hover", isSelected ? "border-secondary bg-secondary/5 ring-2 ring-secondary/10" : "border-border/80 bg-card")}>{isSelected && <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-md bg-secondary text-white"><Check className="h-3 w-3" strokeWidth={3} /></span>}<div className="flex h-16 items-center justify-center rounded-md bg-muted/45 text-primary-500"><Icon className="h-8 w-8" strokeWidth={1.5} /></div><p className="mt-3 line-clamp-2 text-xs font-bold text-foreground">{epi.nome_equipamento}</p><div className="mt-2 flex items-center justify-between gap-2"><span className="rounded bg-muted px-1.5 py-1 text-[10px] font-semibold text-muted-foreground">CA {epi.numero_ca}</span><span className="text-[10px] text-muted-foreground">{epi.dias_validade}d</span></div></button>; })}</div>}
               </div>
-            ))}
-          </div>
-
-          <div className="h-px w-full bg-gray-100 my-8" />
-          <button
-            type="button"
-            onClick={reset}
-            className="w-full bg-primary-500 hover:bg-primary-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary-100/50 transition-all"
-          >
-            Registrar nova entrega
-          </button>
+              <div className="flex flex-col gap-3 border-t border-border/80 bg-muted/20 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-bold text-foreground">{selectedEpis.size} EPI{selectedEpis.size === 1 ? "" : "s"} selecionado{selectedEpis.size === 1 ? "" : "s"}</p><p className="mt-1 text-[11px] text-muted-foreground">{selectedFunc ? selectedFunc.nome : "Funcionário não selecionado"} · {obra || "Obra não selecionada"}</p></div><button type="button" onClick={handleSubmit} disabled={loading || !funcId || !obra || selectedEpis.size === 0} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary-500 px-4 text-xs font-bold text-white shadow-sm transition-all hover:bg-primary-600 hover:shadow-md disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"><Send className="h-3.5 w-3.5" strokeWidth={1.8} />{loading ? "Gerando..." : `Revisar entrega${selectedEpis.size > 0 ? ` (${selectedEpis.size})` : ""}`}</button></div>
+            </>
+          ) : (
+            <div className="p-6 sm:p-8"><div className="flex flex-col items-center text-center"><div className="flex h-14 w-14 items-center justify-center rounded-xl bg-success/10 text-success"><CheckCircle2 className="h-7 w-7" strokeWidth={1.8} /></div><p className="app-eyebrow mt-5">Registro concluído</p><h2 className="mt-1 text-2xl font-bold text-foreground">Entregas geradas</h2><p className="mt-2 text-sm text-muted-foreground">{geradas.length} link{geradas.length === 1 ? "" : "s"} de assinatura pronto{geradas.length === 1 ? "" : "s"} para enviar.</p></div><div className="mt-7 space-y-2">{geradas.map((g, i) => <div key={i} className="flex items-center gap-3 rounded-lg border border-border/80 bg-muted/20 p-3"><div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary-50 text-primary-500"><ShieldCheck className="h-4 w-4" /></div><div className="min-w-0 flex-1"><p className="truncate text-xs font-bold text-foreground">{g.epiNome}</p><p className="truncate font-mono text-[10px] text-muted-foreground">{g.link}</p></div><button type="button" onClick={() => { navigator.clipboard.writeText(g.link); toast.success("Link copiado!"); }} className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-card hover:text-primary" title="Copiar link"><Copy className="h-4 w-4" /></button><a href={g.link} target="_blank" rel="noopener noreferrer" className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-card hover:text-primary" title="Abrir link"><ExternalLink className="h-4 w-4" /></a></div>)}</div><button type="button" onClick={reset} className="mt-7 h-10 w-full rounded-lg bg-primary-500 text-xs font-bold text-white shadow-sm transition-colors hover:bg-primary-600">Registrar nova entrega</button></div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -100,70 +100,17 @@ export default function Holerites() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <FileText className="h-6 w-6 text-primary" />
-          Gestão de Holerites
-        </h1>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handlePrint} className="print:hidden">
-            <Printer className="mr-2 h-4 w-4" />
-            Relatório de Fechamento
-          </Button>
-          <Button onClick={() => setModalOpen(true)} className="print:hidden">
-            <Send className="mr-2 h-4 w-4" />
-            Novo Disparo de Holerite
-          </Button>
-        </div>
+    <div className="mx-auto max-w-[1240px] space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div><p className="app-eyebrow">Folha e comunicação</p><h1 className="mt-1 text-[27px] font-bold tracking-tight text-foreground">Holerites</h1><p className="mt-2 text-sm text-muted-foreground">Dispare, acompanhe e audite a entrega dos comprovantes.</p></div>
+        <div className="flex gap-2 print:hidden"><Button variant="outline" onClick={handlePrint}><Printer className="h-4 w-4" />Relatório</Button><Button onClick={() => setModalOpen(true)}><Send className="h-4 w-4" />Novo disparo</Button></div>
       </div>
 
-      {/* Filtro */}
-      <div className="flex items-center gap-3 print:hidden">
-        <span className="text-sm font-medium text-muted-foreground">Mês/Ano de Referência:</span>
-        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-          <SelectTrigger className="w-[220px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {monthOptions.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/80 bg-card p-3 shadow-card print:hidden"><div><p className="app-eyebrow">Período de referência</p><p className="mt-1 text-xs text-muted-foreground">Selecione o mês para consultar os documentos.</p></div><Select value={selectedMonth} onValueChange={setSelectedMonth}><SelectTrigger className="w-[220px]"><SelectValue /></SelectTrigger><SelectContent>{monthOptions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent></Select></div>
 
-      {/* KPIs */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-6">
-            <span className="text-3xl font-bold text-foreground">{total}</span>
-            <span className="text-sm text-muted-foreground">Total Emitido</span>
-          </CardContent>
-        </Card>
-        <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
-          <CardContent className="flex flex-col items-center justify-center py-6">
-            <span className="text-3xl font-bold text-green-600">{assinados}</span>
-            <span className="text-sm text-green-700">
-              Assinados {total > 0 ? `(${Math.round((assinados / total) * 100)}%)` : ""}
-            </span>
-          </CardContent>
-        </Card>
-        <Card className={pendentes > 0 ? "border-amber-200 bg-amber-50 dark:bg-amber-950/20" : ""}>
-          <CardContent className="flex flex-col items-center justify-center py-6">
-            <span className={`text-3xl font-bold ${pendentes > 0 ? "text-amber-600" : "text-foreground"}`}>
-              {pendentes}
-            </span>
-            <span className={`text-sm ${pendentes > 0 ? "text-amber-700" : "text-muted-foreground"}`}>
-              Pendentes
-            </span>
-          </CardContent>
-        </Card>
-      </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3"><div className="data-summary"><div className="summary-icon blue"><FileText className="h-4 w-4" /></div><div><span>Total emitido</span><strong>{total}</strong><small>documentos no período</small></div></div><div className="data-summary"><div className="summary-icon" style={{ background: "hsl(var(--success) / .1)", color: "hsl(var(--success))" }}><span>✓</span></div><div><span>Assinados</span><strong>{assinados}</strong><small>{total > 0 ? `${Math.round((assinados / total) * 100)}% do total` : "sem documentos"}</small></div></div><div className="data-summary"><div className="summary-icon amber"><span>!</span></div><div><span>Pendentes</span><strong>{pendentes}</strong><small>{pendentes ? "aguardando assinatura" : "tudo em dia"}</small></div></div></div>
 
-      {/* Tabela de Auditoria */}
-      <Card>
+      <div className="overflow-hidden rounded-lg border border-border/80 bg-card shadow-card"><div className="border-b border-border/80 px-4 py-4"><p className="app-eyebrow">Auditoria do período</p><h2 className="mt-1 text-sm font-bold text-foreground">Entrega e assinatura dos documentos</h2></div>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
@@ -261,7 +208,7 @@ export default function Holerites() {
             </TableBody>
           </Table>
         </CardContent>
-      </Card>
+      </div>
 
       {/* Print-only report */}
       <div className="hidden print:block mt-8">

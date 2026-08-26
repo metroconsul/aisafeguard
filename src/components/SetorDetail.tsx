@@ -188,14 +188,14 @@ export default function SetorDetail({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Button variant="ghost" size="icon" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">
+          <div><p className="app-eyebrow">Matriz de risco</p><h1 className="mt-1 text-[25px] font-bold tracking-tight text-foreground">
             {setorNome}
-          </h1>
+          </h1></div>
           <p className="text-sm text-muted-foreground">
             Matriz de risco do setor
           </p>
@@ -204,7 +204,7 @@ export default function SetorDetail({
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-border bg-card p-4 shadow-card">
+        <div className="rounded-lg border border-border/80 bg-card p-4 shadow-card">
           <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
             <HardHat className="h-4 w-4" /> EPIs Obrigatórios
           </div>
@@ -212,13 +212,13 @@ export default function SetorDetail({
             {setorEpis.length}
           </p>
         </div>
-        <div className="rounded-xl border border-border bg-card p-4 shadow-card">
+        <div className="rounded-lg border border-border/80 bg-card p-4 shadow-card">
           <div className="flex items-center gap-2 text-sm mb-1 text-emerald-600">
             <ShieldCheck className="h-4 w-4" /> Protegidos
           </div>
           <p className="text-2xl font-bold text-emerald-600">{protegidos}</p>
         </div>
-        <div className="rounded-xl border border-border bg-card p-4 shadow-card">
+        <div className="rounded-lg border border-border/80 bg-card p-4 shadow-card">
           <div className="flex items-center gap-2 text-sm mb-1 text-destructive">
             <ShieldAlert className="h-4 w-4" /> Irregulares
           </div>
@@ -227,7 +227,7 @@ export default function SetorDetail({
       </div>
 
       <Tabs defaultValue="epis">
-        <TabsList>
+        <TabsList className="h-auto rounded-lg border border-border/80 bg-card p-1 shadow-card">
           <TabsTrigger value="epis" className="gap-1.5">
             <HardHat className="h-3.5 w-3.5" /> EPIs Obrigatórios
           </TabsTrigger>
@@ -264,17 +264,17 @@ export default function SetorDetail({
             </Button>
           </div>
 
-          <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
+          <div className="overflow-hidden rounded-lg border border-border/80 bg-card shadow-card">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-muted/50">
-                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                <tr className="border-b border-border bg-muted/25">
+                  <th className="px-4 py-3 text-left app-eyebrow">
                     Equipamento
                   </th>
-                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                  <th className="px-4 py-3 text-left app-eyebrow">
                     Nº CA
                   </th>
-                  <th className="px-4 py-3 text-right font-medium text-muted-foreground">
+                  <th className="px-4 py-3 text-right app-eyebrow">
                     Ações
                   </th>
                 </tr>
@@ -325,23 +325,23 @@ export default function SetorDetail({
               Analisando conformidade...
             </p>
           ) : (
-            <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
+            <div className="overflow-hidden rounded-lg border border-border/80 bg-card shadow-card">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-muted/50">
-                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                  <tr className="border-b border-border bg-muted/25">
+                    <th className="px-4 py-3 text-left app-eyebrow">
                       Funcionário
                     </th>
-                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                    <th className="px-4 py-3 text-left app-eyebrow">
                       Matrícula
                     </th>
-                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                    <th className="px-4 py-3 text-left app-eyebrow">
                       Cargo
                     </th>
-                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                    <th className="px-4 py-3 text-left app-eyebrow">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                    <th className="px-4 py-3 text-left app-eyebrow">
                       EPIs Pendentes
                     </th>
                   </tr>

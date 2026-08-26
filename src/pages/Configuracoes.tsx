@@ -126,15 +126,12 @@ export default function Configuracoes() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Configurações</h1>
-        <p className="text-sm text-muted-foreground">Gerencie os dados da sua empresa</p>
-      </div>
+    <div className="mx-auto max-w-[980px] space-y-6">
+      <div><p className="app-eyebrow">Administração do workspace</p><h1 className="mt-1 text-[27px] font-bold tracking-tight text-foreground">Configurações</h1><p className="mt-2 text-sm text-muted-foreground">Gerencie os dados que aparecem nos documentos e relatórios.</p></div>
 
       <Card>
-        <CardHeader className="px-4 sm:px-6">
-          <CardTitle className="flex items-center gap-2 text-lg">
+        <CardHeader className="px-4 sm:px-6"><p className="app-eyebrow">Identidade da empresa</p>
+          <CardTitle className="mt-1 flex items-center gap-2 text-base">
             <Building2 className="h-5 w-5 text-primary" />
             Dados da Empresa
           </CardTitle>
@@ -170,7 +167,7 @@ export default function Configuracoes() {
             <Input id="cnpj" value={cnpj} onChange={(e) => setCnpj(e.target.value)} />
           </div>
 
-          <Button onClick={handleSave} disabled={saving} className="w-full">
+          <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto">
             {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
             {saving ? "Salvando..." : "Salvar Alterações"}
           </Button>

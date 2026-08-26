@@ -13,11 +13,11 @@ import AdmissaoModal from "@/components/admissao/AdmissaoModal";
 
 type Stage = "dados_iniciais" | "aso_pendente" | "assinatura" | "pronto_efetivar";
 
-const COLUMNS: { id: Stage; title: string; color: string }[] = [
-  { id: "dados_iniciais", title: "Dados Pessoais", color: "border-t-blue-500" },
-  { id: "aso_pendente", title: "Aguardando ASO", color: "border-t-amber-500" },
-  { id: "assinatura", title: "Assinatura de Contrato", color: "border-t-primary-500" },
-  { id: "pronto_efetivar", title: "Pronto para Efetivar", color: "border-t-green-500" },
+const COLUMNS: { id: Stage; title: string; description: string; color: string }[] = [
+  { id: "dados_iniciais", title: "Dados Pessoais", description: "Aguardando informações iniciais", color: "border-t-blue-500" },
+  { id: "aso_pendente", title: "Aguardando ASO", description: "Exame ocupacional pendente", color: "border-t-amber-500" },
+  { id: "assinatura", title: "Assinatura de Contrato", description: "Contrato enviado ao candidato", color: "border-t-primary-500" },
+  { id: "pronto_efetivar", title: "Pronto para Efetivar", description: "Tudo pronto para admissão", color: "border-t-green-500" },
 ];
 
 interface Employee {
@@ -185,12 +185,12 @@ export default function Admissoes() {
     employees.filter(e => e.admission_stage === stage);
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-[1500px] space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <UserPlus className="h-6 w-6 text-primary" />
-          Gestão de Admissões
-        </h1>
+        <div><p className="app-eyebrow">Processo de pessoas</p><h1 className="mt-1 flex items-center gap-2 text-[26px] font-bold text-foreground">
+          <UserPlus className="h-5 w-5 text-secondary-400" strokeWidth={1.8} />
+          Gestão de admissões
+        </h1><p className="mt-1 text-sm text-muted-foreground">Acompanhe cada candidato até a efetivação.</p></div>
         <Button onClick={() => setNewModalOpen(true)}>
           <UserPlus className="mr-2 h-4 w-4" />
           Novo Candidato
@@ -210,19 +210,19 @@ export default function Admissoes() {
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`rounded-lg border-t-4 ${col.color} bg-muted/40 min-h-[300px] flex flex-col ${
+                    className={`flex min-h-[360px] flex-col rounded-lg border border-border/80 border-t-2 bg-card shadow-card ${col.color} ${
                       snapshot.isDraggingOver ? "bg-primary/5" : ""
                     }`}
                   >
-                    <div className="px-4 py-3 border-b border-border">
+                    <div className="border-b border-border/80 px-4 py-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-foreground">{col.title}</h3>
-                        <span className="text-xs font-medium rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
+                        <div><h3 className="text-sm font-semibold text-foreground">{col.title}</h3><p className="mt-1 text-[11px] text-muted-foreground">{col.description}</p></div>
+                        <span className="rounded-md bg-muted px-2 py-1 text-xs font-bold tabular-nums text-muted-foreground">
                           {getColumnItems(col.id).length}
                         </span>
                       </div>
                     </div>
-                    <div className="p-3 space-y-3 flex-1">
+                    <div className="flex-1 space-y-3 p-3">
                       {getColumnItems(col.id).map((emp, idx) => (
                         <AdmissaoKanbanCard
                           key={emp.id}

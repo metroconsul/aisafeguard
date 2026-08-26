@@ -86,12 +86,12 @@ export function AppSidebar() {
                     to={item.url}
                     end={item.url === "/app"}
                     className={[
-                      "h-auto rounded-lg border-l-[3px] border-transparent text-sm font-medium text-white/60 transition-all duration-150 hover:bg-white/10 hover:text-white",
-                      collapsed ? "mx-1 justify-center px-0 py-3" : "mx-3 px-3 py-2",
+                      "h-10 rounded-lg border-l-2 border-transparent text-sm font-medium text-white/60 transition-all duration-150 hover:bg-white/[0.08] hover:text-white",
+                      collapsed ? "mx-1 justify-center px-0" : "mx-3 px-3",
                     ].join(" ")}
-                    activeClassName="border-l-secondary-400 bg-white/[0.12] font-semibold text-white shadow-inner-glow backdrop-blur-sm hover:bg-white/[0.16] hover:text-white [&_svg]:opacity-100"
+                    activeClassName="border-l-secondary-400 bg-white/[0.14] font-semibold text-white shadow-inner-glow backdrop-blur-sm hover:bg-white/[0.18] hover:text-white [&_svg]:opacity-100"
                   >
-                    <item.icon className={collapsed ? "h-6 w-6 opacity-90" : "mr-3 h-5 w-5 opacity-70"} strokeWidth={1.75} />
+                    <item.icon className={collapsed ? "h-5 w-5 opacity-90" : "mr-3 h-[18px] w-[18px] opacity-70"} strokeWidth={1.8} />
                     {!collapsed && <span>{item.title}</span>}
                   </NavLink>
                 </SidebarMenuButton>
@@ -104,19 +104,19 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-white/[0.06] bg-primary-500 [&>div]:bg-primary-500">
-      <SidebarContent className="bg-primary-500 pt-5">
+    <Sidebar collapsible="icon" className="border-r border-white/[0.08] bg-primary-500 [&>div]:bg-primary-500">
+      <SidebarContent className="bg-primary-500 pt-4">
         {/* Logo */}
         <div className={["flex items-center pb-2", collapsed ? "justify-center px-2" : "gap-2.5 px-4"].join(" ")}>
           <div className={[
-            "flex shrink-0 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/15",
+            "flex shrink-0 items-center justify-center rounded-lg bg-white/[0.12] ring-1 ring-white/15",
             collapsed ? "h-10 w-10" : "h-9 w-9",
           ].join(" ")}>
             <ShieldCheck className={collapsed ? "h-6 w-6 text-white" : "h-5 w-5 text-white"} />
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="truncate text-lg font-bold tracking-tight text-white">Ava Safeguard</p>
+              <p className="truncate text-[17px] font-bold tracking-tight text-white">Ava Safeguard</p>
               <p className="text-[10px] font-medium uppercase tracking-widest text-white/40">Gestão Industrial</p>
             </div>
           )}
@@ -128,7 +128,7 @@ export function AppSidebar() {
         {renderGroup("Suporte", visibleSupport)}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-white/[0.06] bg-primary-500 p-3">
+      <SidebarFooter className="border-t border-white/[0.08] bg-primary-500 p-3">
         {collapsed ? (
           <div className="flex justify-center">
             <Avatar className="h-9 w-9 rounded-full border-2 border-secondary-400/40">

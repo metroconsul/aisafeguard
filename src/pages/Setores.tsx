@@ -86,19 +86,11 @@ export default function Setores() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Setores</h1>
-          <p className="text-sm text-muted-foreground">
-            Matriz de risco — {setores.length} setores cadastrados
-          </p>
-        </div>
+    <div className="mx-auto max-w-[1240px] space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="app-eyebrow">Matriz de risco</p><h1 className="mt-1 text-[27px] font-bold tracking-tight text-foreground">Setores</h1><p className="mt-2 text-sm text-muted-foreground">Estruture equipes, riscos e EPIs obrigatórios por operação.</p></div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto">
-              <Plus className="mr-1.5 h-4 w-4" /> Novo Setor
-            </Button>
+            <Button><Plus className="h-4 w-4" />Novo setor</Button>
           </DialogTrigger>
           <DialogContent className="max-w-[95vw] sm:max-w-lg">
             <DialogHeader><DialogTitle>Novo Setor</DialogTitle></DialogHeader>
@@ -119,12 +111,14 @@ export default function Setores() {
         </Dialog>
       </div>
 
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3"><div className="data-summary"><div className="summary-icon blue"><Building2 className="h-4 w-4" /></div><div><span>Setores cadastrados</span><strong>{setores.length}</strong><small>áreas operacionais</small></div></div><div className="data-summary"><div className="summary-icon cyan"><Users className="h-4 w-4" /></div><div><span>Pessoas alocadas</span><strong>{setores.reduce((sum, s) => sum + s.funcionarios_count, 0)}</strong><small>na matriz de risco</small></div></div><div className="data-summary"><div className="summary-icon amber"><HardHat className="h-4 w-4" /></div><div><span>EPIs mapeados</span><strong>{setores.reduce((sum, s) => sum + s.epis_count, 0)}</strong><small>requisitos obrigatórios</small></div></div></div>
+
       {/* Mobile: card layout */}
       <div className="block sm:hidden space-y-3">
         {setores.map((s) => (
           <div
             key={s.id}
-            className="rounded-xl border border-border bg-card p-4 shadow-card cursor-pointer active:bg-muted/30"
+            className="rounded-lg border border-border/80 bg-card p-4 shadow-card transition-all hover:-translate-y-0.5 hover:border-secondary/60 hover:shadow-card-hover cursor-pointer active:bg-muted/30"
             onClick={() => setSelectedSetorId(s.id)}
           >
             <div className="flex items-center justify-between">
@@ -147,14 +141,14 @@ export default function Setores() {
       </div>
 
       {/* Desktop: table layout */}
-      <div className="hidden sm:block rounded-xl border border-border bg-card shadow-card overflow-hidden">
+      <div className="hidden overflow-hidden rounded-lg border border-border/80 bg-card shadow-card sm:block">
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[500px]">
             <thead>
-              <tr className="border-b border-border bg-muted/50">
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Setor</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Funcionários</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">EPIs Obrigatórios</th>
+              <tr className="border-b border-border/80 bg-muted/25">
+                <th className="px-4 py-3 text-left app-eyebrow">Setor</th>
+                <th className="px-4 py-3 text-left app-eyebrow">Funcionários</th>
+                <th className="px-4 py-3 text-left app-eyebrow">EPIs obrigatórios</th>
                 <th className="px-4 py-3 text-right font-medium text-muted-foreground" />
               </tr>
             </thead>

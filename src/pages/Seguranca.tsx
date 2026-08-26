@@ -42,15 +42,12 @@ export default function Seguranca() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Segurança</h1>
-        <p className="text-sm text-muted-foreground">Gerencie seu perfil e credenciais de acesso</p>
-      </div>
+    <div className="mx-auto max-w-[980px] space-y-6">
+      <div><p className="app-eyebrow">Administração da conta</p><h1 className="mt-1 text-[27px] font-bold tracking-tight text-foreground">Segurança</h1><p className="mt-2 text-sm text-muted-foreground">Gerencie seu perfil e mantenha suas credenciais protegidas.</p></div>
 
       <Card>
-        <CardHeader className="px-4 sm:px-6">
-          <CardTitle className="flex items-center gap-2 text-lg">
+        <CardHeader className="px-4 sm:px-6"><p className="app-eyebrow">Identidade</p>
+          <CardTitle className="mt-1 flex items-center gap-2 text-base">
             <User className="h-5 w-5 text-primary" />
             Meu Perfil
           </CardTitle>
@@ -73,8 +70,8 @@ export default function Seguranca() {
       </Card>
 
       <Card>
-        <CardHeader className="px-4 sm:px-6">
-          <CardTitle className="flex items-center gap-2 text-lg">
+        <CardHeader className="px-4 sm:px-6"><p className="app-eyebrow">Identidade</p>
+          <CardTitle className="mt-1 flex items-center gap-2 text-base">
             <Lock className="h-5 w-5 text-primary" />
             Alterar Senha
           </CardTitle>

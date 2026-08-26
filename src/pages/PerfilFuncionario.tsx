@@ -250,17 +250,11 @@ export default function PerfilFuncionario() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/app/funcionarios")}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Perfil do Funcionário</h1>
-      </div>
+    <div className="mx-auto max-w-[1240px] space-y-6">
+      <div className="flex items-center gap-3"><Button variant="ghost" size="icon" onClick={() => navigate("/app/funcionarios")}><ArrowLeft className="h-4 w-4" /></Button><div><p className="app-eyebrow">Cadastro e prontuário</p><h1 className="mt-1 text-[27px] font-bold tracking-tight text-foreground">Perfil do funcionário</h1></div></div>
 
       {/* Profile Card */}
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 rounded-lg border border-border/80 bg-card p-4 shadow-card sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
             <h2 className="text-lg font-semibold text-foreground">{func.nome}</h2>
@@ -285,11 +279,8 @@ export default function PerfilFuncionario() {
       </div>
 
       {/* Portal Access - CPF & PIN */}
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-card">
-        <div className="flex items-center gap-2 mb-4">
-          <KeyRound className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold text-foreground">Acesso ao Portal do Colaborador</h3>
-        </div>
+      <div className="rounded-lg border border-border/80 bg-card p-4 shadow-card sm:p-5">
+        <div className="mb-4 flex items-center gap-2 border-b border-border/70 pb-4"><KeyRound className="h-4 w-4 text-primary" /><div><p className="app-eyebrow">Acesso digital</p><h3 className="mt-1 text-sm font-bold text-foreground">Portal do colaborador</h3></div></div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
           <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">CPF</Label>
@@ -323,14 +314,14 @@ export default function PerfilFuncionario() {
 
       {/* Tabs */}
       <Tabs defaultValue="admissao_rescisao">
-        <TabsList className="w-full flex overflow-x-auto">
+        <TabsList className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-lg border border-border/80 bg-card p-1 shadow-card">
           {TABS.map((t) => (
             <TabsTrigger key={t.value} value={t.value} className="flex-1 min-w-[100px] text-xs sm:text-sm">{t.label}</TabsTrigger>
           ))}
         </TabsList>
         {TABS.map((t) => (
           <TabsContent key={t.value} value={t.value}>
-            <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
+            <div className="overflow-hidden rounded-lg border border-border/80 bg-card shadow-card">
               {renderTable(t.categories, t.value)}
             </div>
           </TabsContent>
