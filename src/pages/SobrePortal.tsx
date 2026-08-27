@@ -477,7 +477,7 @@ export default function SobrePortal() {
                   >
                     <Icon className="h-5 w-5" />
                   </span>
-                  <span className="text-sm font-extrabold" style={{ color: T.accentText ?? T.primary }}>
+                  <span className="text-sm font-extrabold" style={{ color: T.primary }}>
                     {step.n}
                   </span>
                 </div>
