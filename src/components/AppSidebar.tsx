@@ -7,7 +7,6 @@ import {
   Settings,
   ShieldCheck,
   ChevronUp,
-  MessageCircle,
   FolderLock,
   GraduationCap,
   FileText,
@@ -47,10 +46,6 @@ const cadastroItems = [
   { title: "Setores", url: "/app/setores", icon: Building2 },
 ];
 
-const integrationItems = [
-  { title: "WhatsApp", url: "/app/integracoes", icon: MessageCircle },
-];
-
 const supportItems = [
   { title: "Configurações", url: "/app/configuracoes", icon: Settings },
   { title: "Equipe", url: "/app/equipe", icon: Users },
@@ -65,7 +60,6 @@ export function AppSidebar() {
 
   const visibleGeneral = filterMenuItems(role, generalItems);
   const visibleCadastro = filterMenuItems(role, cadastroItems);
-  const visibleIntegration = filterMenuItems(role, integrationItems);
   const visibleSupport = filterMenuItems(role, supportItems);
 
   const renderGroup = (label: string, items: typeof generalItems) => {
@@ -124,7 +118,6 @@ export function AppSidebar() {
 
         {renderGroup("Geral", visibleGeneral)}
         {renderGroup("Cadastros", visibleCadastro)}
-        {renderGroup("Integrações", visibleIntegration)}
         {renderGroup("Suporte", visibleSupport)}
       </SidebarContent>
 

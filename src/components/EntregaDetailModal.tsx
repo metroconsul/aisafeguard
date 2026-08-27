@@ -10,6 +10,7 @@ import { Download, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
+import { EnviarLembreteButton } from "@/components/EnviarLembreteButton";
 
 
 interface EntregaDetail {
@@ -272,9 +273,17 @@ export function EntregaDetailModal({ entregaId, open, onOpenChange }: EntregaDet
             )}
 
             {!signed && (
-              <p className="text-xs text-muted-foreground text-center py-2">
-                A assinatura ainda não foi registrada.
-              </p>
+              <div className="space-y-3 border-t border-border/70 pt-3">
+                <p className="text-xs text-muted-foreground">
+                  Aguardando assinatura no portal do funcionário.
+                </p>
+                <EnviarLembreteButton
+                  entregaId={data.id}
+                  funcionarioNome={data.funcionario_nome}
+                  funcionarioTelefone={data.funcionario_telefone}
+                  epiNome={data.epi_nome}
+                />
+              </div>
             )}
           </div>
         ) : (

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { triggerWebhook } from "@/lib/webhook";
+
 import { toast } from "sonner";
 import { Check, CheckCircle2, Copy, ExternalLink, Footprints, Glasses, Hand, HardHat, Search, Send, Shield, ShieldCheck } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -107,13 +107,11 @@ export default function NovaEntrega() {
       if (error || !data) { toast.error(`Erro ao registrar ${epi.nome_equipamento}`); continue; }
       const PUBLIC_BASE_URL = "https://aisafeguard.lovable.app";
       const linkAssinatura = `${PUBLIC_BASE_URL}/assinar/${data.id}`;
-      const linkPortal = `${PUBLIC_BASE_URL}/portal/login?next=${encodeURIComponent("/portal/epis")}`;
       results.push({ epiNome: epi.nome_equipamento, link: linkAssinatura });
-      await triggerWebhook({ entrega_id: data.id, nome_funcionario: selectedFunc.nome, telefone_whatsapp: selectedFunc.telefone_whatsapp || "", nome_epi: epi.nome_equipamento, link_assinatura: linkPortal });
     }
     setGeradas(results);
     setLoading(false);
-    if (results.length > 0) toast.success(`${results.length} entrega(s) registrada(s)!`);
+    if (results.length > 0) toast.success("Entrega registrada e disponibilizada no portal.");
   };
 
   const reset = () => { setGeradas([]); setFuncId(""); setObra(""); setSelectedEpis(new Set()); };
@@ -121,7 +119,7 @@ export default function NovaEntrega() {
   return (
     <div className="mx-auto max-w-[1180px] space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div><p className="app-eyebrow">Operação de EPI</p><h1 className="mt-1 text-[27px] font-bold tracking-tight text-foreground">Nova entrega</h1><p className="mt-2 text-sm text-muted-foreground">Registre os equipamentos e envie a assinatura digital.</p></div>
+        <div><p className="app-eyebrow">Operação de EPI</p><h1 className="mt-1 text-[27px] font-bold tracking-tight text-foreground">Nova entrega</h1><p className="mt-2 text-sm text-muted-foreground">Registre os equipamentos e disponibilize a assinatura no portal do funcionário.</p></div>
         <div className="rounded-lg border border-primary-100 bg-card px-3 py-2 text-xs font-semibold text-primary-500 shadow-card">Fluxo guiado · 3 etapas</div>
       </div>
 
@@ -147,7 +145,7 @@ export default function NovaEntrega() {
               <div className="flex flex-col gap-3 border-t border-border/80 bg-muted/20 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-bold text-foreground">{selectedEpis.size} EPI{selectedEpis.size === 1 ? "" : "s"} selecionado{selectedEpis.size === 1 ? "" : "s"}</p><p className="mt-1 text-[11px] text-muted-foreground">{selectedFunc ? selectedFunc.nome : "Funcionário não selecionado"} · {obra || "Obra não selecionada"}</p></div><button type="button" onClick={handleSubmit} disabled={loading || !funcId || !obra || selectedEpis.size === 0} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary-500 px-4 text-xs font-bold text-white shadow-sm transition-all hover:bg-primary-600 hover:shadow-md disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"><Send className="h-3.5 w-3.5" strokeWidth={1.8} />{loading ? "Gerando..." : `Revisar entrega${selectedEpis.size > 0 ? ` (${selectedEpis.size})` : ""}`}</button></div>
             </>
           ) : (
-            <div className="p-6 sm:p-8"><div className="flex flex-col items-center text-center"><div className="flex h-14 w-14 items-center justify-center rounded-xl bg-success/10 text-success"><CheckCircle2 className="h-7 w-7" strokeWidth={1.8} /></div><p className="app-eyebrow mt-5">Registro concluído</p><h2 className="mt-1 text-2xl font-bold text-foreground">Entregas geradas</h2><p className="mt-2 text-sm text-muted-foreground">{geradas.length} link{geradas.length === 1 ? "" : "s"} de assinatura pronto{geradas.length === 1 ? "" : "s"} para enviar.</p></div><div className="mt-7 space-y-2">{geradas.map((g, i) => <div key={i} className="flex items-center gap-3 rounded-lg border border-border/80 bg-muted/20 p-3"><div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary-50 text-primary-500"><ShieldCheck className="h-4 w-4" /></div><div className="min-w-0 flex-1"><p className="truncate text-xs font-bold text-foreground">{g.epiNome}</p><p className="truncate font-mono text-[10px] text-muted-foreground">{g.link}</p></div><button type="button" onClick={() => { navigator.clipboard.writeText(g.link); toast.success("Link copiado!"); }} className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-card hover:text-primary" title="Copiar link"><Copy className="h-4 w-4" /></button><a href={g.link} target="_blank" rel="noopener noreferrer" className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-card hover:text-primary" title="Abrir link"><ExternalLink className="h-4 w-4" /></a></div>)}</div><button type="button" onClick={reset} className="mt-7 h-10 w-full rounded-lg bg-primary-500 text-xs font-bold text-white shadow-sm transition-colors hover:bg-primary-600">Registrar nova entrega</button></div>
+            <div className="p-6 sm:p-8"><div className="flex flex-col items-center text-center"><div className="flex h-14 w-14 items-center justify-center rounded-xl bg-success/10 text-success"><CheckCircle2 className="h-7 w-7" strokeWidth={1.8} /></div><p className="app-eyebrow mt-5">Registro concluído</p><h2 className="mt-1 text-2xl font-bold text-foreground">Entrega registrada</h2><p className="mt-2 text-sm text-muted-foreground">O EPI foi disponibilizado no portal do funcionário e está aguardando assinatura.</p></div><div className="mt-7 space-y-2">{geradas.map((g, i) => <div key={i} className="flex items-center gap-3 rounded-lg border border-border/80 bg-muted/20 p-3"><div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary-50 text-primary-500"><ShieldCheck className="h-4 w-4" /></div><div className="min-w-0 flex-1"><p className="truncate text-xs font-bold text-foreground">{g.epiNome}</p><p className="truncate font-mono text-[10px] text-muted-foreground">{g.link}</p></div><button type="button" onClick={() => { navigator.clipboard.writeText(g.link); toast.success("Link copiado!"); }} className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-card hover:text-primary" title="Copiar link de assinatura"><Copy className="h-4 w-4" /></button><a href={g.link} target="_blank" rel="noopener noreferrer" className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-card hover:text-primary" title="Abrir link"><ExternalLink className="h-4 w-4" /></a></div>)}</div><button type="button" onClick={reset} className="mt-7 h-10 w-full rounded-lg bg-primary-500 text-xs font-bold text-white shadow-sm transition-colors hover:bg-primary-600">Registrar nova entrega</button></div>
           )}
         </div>
       </div>
