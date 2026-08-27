@@ -547,23 +547,23 @@ const slides: { title: string; render: () => JSX.Element }[] = [
     render: () => (
       <Frame>
         <Kicker>Mercado e modelo</Kicker>
-        <Title>Receita recorrente por contrato</Title>
+        <Title>Receita recorrente focada em Pro</Title>
         <div className="mt-6" style={{ fontSize: 26, color: "rgba(255,255,255,0.55)" }}>
           Planos do site: Padrão R$ 149/mês · Construtora Pro R$ 349/mês · Enterprise sob consulta
         </div>
         <div className="mt-10 grid grid-cols-3 gap-8">
-          <Stat value="R$ 249" label="ticket médio mensal (mix Padrão + Pro)" />
-          <Stat value="R$ 3.500" label="meta de receita recorrente em até 6 meses" accent={BLUE} />
-          <Stat value="14" label="clientes ativos para bater a meta" />
+          <Stat value="R$ 349" label="ticket médio mensal (foco em Pro)" />
+          <Stat value="R$ 10k" label="meta de receita recorrente em até 6 meses" accent={BLUE} />
+          <Stat value="29" label="clientes Pro ativos para bater a meta" />
         </div>
 
         <div className="mt-12">
           <Bullets
             items={[
-              "Break-even da infra (R$ 78,73/mês) com o 1º cliente Padrão de R$ 149/mês",
+              "Break-even da infra (R$ 78,73/mês) no 1º cliente Pro de R$ 349/mês",
+              "Um cliente Pro paga toda a infra do ano (R$ 944,72) em menos de 3 meses",
               "Público: construtoras, indústrias e empresas de serviço com obra em campo",
               "Dor paga: multa de NR e passivo trabalhista custam muito mais que a mensalidade",
-              "Expansão natural: começa no Padrão e sobe para Pro com ponto, RH e admissão",
             ]}
             accent={BLUE}
           />
@@ -577,7 +577,7 @@ const slides: { title: string; render: () => JSX.Element }[] = [
     render: () => (
       <Frame>
         <Kicker>O papel do sócio</Kicker>
-        <Title>A infra é o que falta para vender</Title>
+        <Title>A infra é o que falta para escalar</Title>
         <div className="mt-6" style={{ fontSize: 26, color: "rgba(255,255,255,0.55)" }}>
           Custo real de infraestrutura para 1 ano
         </div>
@@ -592,10 +592,10 @@ const slides: { title: string; render: () => JSX.Element }[] = [
           </div>
           <div className="flex flex-col gap-6">
             <Card icon={Smartphone} title="Total 1 ano: R$ 944,72" accent={BLUE}>
-              Menos de R$ 79/mês. Só precisamos vender — a plataforma e as automações já estão prontas.
+              Menos de R$ 79/mês. Com foco em Pro, 1 cliente cobre a infra do ano em menos de 3 meses.
             </Card>
-            <Card icon={TrendingUp} title="Break-even no 1º cliente" accent={BLUE}>
-              Um contrato Padrão de R$ 149/mês já cobre o custo mensal (R$ 78,73). Um contrato Pro de R$ 349/mês paga a infra do ano inteiro em menos de 3 meses.
+            <Card icon={TrendingUp} title="Break-even no 1º cliente Pro" accent={BLUE}>
+              Um contrato Pro de R$ 349/mês paga a infra mensal (R$ 78,73) sozinho. O ano inteiro de VPS e domínio é quitado com apenas 3 meses de um cliente Pro.
             </Card>
 
           </div>
@@ -620,9 +620,9 @@ const slides: { title: string; render: () => JSX.Element }[] = [
         <div className="mt-12">
           <Bullets
             items={[
-              "30 dias: automações na VPS e sua empresa usando como piloto",
-              "60 dias: 3 clientes pagantes e cobrança recorrente ativa",
-              "90 dias: 10 clientes e divisão societária formalizada",
+              "30 dias: automações na VPS, sua empresa como piloto e 2 clientes pagantes",
+              "90 dias: 10 clientes ativos e R$ 3.500 em MRR",
+              "180 dias: 29 clientes focados em Pro e R$ 10.000 em MRR",
             ]}
           />
         </div>
