@@ -725,7 +725,7 @@ export default function LandingPage() {
               </div>
             </Orbit>
 
-            <Orbit className="-right-[170px] top-1/2 -translate-y-1/2" delay={0.48} reduced={reduced}>
+            <Orbit className="-left-[190px] top-1/2 -translate-y-1/2" delay={0.48} reduced={reduced}>
               <div className="flex items-center gap-2">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: `${T.warning}1a`, color: T.warning }}>
                   <UserCheck className="h-3.5 w-3.5" />
