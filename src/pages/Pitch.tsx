@@ -620,9 +620,9 @@ const slides: { title: string; render: () => JSX.Element }[] = [
         <div className="mt-12">
           <Bullets
             items={[
-              "30 dias: automações na VPS e sua empresa usando como piloto",
-              "60 dias: 3 clientes pagantes e cobrança recorrente ativa",
-              "90 dias: 10 clientes e divisão societária formalizada",
+              "30 dias: automações na VPS, sua empresa como piloto e 2 clientes pagantes",
+              "90 dias: 10 clientes ativos e R$ 3.500 em MRR",
+              "180 dias: 29 clientes focados em Pro e R$ 10.000 em MRR",
             ]}
           />
         </div>
