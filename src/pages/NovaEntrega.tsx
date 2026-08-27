@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { triggerWebhook } from "@/lib/webhook";
+
 import { toast } from "sonner";
 import { Check, CheckCircle2, Copy, ExternalLink, Footprints, Glasses, Hand, HardHat, Search, Send, Shield, ShieldCheck } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
