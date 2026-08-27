@@ -117,7 +117,7 @@ function Orbit({
 }) {
   return (
     <motion.div
-      className={`absolute hidden rounded-2xl bg-white p-3 xl:block ${className ?? ""}`}
+      className={`absolute hidden rounded-2xl bg-white p-3 2xl:block ${className ?? ""}`}
       style={{ boxShadow: T.shadowFloat }}
       initial={{ opacity: 0, y: 14, scale: 0.96 }}
       animate={
@@ -355,7 +355,7 @@ export default function SobrePortal() {
             <motion.div variants={fadeUp} className="relative flex justify-center">
               <PhoneMockup />
 
-              <Orbit className="-left-[190px] top-6 w-[186px]" delay={0} reduced={reduced}>
+              <Orbit className="-left-[150px] top-4 w-[180px]" delay={0} reduced={reduced}>
                 <div className="flex items-center gap-2">
                   <span className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: `${T.success}1a`, color: T.success }}>
                     <PenLine className="h-3.5 w-3.5" />
@@ -367,7 +367,7 @@ export default function SobrePortal() {
                 </div>
               </Orbit>
 
-              <Orbit className="-right-[180px] top-16 w-[178px]" delay={0.14} reduced={reduced}>
+              <Orbit className="-right-[130px] top-20 w-[176px]" delay={0.14} reduced={reduced}>
                 <div className="flex items-center gap-2">
                   <span className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: T.primarySoft, color: T.primary }}>
                     <HardHat className="h-3.5 w-3.5" />
@@ -379,7 +379,7 @@ export default function SobrePortal() {
                 </div>
               </Orbit>
 
-              <Orbit className="-left-[176px] bottom-12 w-[174px]" delay={0.28} reduced={reduced}>
+              <Orbit className="-left-[140px] bottom-10 w-[172px]" delay={0.28} reduced={reduced}>
                 <div className="flex items-center gap-2">
                   <span className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: `${T.warning}1a`, color: T.warning }}>
                     <Award className="h-3.5 w-3.5" />
@@ -391,7 +391,7 @@ export default function SobrePortal() {
                 </div>
               </Orbit>
 
-              <Orbit className="-right-[168px] bottom-6 w-[166px]" delay={0.42} reduced={reduced}>
+              <Orbit className="-right-[120px] bottom-4 w-[168px]" delay={0.42} reduced={reduced}>
                 <div className="flex items-center gap-2">
                   <span className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: T.primarySoft, color: T.primary }}>
                     <Fingerprint className="h-3.5 w-3.5" />
