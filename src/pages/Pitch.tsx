@@ -553,17 +553,17 @@ const slides: { title: string; render: () => JSX.Element }[] = [
         </div>
         <div className="mt-10 grid grid-cols-3 gap-8">
           <Stat value="R$ 349" label="ticket médio mensal (foco em Pro)" />
-          <Stat value="R$ 10k" label="meta de receita recorrente em até 6 meses" accent={BLUE} />
-          <Stat value="29" label="clientes Pro ativos para bater a meta" />
+          <Stat value="1" label="cliente Pro para break-even da infra" accent={BLUE} />
+          <Stat value="R$ 944,72" label="infraestrutura do ano inteiro paga em < 3 meses" />
         </div>
 
         <div className="mt-12">
           <Bullets
             items={[
-              "Break-even da infra (R$ 78,73/mês) no 1º cliente Pro de R$ 349/mês",
-              "Um cliente Pro paga toda a infra do ano (R$ 944,72) em menos de 3 meses",
+              "Custo mensal da infra: R$ 78,73 — coberto por 1 contrato Pro de R$ 349/mês",
               "Público: construtoras, indústrias e empresas de serviço com obra em campo",
               "Dor paga: multa de NR e passivo trabalhista custam muito mais que a mensalidade",
+              "Começamos no Pro: ponto, RH, EPI e admissão já inclusos no pacote",
             ]}
             accent={BLUE}
           />
@@ -621,8 +621,8 @@ const slides: { title: string; render: () => JSX.Element }[] = [
           <Bullets
             items={[
               "30 dias: automações na VPS, sua empresa como piloto e 2 clientes pagantes",
-              "90 dias: 10 clientes ativos e R$ 3.500 em MRR",
-              "180 dias: 29 clientes focados em Pro e R$ 10.000 em MRR",
+              "90 dias: operação validada, 5-10 clientes ativos e recorrência estável",
+              "180 dias: base de clientes Pro escalando — foco em reter e fazer upsell",
             ]}
           />
         </div>
