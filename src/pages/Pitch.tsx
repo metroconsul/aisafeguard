@@ -595,8 +595,9 @@ const slides: { title: string; render: () => JSX.Element }[] = [
               Menos de R$ 79/mês. Só precisamos vender — a plataforma e as automações já estão prontas.
             </Card>
             <Card icon={TrendingUp} title="Break-even no 1º cliente" accent={BLUE}>
-              Um contrato de R$ 2.500/mês cobre a infra anual em pouco mais de 3 meses.
+              Um contrato Padrão de R$ 149/mês já cobre o custo mensal (R$ 78,73). Um contrato Pro de R$ 349/mês paga a infra do ano inteiro em menos de 3 meses.
             </Card>
+
           </div>
         </div>
       </Frame>
