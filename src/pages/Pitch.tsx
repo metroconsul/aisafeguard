@@ -577,25 +577,24 @@ const slides: { title: string; render: () => JSX.Element }[] = [
         <Kicker>O papel do sócio</Kicker>
         <Title>A infra é o que falta para vender</Title>
         <div className="mt-6" style={{ fontSize: 26, color: "rgba(255,255,255,0.55)" }}>
-          Custo real de infraestrutura (Hostinger VPS KVM 2)
+          Custo real de infraestrutura para 1 ano
         </div>
         <div className="mt-10 grid grid-cols-[1fr_1fr] gap-14">
           <div className="flex flex-col gap-6">
-            <Card icon={Server} title="VPS KVM 2: R$ 43,99/mês">
-              Plano de 24 meses (R$ 1.055,76 à vista) com domínio grátis. Renovação a R$ 77,99/mês.
+            <Card icon={Server} title="VPS KVM 2: R$ 599,88/ano">
+              Plano de 24 meses — média de R$ 49,99/mês — roda n8n + WhatsApp 24/7 sem travar.
             </Card>
-            <Card icon={Smartphone} title="Backup diário: R$ 32,99/mês" accent={BLUE}>
-              Opcional recomendado pela Hostinger para as automações em produção.
+            <Card icon={CheckCircle2} title="Domínio + site avasafeguard.com: R$ 344,84/ano">
+              URL do site e e-mails profissionais para o primeiro ano.
             </Card>
           </div>
           <div className="flex flex-col gap-6">
-            <Card icon={CheckCircle2} title="Domínio: R$ 467,98/ano">
-              Também na Hostinger, cerca de R$ 39/mês. Infra total: ~R$ 116/mês.
+            <Card icon={Smartphone} title="Total 1 ano: R$ 944,72" accent={BLUE}>
+              Menos de R$ 79/mês. Só precisamos vender — a plataforma e as automações já estão prontas.
             </Card>
             <Card icon={TrendingUp} title="Break-even no 1º cliente" accent={BLUE}>
-              Um contrato de R$ 2.500/mês cobre a infra inteira mais de 20 vezes.
+              Um contrato de R$ 2.500/mês cobre a infra anual em pouco mais de 3 meses.
             </Card>
-
           </div>
         </div>
       </Frame>
