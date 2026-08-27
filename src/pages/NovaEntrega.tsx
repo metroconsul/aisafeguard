@@ -107,13 +107,11 @@ export default function NovaEntrega() {
       if (error || !data) { toast.error(`Erro ao registrar ${epi.nome_equipamento}`); continue; }
       const PUBLIC_BASE_URL = "https://aisafeguard.lovable.app";
       const linkAssinatura = `${PUBLIC_BASE_URL}/assinar/${data.id}`;
-      const linkPortal = `${PUBLIC_BASE_URL}/portal/login?next=${encodeURIComponent("/portal/epis")}`;
       results.push({ epiNome: epi.nome_equipamento, link: linkAssinatura });
-      await triggerWebhook({ entrega_id: data.id, nome_funcionario: selectedFunc.nome, telefone_whatsapp: selectedFunc.telefone_whatsapp || "", nome_epi: epi.nome_equipamento, link_assinatura: linkPortal });
     }
     setGeradas(results);
     setLoading(false);
-    if (results.length > 0) toast.success(`${results.length} entrega(s) registrada(s)!`);
+    if (results.length > 0) toast.success("Entrega registrada e disponibilizada no portal.");
   };
 
   const reset = () => { setGeradas([]); setFuncId(""); setObra(""); setSelectedEpis(new Set()); };
