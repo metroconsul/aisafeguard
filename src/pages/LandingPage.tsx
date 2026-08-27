@@ -725,7 +725,7 @@ export default function LandingPage() {
               </div>
             </Orbit>
 
-            <Orbit className="-left-[190px] top-1/2 -translate-y-1/2" delay={0.48} reduced={reduced}>
+            <Orbit className="-right-[190px] top-1/2 -translate-y-1/2" delay={0.48} reduced={reduced}>
               <div className="flex items-center gap-2">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: `${T.warning}1a`, color: T.warning }}>
                   <UserCheck className="h-3.5 w-3.5" />
@@ -733,6 +733,7 @@ export default function LandingPage() {
                 <p className="text-[11px] font-bold" style={{ color: T.ink }}>Admissão em análise</p>
               </div>
             </Orbit>
+
           </div>
         </div>
       </section>
