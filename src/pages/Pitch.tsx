@@ -577,7 +577,7 @@ const slides: { title: string; render: () => JSX.Element }[] = [
     render: () => (
       <Frame>
         <Kicker>O papel do sócio</Kicker>
-        <Title>A infra é o que falta para vender</Title>
+        <Title>A infra é o que falta para escalar</Title>
         <div className="mt-6" style={{ fontSize: 26, color: "rgba(255,255,255,0.55)" }}>
           Custo real de infraestrutura para 1 ano
         </div>
@@ -592,10 +592,10 @@ const slides: { title: string; render: () => JSX.Element }[] = [
           </div>
           <div className="flex flex-col gap-6">
             <Card icon={Smartphone} title="Total 1 ano: R$ 944,72" accent={BLUE}>
-              Menos de R$ 79/mês. Só precisamos vender — a plataforma e as automações já estão prontas.
+              Menos de R$ 79/mês. Com foco em Pro, 1 cliente cobre a infra do ano em menos de 3 meses.
             </Card>
-            <Card icon={TrendingUp} title="Break-even no 1º cliente" accent={BLUE}>
-              Um contrato Padrão de R$ 149/mês já cobre o custo mensal (R$ 78,73). Um contrato Pro de R$ 349/mês paga a infra do ano inteiro em menos de 3 meses.
+            <Card icon={TrendingUp} title="Break-even no 1º cliente Pro" accent={BLUE}>
+              Um contrato Pro de R$ 349/mês paga a infra mensal (R$ 78,73) sozinho. O ano inteiro de VPS e domínio é quitado com apenas 3 meses de um cliente Pro.
             </Card>
 
           </div>
