@@ -10,7 +10,6 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/app/epis",
     "/app/treinamentos",
     "/app/setores",
-    "/app/integracoes",
     "/app/configuracoes",
     "/app/equipe",
     "/app/seguranca",

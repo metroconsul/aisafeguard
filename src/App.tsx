@@ -15,7 +15,6 @@ import NovaEntrega from "@/pages/NovaEntrega";
 import Funcionarios from "@/pages/Funcionarios";
 import PerfilFuncionario from "@/pages/PerfilFuncionario";
 import Epis from "@/pages/Epis";
-import Integracoes from "@/pages/Integracoes";
 import Setores from "@/pages/Setores";
 import Configuracoes from "@/pages/Configuracoes";
 import Seguranca from "@/pages/Seguranca";
@@ -85,7 +84,6 @@ const App = () => (
                         <Route path="/funcionarios" element={<Funcionarios />} />
                         <Route path="/funcionarios/:id" element={<PerfilFuncionario />} />
                         <Route path="/epis" element={<Epis />} />
-                        <Route path="/integracoes" element={<Integracoes />} />
                         <Route path="/setores" element={<Setores />} />
                         <Route path="/configuracoes" element={<Configuracoes />} />
                         <Route path="/equipe" element={<GestaoEquipe />} />
