@@ -427,7 +427,7 @@ function CanaisCarousel() {
             <AtivoIcon className="h-5 w-5" />
           </div>
           <h3 className="mt-3 text-lg font-bold" style={{ color: T.ink }}>{ativo.name}</h3>
-          <p className="text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: T.accent }}>{ativo.categoria}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: T.primary }}>{ativo.categoria}</p>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed" style={{ color: T.muted }}>{ativo.desc}</p>
         </div>
 
@@ -1052,7 +1052,7 @@ export default function LandingPage() {
               viewport={{ once: true, amount: 0.4 }}
               transition={{ duration: 0.8, ease: easeOut }}
               className="pointer-events-none -mb-6 mt-6 select-none whitespace-nowrap text-center font-extrabold leading-none md:-mb-10"
-              style={{ color: T.accent, opacity: 0.28, fontSize: "clamp(4rem, 15vw, 11rem)", letterSpacing: "-0.05em" }}
+              style={{ color: T.accent, opacity: 0.18, fontSize: "clamp(4rem, 15vw, 11rem)", letterSpacing: "-0.05em" }}
             >
               Ava Safeguard
             </motion.p>
