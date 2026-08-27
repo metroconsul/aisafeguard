@@ -817,7 +817,7 @@ export default function LandingPage() {
           {/* Cofre digital */}
           <motion.div
             variants={fadeUp}
-            className="bg-white p-8 lg:col-span-3"
+            className="min-w-0 bg-white p-6 sm:p-8 lg:col-span-3"
             style={{ borderRadius: T.radiusPanel, boxShadow: T.shadowSoft }}
           >
             <h3 className="text-xl font-bold" style={{ color: T.ink }}>Cofre digital com assinatura auditável</h3>
@@ -830,9 +830,9 @@ export default function LandingPage() {
                 { nome: "Holerite Abril/2026", estado: "Aguardando", cor: T.warning },
                 { nome: "Cartão de ponto — Março/2026", estado: "Assinado", cor: T.success },
               ].map((doc) => (
-                <div key={doc.nome} className="flex items-center gap-3 p-3" style={{ background: T.bg, borderRadius: "14px" }}>
+                <div key={doc.nome} className="flex min-w-0 items-center gap-3 p-3" style={{ background: T.bg, borderRadius: "14px" }}>
                   <FileText className="h-4 w-4 flex-shrink-0" style={{ color: T.primary }} />
-                  <span className="truncate text-xs font-medium" style={{ color: T.ink }}>{doc.nome}</span>
+                  <span className="min-w-0 flex-1 truncate text-xs font-medium" style={{ color: T.ink }}>{doc.nome}</span>
                   <span className="ml-auto flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold" style={{ background: `${doc.cor}14`, color: doc.cor }}>
                     <span className="h-1.5 w-1.5 rounded-full" style={{ background: doc.cor }} />
                     {doc.estado}
@@ -845,7 +845,7 @@ export default function LandingPage() {
           {/* Admissão em 3 passos */}
           <motion.div
             variants={fadeUp}
-            className="bg-white p-8 lg:col-span-2"
+            className="min-w-0 bg-white p-6 sm:p-8 lg:col-span-2"
             style={{ borderRadius: T.radiusPanel, boxShadow: T.shadowSoft }}
           >
             <h3 className="text-xl font-bold" style={{ color: T.ink }}>Admissão digital em 3 passos</h3>
