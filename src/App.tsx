@@ -87,6 +87,7 @@ const App = () => (
                 <Route path="holerites" element={<PortalHolerites />} />
                 <Route path="pontos" element={<PortalPontos />} />
                 <Route path="documentos" element={<PortalDocumentos />} />
+                <Route path="restaurant/escala" element={<PortalEscala />} />
               </Route>
 
               {/* Protected admin routes */}
