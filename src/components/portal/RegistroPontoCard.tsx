@@ -4,6 +4,8 @@ import { MapPin, Loader2, CheckCircle2, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
+import { mensagemBloqueioPonto } from "@/lib/epi-compliance";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
