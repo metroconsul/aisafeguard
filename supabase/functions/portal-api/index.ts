@@ -268,6 +268,67 @@ Deno.serve(async (req) => {
         return jsonResponse({ url: data.signedUrl });
       }
 
+      // ————— Produto de operação de turnos (isolado do Safeguard) —————
+      case "get_minha_escala": {
+        const inicio = String(body.inicio ?? "");
+        const fim = String(body.fim ?? "");
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(inicio) || !/^\d{4}-\d{2}-\d{2}$/.test(fim)) {
+          return jsonResponse({ error: "inicio e fim (YYYY-MM-DD) obrigatórios" }, 400);
+        }
+
+        const { data: enabled } = await supabase.rpc("empresa_tem_produto", {
+          _empresa_id: session.empresa_id,
+          _product_key: "restaurant_operations",
+        });
+        if (!enabled) return jsonResponse({ enabled: false, escalas: [], settings: null });
+
+        const { data, error } = await supabase
+          .from("restaurant_escalas")
+          .select("id, data, status, folga, observacao, restaurant_escala_blocos(id, ordem, inicio_previsto, fim_previsto, turno_nome_snapshot)")
+          .eq("funcionario_id", session.funcionario_id)
+          .eq("empresa_id", session.empresa_id)
+          .eq("status", "publicada")
+          .gte("data", inicio)
+          .lte("data", fim)
+          .order("data", { ascending: true });
+        if (error) return jsonResponse({ error: error.message }, 500);
+
+        const { data: settings } = await supabase
+          .from("restaurant_product_settings")
+          .select("portal_brand_name, brand_name, primary_color, accent_color, exige_ciencia_escala")
+          .eq("empresa_id", session.empresa_id)
+          .maybeSingle();
+
+        return jsonResponse({ enabled: true, escalas: data ?? [], settings: settings ?? null });
+      }
+
+      case "registrar_ciencia_escala": {
+        const inicio = String(body.periodo_inicio ?? "");
+        const fim = String(body.periodo_fim ?? "");
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(inicio) || !/^\d{4}-\d{2}-\d{2}$/.test(fim)) {
+          return jsonResponse({ error: "periodo_inicio e periodo_fim obrigatórios" }, 400);
+        }
+        const { data: enabled } = await supabase.rpc("empresa_tem_produto", {
+          _empresa_id: session.empresa_id,
+          _product_key: "restaurant_operations",
+        });
+        if (!enabled) return jsonResponse({ error: "Produto não habilitado" }, 403);
+
+        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+        const { error } = await supabase.from("restaurant_escala_ciencia").insert({
+          empresa_id: session.empresa_id,
+          funcionario_id: session.funcionario_id,
+          periodo_inicio: inicio,
+          periodo_fim: fim,
+          versao: 1,
+          visualizado_em: new Date().toISOString(),
+          ip_address: ip,
+          user_agent: req.headers.get("user-agent") ?? null,
+        });
+        if (error) return jsonResponse({ error: error.message }, 500);
+        return jsonResponse({ success: true });
+      }
+
       case "logout": {
         await supabase.from("portal_sessions").delete().eq("token", session.token);
         return jsonResponse({ success: true });
