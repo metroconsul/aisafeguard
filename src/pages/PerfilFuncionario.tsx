@@ -313,13 +313,15 @@ export default function PerfilFuncionario() {
       </div>
 
       {/* Kit de EPI do cargo */}
-      {funcionario && (
+      {func && (
         <KitEpiSection
-          funcionarioId={funcionario.id}
-          cargoNome={funcionario.cargo}
+          funcionarioId={func.id}
+          cargoNome={func.cargo}
           canRegister={perfil?.role !== "rh"}
         />
       )}
+
+
 
       {/* Tabs */}
 
