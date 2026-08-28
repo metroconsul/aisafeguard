@@ -93,6 +93,51 @@ export type Database = {
           },
         ]
       }
+      cargos: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          empresa_id: string
+          id: string
+          nome: string
+          setor_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          empresa_id: string
+          id?: string
+          nome: string
+          setor_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          empresa_id?: string
+          id?: string
+          nome?: string
+          setor_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cargos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cargos_setor_id_fkey"
+            columns: ["setor_id"]
+            isOneToOne: false
+            referencedRelation: "setores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           aso_type: string | null
@@ -290,6 +335,8 @@ export type Database = {
       }
       entregas: {
         Row: {
+          cancelado_em: string | null
+          cargo_snapshot: string | null
           created_at: string | null
           data_entrega: string | null
           data_vencimento: string
@@ -299,9 +346,18 @@ export type Database = {
           funcionario_id: string
           id: string
           imagem_assinatura: string | null
+          kit_id: string | null
+          kit_item_id: string | null
+          origem: string
+          quantidade: number
+          registrado_por: string | null
+          setor_id_snapshot: string | null
+          setor_snapshot: string | null
           status_assinatura: string | null
         }
         Insert: {
+          cancelado_em?: string | null
+          cargo_snapshot?: string | null
           created_at?: string | null
           data_entrega?: string | null
           data_vencimento: string
@@ -311,9 +367,18 @@ export type Database = {
           funcionario_id: string
           id?: string
           imagem_assinatura?: string | null
+          kit_id?: string | null
+          kit_item_id?: string | null
+          origem?: string
+          quantidade?: number
+          registrado_por?: string | null
+          setor_id_snapshot?: string | null
+          setor_snapshot?: string | null
           status_assinatura?: string | null
         }
         Update: {
+          cancelado_em?: string | null
+          cargo_snapshot?: string | null
           created_at?: string | null
           data_entrega?: string | null
           data_vencimento?: string
@@ -323,6 +388,13 @@ export type Database = {
           funcionario_id?: string
           id?: string
           imagem_assinatura?: string | null
+          kit_id?: string | null
+          kit_item_id?: string | null
+          origem?: string
+          quantidade?: number
+          registrado_por?: string | null
+          setor_id_snapshot?: string | null
+          setor_snapshot?: string | null
           status_assinatura?: string | null
         }
         Relationships: [
@@ -345,6 +417,262 @@ export type Database = {
             columns: ["funcionario_id"]
             isOneToOne: false
             referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entregas_kit_fk"
+            columns: ["kit_id"]
+            isOneToOne: false
+            referencedRelation: "epi_kits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entregas_kit_item_fk"
+            columns: ["kit_item_id"]
+            isOneToOne: false
+            referencedRelation: "epi_kit_itens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      epi_audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          empresa_id: string
+          entity: string
+          entity_id: string | null
+          id: string
+          new_value: Json | null
+          old_value: Json | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          empresa_id: string
+          entity: string
+          entity_id?: string | null
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          empresa_id?: string
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "epi_audit_log_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      epi_excecoes_ponto: {
+        Row: {
+          aprovado_em: string
+          aprovado_por: string
+          created_at: string
+          data_referencia: string
+          empresa_id: string
+          funcionario_id: string
+          id: string
+          motivo: string
+          observacao: string | null
+          turno: string | null
+        }
+        Insert: {
+          aprovado_em?: string
+          aprovado_por: string
+          created_at?: string
+          data_referencia: string
+          empresa_id: string
+          funcionario_id: string
+          id?: string
+          motivo: string
+          observacao?: string | null
+          turno?: string | null
+        }
+        Update: {
+          aprovado_em?: string
+          aprovado_por?: string
+          created_at?: string
+          data_referencia?: string
+          empresa_id?: string
+          funcionario_id?: string
+          id?: string
+          motivo?: string
+          observacao?: string | null
+          turno?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "epi_excecoes_ponto_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epi_excecoes_ponto_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      epi_kit_itens: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          empresa_id: string
+          epi_id: string
+          id: string
+          kit_id: string
+          obrigatorio: boolean
+          quantidade_necessaria: number
+          updated_at: string
+          validade_unidade: string
+          validade_valor: number
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          empresa_id: string
+          epi_id: string
+          id?: string
+          kit_id: string
+          obrigatorio?: boolean
+          quantidade_necessaria?: number
+          updated_at?: string
+          validade_unidade?: string
+          validade_valor: number
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          empresa_id?: string
+          epi_id?: string
+          id?: string
+          kit_id?: string
+          obrigatorio?: boolean
+          quantidade_necessaria?: number
+          updated_at?: string
+          validade_unidade?: string
+          validade_valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "epi_kit_itens_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epi_kit_itens_epi_id_fkey"
+            columns: ["epi_id"]
+            isOneToOne: false
+            referencedRelation: "epis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epi_kit_itens_kit_id_fkey"
+            columns: ["kit_id"]
+            isOneToOne: false
+            referencedRelation: "epi_kits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      epi_kits: {
+        Row: {
+          ativo: boolean
+          cargo_id: string
+          created_at: string
+          empresa_id: string
+          id: string
+          nome: string
+          updated_at: string
+          versao: number
+        }
+        Insert: {
+          ativo?: boolean
+          cargo_id: string
+          created_at?: string
+          empresa_id: string
+          id?: string
+          nome: string
+          updated_at?: string
+          versao?: number
+        }
+        Update: {
+          ativo?: boolean
+          cargo_id?: string
+          created_at?: string
+          empresa_id?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+          versao?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "epi_kits_cargo_id_fkey"
+            columns: ["cargo_id"]
+            isOneToOne: false
+            referencedRelation: "cargos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epi_kits_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      epi_policies: {
+        Row: {
+          aviso_antecedencia_dias: number
+          created_at: string
+          empresa_id: string
+          modo: string
+          updated_at: string
+        }
+        Insert: {
+          aviso_antecedencia_dias?: number
+          created_at?: string
+          empresa_id: string
+          modo?: string
+          updated_at?: string
+        }
+        Update: {
+          aviso_antecedencia_dias?: number
+          created_at?: string
+          empresa_id?: string
+          modo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "epi_policies_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: true
+            referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
         ]
@@ -417,11 +745,112 @@ export type Database = {
           },
         ]
       }
+      funcionario_epi_requisitos: {
+        Row: {
+          created_at: string
+          empresa_id: string
+          epi_id: string
+          funcionario_id: string
+          id: string
+          kit_id: string
+          kit_item_id: string
+          kit_versao: number
+          obrigatorio: boolean
+          proxima_vencimento: string | null
+          quantidade_entregue: number
+          quantidade_necessaria: number
+          resolvido_em: string | null
+          status: string
+          ultima_entrega_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          empresa_id: string
+          epi_id: string
+          funcionario_id: string
+          id?: string
+          kit_id: string
+          kit_item_id: string
+          kit_versao?: number
+          obrigatorio?: boolean
+          proxima_vencimento?: string | null
+          quantidade_entregue?: number
+          quantidade_necessaria?: number
+          resolvido_em?: string | null
+          status?: string
+          ultima_entrega_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          empresa_id?: string
+          epi_id?: string
+          funcionario_id?: string
+          id?: string
+          kit_id?: string
+          kit_item_id?: string
+          kit_versao?: number
+          obrigatorio?: boolean
+          proxima_vencimento?: string | null
+          quantidade_entregue?: number
+          quantidade_necessaria?: number
+          resolvido_em?: string | null
+          status?: string
+          ultima_entrega_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funcionario_epi_requisitos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funcionario_epi_requisitos_epi_id_fkey"
+            columns: ["epi_id"]
+            isOneToOne: false
+            referencedRelation: "epis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funcionario_epi_requisitos_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funcionario_epi_requisitos_kit_id_fkey"
+            columns: ["kit_id"]
+            isOneToOne: false
+            referencedRelation: "epi_kits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funcionario_epi_requisitos_kit_item_id_fkey"
+            columns: ["kit_item_id"]
+            isOneToOne: false
+            referencedRelation: "epi_kit_itens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funcionario_epi_requisitos_ultima_entrega_id_fkey"
+            columns: ["ultima_entrega_id"]
+            isOneToOne: false
+            referencedRelation: "entregas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funcionarios: {
         Row: {
           access_pin: string | null
           admission_stage: string | null
           cargo: string
+          cargo_id: string | null
           cpf: string | null
           created_at: string | null
           empresa_id: string | null
@@ -437,6 +866,7 @@ export type Database = {
           access_pin?: string | null
           admission_stage?: string | null
           cargo: string
+          cargo_id?: string | null
           cpf?: string | null
           created_at?: string | null
           empresa_id?: string | null
@@ -452,6 +882,7 @@ export type Database = {
           access_pin?: string | null
           admission_stage?: string | null
           cargo?: string
+          cargo_id?: string | null
           cpf?: string | null
           created_at?: string | null
           empresa_id?: string | null
@@ -464,6 +895,13 @@ export type Database = {
           telefone_whatsapp?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "funcionarios_cargo_id_fkey"
+            columns: ["cargo_id"]
+            isOneToOne: false
+            referencedRelation: "cargos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "funcionarios_empresa_id_fkey"
             columns: ["empresa_id"]
@@ -880,6 +1318,29 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      epi_calc_vencimento: {
+        Args: { _base: string; _unidade: string; _valor: number }
+        Returns: string
+      }
+      epi_consumo_por_setor: {
+        Args: { _bucket?: string; _fim: string; _inicio: string }
+        Returns: {
+          eventos: number
+          periodo: string
+          setor: string
+          total: number
+        }[]
+      }
+      epi_consumo_ranking: {
+        Args: { _fim: string; _inicio: string; _setor?: string }
+        Returns: {
+          epi_id: string
+          eventos: number
+          nome_equipamento: string
+          numero_ca: string
+          total: number
+        }[]
+      }
       get_user_empresa_id: { Args: never; Returns: string }
       get_user_role: { Args: { _user_id: string }; Returns: string }
       has_role: {
@@ -905,6 +1366,14 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      recalc_requisitos_funcionario: {
+        Args: { _funcionario_id: string }
+        Returns: undefined
+      }
+      sync_requisitos_funcionario: {
+        Args: { _funcionario_id: string }
+        Returns: undefined
       }
     }
     Enums: {
