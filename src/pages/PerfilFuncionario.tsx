@@ -11,6 +11,8 @@ import { format, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import UploadDocumentoModal from "@/components/UploadDocumentoModal";
 import UploadTreinamentoModal from "@/components/UploadTreinamentoModal";
+import { KitEpiSection } from "@/components/epi/KitEpiSection";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
