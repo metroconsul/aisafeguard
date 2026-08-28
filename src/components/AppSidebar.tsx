@@ -1,5 +1,8 @@
 import {
   LayoutDashboard,
+  Boxes,
+  BarChart3,
+
   PackagePlus,
   Users,
   HardHat,
