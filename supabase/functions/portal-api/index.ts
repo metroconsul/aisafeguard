@@ -165,11 +165,8 @@ Deno.serve(async (req) => {
             .eq("data_referencia", hoje)
             .maybeSingle();
           if (!excecao) {
-            return jsonResponse({
-              error: "epi_irregular_bloqueado",
-              blocked: true,
-              irregularidade,
-            }, 409);
+            // Status 200 intencional: o cliente do Portal precisa ler o payload do bloqueio.
+            return jsonResponse({ blocked: true, reason: "epi_irregular", irregularidade });
           }
         }
 
