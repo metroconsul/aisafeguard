@@ -309,6 +309,88 @@ export type Database = {
         }
         Relationships: []
       }
+      empresa_produto_audit: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          empresa_id: string
+          id: string
+          new_value: Json | null
+          old_value: Json | null
+          product_key: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          empresa_id: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          product_key: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          empresa_id?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          product_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "empresa_produto_audit_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      empresa_produtos: {
+        Row: {
+          ativado_por: string | null
+          brand_config: Json
+          created_at: string
+          empresa_id: string
+          enabled: boolean
+          id: string
+          product_key: string
+          updated_at: string
+        }
+        Insert: {
+          ativado_por?: string | null
+          brand_config?: Json
+          created_at?: string
+          empresa_id: string
+          enabled?: boolean
+          id?: string
+          product_key: string
+          updated_at?: string
+        }
+        Update: {
+          ativado_por?: string | null
+          brand_config?: Json
+          created_at?: string
+          empresa_id?: string
+          enabled?: boolean
+          id?: string
+          product_key?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "empresa_produtos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       empresas: {
         Row: {
           cnpj: string
@@ -1083,6 +1165,62 @@ export type Database = {
         }
         Relationships: []
       }
+      restaurant_product_settings: {
+        Row: {
+          accent_color: string
+          brand_logo_url: string | null
+          brand_name: string
+          carga_semanal_max_horas: number
+          created_at: string
+          empresa_id: string
+          exige_ciencia_escala: boolean
+          intervalo_minimo_horas: number
+          origem_regra: string
+          permite_troca_turno: boolean
+          portal_brand_name: string
+          primary_color: string
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string
+          brand_logo_url?: string | null
+          brand_name?: string
+          carga_semanal_max_horas?: number
+          created_at?: string
+          empresa_id: string
+          exige_ciencia_escala?: boolean
+          intervalo_minimo_horas?: number
+          origem_regra?: string
+          permite_troca_turno?: boolean
+          portal_brand_name?: string
+          primary_color?: string
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string
+          brand_logo_url?: string | null
+          brand_name?: string
+          carga_semanal_max_horas?: number
+          created_at?: string
+          empresa_id?: string
+          exige_ciencia_escala?: boolean
+          intervalo_minimo_horas?: number
+          origem_regra?: string
+          permite_troca_turno?: boolean
+          portal_brand_name?: string
+          primary_color?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_product_settings_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: true
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       setores: {
         Row: {
           created_at: string | null
@@ -1314,6 +1452,10 @@ export type Database = {
         Returns: boolean
       }
       email_queue_dispatch: { Args: never; Returns: undefined }
+      empresa_tem_produto: {
+        Args: { _empresa_id: string; _product_key: string }
+        Returns: boolean
+      }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
