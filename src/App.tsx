@@ -43,6 +43,19 @@ import PortalHolerites from "@/pages/portal/PortalHolerites";
 import PortalPontos from "@/pages/portal/PortalPontos";
 import PortalDocumentos from "@/pages/portal/PortalDocumentos";
 
+// Produto de operação de turnos (isolado do Safeguard industrial)
+import { RequireProduct } from "@/components/RequireProduct";
+import { PRODUCT_KEYS } from "@/lib/product-access";
+import { RestaurantShell } from "@/components/restaurant/RestaurantShell";
+import RestaurantDashboard from "@/pages/restaurant/RestaurantDashboard";
+import RestaurantEscala from "@/pages/restaurant/RestaurantEscala";
+import RestaurantTurnos from "@/pages/restaurant/RestaurantTurnos";
+import RestaurantRegimes from "@/pages/restaurant/RestaurantRegimes";
+import RestaurantConformidade from "@/pages/restaurant/RestaurantConformidade";
+import RestaurantHistorico from "@/pages/restaurant/RestaurantHistorico";
+import RestaurantConfiguracoes from "@/pages/restaurant/RestaurantConfiguracoes";
+
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -105,7 +118,32 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+
+              {/* Operação de turnos — shell separado, protegido por entitlement de produto */}
+              <Route
+                path="/restaurant"
+                element={
+                  <ProtectedRoute>
+                    <RequireProduct product={PRODUCT_KEYS.restaurant}>
+                      <RestaurantShell />
+                    </RequireProduct>
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<RestaurantDashboard />} />
+                <Route path="dashboard" element={<RestaurantDashboard />} />
+                <Route path="escala" element={<RestaurantEscala />} />
+                <Route path="turnos" element={<RestaurantTurnos />} />
+                <Route path="regimes" element={<RestaurantRegimes />} />
+                <Route path="conformidade" element={<RestaurantConformidade />} />
+                <Route path="historico" element={<RestaurantHistorico />} />
+                <Route path="configuracoes" element={<RestaurantConfiguracoes />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+
+              <Route path="*" element={<NotFound />} />
             </Routes>
+
           </PortalAuthProvider>
         </AuthProvider>
       </BrowserRouter>
