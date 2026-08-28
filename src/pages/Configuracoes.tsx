@@ -173,6 +173,9 @@ export default function Configuracoes() {
           </Button>
         </CardContent>
       </Card>
+
+      <PoliticaEpiCard />
     </div>
+
   );
 }
