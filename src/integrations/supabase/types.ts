@@ -1165,6 +1165,565 @@ export type Database = {
         }
         Relationships: []
       }
+      restaurant_ajustes_escala: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          empresa_id: string
+          escala_id: string | null
+          funcionario_id: string | null
+          id: string
+          motivo: string | null
+          new_value: Json | null
+          old_value: Json | null
+          substituto_id: string | null
+          tipo: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          empresa_id: string
+          escala_id?: string | null
+          funcionario_id?: string | null
+          id?: string
+          motivo?: string | null
+          new_value?: Json | null
+          old_value?: Json | null
+          substituto_id?: string | null
+          tipo: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          empresa_id?: string
+          escala_id?: string | null
+          funcionario_id?: string | null
+          id?: string
+          motivo?: string | null
+          new_value?: Json | null
+          old_value?: Json | null
+          substituto_id?: string | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_ajustes_escala_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_ajustes_escala_escala_id_fkey"
+            columns: ["escala_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_escalas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_ajustes_escala_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_ajustes_escala_substituto_id_fkey"
+            columns: ["substituto_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_alertas_jornada: {
+        Row: {
+          created_at: string
+          detalhe: Json
+          empresa_id: string
+          escala_id: string | null
+          funcionario_id: string | null
+          id: string
+          mensagem: string
+          periodo_fim: string | null
+          periodo_inicio: string | null
+          resolvido_em: string | null
+          resolvido_por: string | null
+          severidade: string
+          status: string
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          detalhe?: Json
+          empresa_id: string
+          escala_id?: string | null
+          funcionario_id?: string | null
+          id?: string
+          mensagem: string
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          resolvido_em?: string | null
+          resolvido_por?: string | null
+          severidade?: string
+          status?: string
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          detalhe?: Json
+          empresa_id?: string
+          escala_id?: string | null
+          funcionario_id?: string | null
+          id?: string
+          mensagem?: string
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          resolvido_em?: string | null
+          resolvido_por?: string | null
+          severidade?: string
+          status?: string
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_alertas_jornada_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_alertas_jornada_escala_id_fkey"
+            columns: ["escala_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_escalas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_alertas_jornada_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_escala_blocos: {
+        Row: {
+          created_at: string
+          empresa_id: string
+          escala_id: string
+          fim_previsto: string
+          id: string
+          inicio_previsto: string
+          ordem: number
+          turno_id: string | null
+          turno_nome_snapshot: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          empresa_id: string
+          escala_id: string
+          fim_previsto: string
+          id?: string
+          inicio_previsto: string
+          ordem?: number
+          turno_id?: string | null
+          turno_nome_snapshot?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          empresa_id?: string
+          escala_id?: string
+          fim_previsto?: string
+          id?: string
+          inicio_previsto?: string
+          ordem?: number
+          turno_id?: string | null
+          turno_nome_snapshot?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_escala_blocos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_escala_blocos_escala_id_fkey"
+            columns: ["escala_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_escalas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_escala_blocos_turno_id_fkey"
+            columns: ["turno_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_turnos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_escala_ciencia: {
+        Row: {
+          created_at: string
+          empresa_id: string
+          funcionario_id: string
+          id: string
+          ip_address: string | null
+          modelo_id: string | null
+          periodo_fim: string
+          periodo_inicio: string
+          user_agent: string | null
+          versao: number
+          visualizado_em: string
+        }
+        Insert: {
+          created_at?: string
+          empresa_id: string
+          funcionario_id: string
+          id?: string
+          ip_address?: string | null
+          modelo_id?: string | null
+          periodo_fim: string
+          periodo_inicio: string
+          user_agent?: string | null
+          versao?: number
+          visualizado_em?: string
+        }
+        Update: {
+          created_at?: string
+          empresa_id?: string
+          funcionario_id?: string
+          id?: string
+          ip_address?: string | null
+          modelo_id?: string | null
+          periodo_fim?: string
+          periodo_inicio?: string
+          user_agent?: string | null
+          versao?: number
+          visualizado_em?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_escala_ciencia_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_escala_ciencia_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_escala_ciencia_modelo_id_fkey"
+            columns: ["modelo_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_modelos_escala"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_escalas: {
+        Row: {
+          created_at: string
+          criado_por: string | null
+          data: string
+          editado_manualmente: boolean
+          empresa_id: string
+          folga: boolean
+          funcionario_id: string
+          id: string
+          modelo_id: string | null
+          observacao: string | null
+          origem: string
+          publicado_em: string | null
+          publicado_por: string | null
+          regime_id: string | null
+          status: string
+          updated_at: string
+          versao_publicada: number | null
+        }
+        Insert: {
+          created_at?: string
+          criado_por?: string | null
+          data: string
+          editado_manualmente?: boolean
+          empresa_id: string
+          folga?: boolean
+          funcionario_id: string
+          id?: string
+          modelo_id?: string | null
+          observacao?: string | null
+          origem?: string
+          publicado_em?: string | null
+          publicado_por?: string | null
+          regime_id?: string | null
+          status?: string
+          updated_at?: string
+          versao_publicada?: number | null
+        }
+        Update: {
+          created_at?: string
+          criado_por?: string | null
+          data?: string
+          editado_manualmente?: boolean
+          empresa_id?: string
+          folga?: boolean
+          funcionario_id?: string
+          id?: string
+          modelo_id?: string | null
+          observacao?: string | null
+          origem?: string
+          publicado_em?: string | null
+          publicado_por?: string | null
+          regime_id?: string | null
+          status?: string
+          updated_at?: string
+          versao_publicada?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_escalas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_escalas_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_escalas_modelo_id_fkey"
+            columns: ["modelo_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_modelos_escala"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_escalas_regime_id_fkey"
+            columns: ["regime_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_regimes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_modelo_escala_itens: {
+        Row: {
+          created_at: string
+          dia_semana: number
+          empresa_id: string
+          folga: boolean
+          funcionario_id: string | null
+          id: string
+          modelo_id: string
+          ordem: number
+          setor_id: string | null
+          turno_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dia_semana: number
+          empresa_id: string
+          folga?: boolean
+          funcionario_id?: string | null
+          id?: string
+          modelo_id: string
+          ordem?: number
+          setor_id?: string | null
+          turno_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dia_semana?: number
+          empresa_id?: string
+          folga?: boolean
+          funcionario_id?: string | null
+          id?: string
+          modelo_id?: string
+          ordem?: number
+          setor_id?: string | null
+          turno_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_modelo_escala_itens_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_modelo_escala_itens_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_modelo_escala_itens_modelo_id_fkey"
+            columns: ["modelo_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_modelos_escala"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_modelo_escala_itens_setor_id_fkey"
+            columns: ["setor_id"]
+            isOneToOne: false
+            referencedRelation: "setores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_modelo_escala_itens_turno_id_fkey"
+            columns: ["turno_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_turnos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_modelos_escala: {
+        Row: {
+          created_at: string
+          criado_por: string | null
+          empresa_id: string
+          id: string
+          nome: string
+          regime_id: string | null
+          status: string
+          updated_at: string
+          versao: number
+          vigencia_fim: string | null
+          vigencia_inicio: string
+        }
+        Insert: {
+          created_at?: string
+          criado_por?: string | null
+          empresa_id: string
+          id?: string
+          nome: string
+          regime_id?: string | null
+          status?: string
+          updated_at?: string
+          versao?: number
+          vigencia_fim?: string | null
+          vigencia_inicio?: string
+        }
+        Update: {
+          created_at?: string
+          criado_por?: string | null
+          empresa_id?: string
+          id?: string
+          nome?: string
+          regime_id?: string | null
+          status?: string
+          updated_at?: string
+          versao?: number
+          vigencia_fim?: string | null
+          vigencia_inicio?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_modelos_escala_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_modelos_escala_regime_id_fkey"
+            columns: ["regime_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_regimes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_notificacao_eventos: {
+        Row: {
+          canal: string
+          created_at: string
+          dedupe_key: string
+          empresa_id: string
+          enviado_em: string | null
+          erro: string | null
+          evento: string
+          funcionario_id: string | null
+          id: string
+          payload: Json
+          status: string
+          tentativas: number
+          updated_at: string
+        }
+        Insert: {
+          canal?: string
+          created_at?: string
+          dedupe_key: string
+          empresa_id: string
+          enviado_em?: string | null
+          erro?: string | null
+          evento: string
+          funcionario_id?: string | null
+          id?: string
+          payload?: Json
+          status?: string
+          tentativas?: number
+          updated_at?: string
+        }
+        Update: {
+          canal?: string
+          created_at?: string
+          dedupe_key?: string
+          empresa_id?: string
+          enviado_em?: string | null
+          erro?: string | null
+          evento?: string
+          funcionario_id?: string | null
+          id?: string
+          payload?: Json
+          status?: string
+          tentativas?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_notificacao_eventos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_notificacao_eventos_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       restaurant_product_settings: {
         Row: {
           accent_color: string
@@ -1216,6 +1775,297 @@ export type Database = {
             foreignKeyName: "restaurant_product_settings_empresa_id_fkey"
             columns: ["empresa_id"]
             isOneToOne: true
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_regimes: {
+        Row: {
+          ativo: boolean
+          carga_semanal_horas: number
+          ciclo_dias: number | null
+          created_at: string
+          criado_por: string | null
+          dias_folga: number
+          dias_trabalho: number
+          empresa_id: string
+          id: string
+          intervalo_minimo_horas: number
+          nome: string
+          observacao: string | null
+          origem_regra: string
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          carga_semanal_horas?: number
+          ciclo_dias?: number | null
+          created_at?: string
+          criado_por?: string | null
+          dias_folga?: number
+          dias_trabalho?: number
+          empresa_id: string
+          id?: string
+          intervalo_minimo_horas?: number
+          nome: string
+          observacao?: string | null
+          origem_regra?: string
+          tipo?: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          carga_semanal_horas?: number
+          ciclo_dias?: number | null
+          created_at?: string
+          criado_por?: string | null
+          dias_folga?: number
+          dias_trabalho?: number
+          empresa_id?: string
+          id?: string
+          intervalo_minimo_horas?: number
+          nome?: string
+          observacao?: string | null
+          origem_regra?: string
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_regimes_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_solicitacoes_troca: {
+        Row: {
+          aprovador_id: string | null
+          created_at: string
+          decidido_em: string | null
+          decisao_observacao: string | null
+          destinatario_id: string | null
+          empresa_id: string
+          escala_destino_id: string | null
+          escala_origem_id: string | null
+          id: string
+          motivo: string | null
+          solicitante_id: string
+          status: string
+          turno_origem_id: string | null
+          turno_proposto_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          aprovador_id?: string | null
+          created_at?: string
+          decidido_em?: string | null
+          decisao_observacao?: string | null
+          destinatario_id?: string | null
+          empresa_id: string
+          escala_destino_id?: string | null
+          escala_origem_id?: string | null
+          id?: string
+          motivo?: string | null
+          solicitante_id: string
+          status?: string
+          turno_origem_id?: string | null
+          turno_proposto_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aprovador_id?: string | null
+          created_at?: string
+          decidido_em?: string | null
+          decisao_observacao?: string | null
+          destinatario_id?: string | null
+          empresa_id?: string
+          escala_destino_id?: string | null
+          escala_origem_id?: string | null
+          id?: string
+          motivo?: string | null
+          solicitante_id?: string
+          status?: string
+          turno_origem_id?: string | null
+          turno_proposto_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_solicitacoes_troca_destinatario_id_fkey"
+            columns: ["destinatario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_solicitacoes_troca_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_solicitacoes_troca_escala_destino_id_fkey"
+            columns: ["escala_destino_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_escalas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_solicitacoes_troca_escala_origem_id_fkey"
+            columns: ["escala_origem_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_escalas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_solicitacoes_troca_solicitante_id_fkey"
+            columns: ["solicitante_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_solicitacoes_troca_turno_origem_id_fkey"
+            columns: ["turno_origem_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_turnos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_solicitacoes_troca_turno_proposto_id_fkey"
+            columns: ["turno_proposto_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_turnos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_time_entry_context: {
+        Row: {
+          created_at: string
+          desvio_minutos: number | null
+          empresa_id: string
+          escala_bloco_id: string | null
+          escala_id: string | null
+          funcionario_id: string
+          id: string
+          sem_escala: boolean
+          time_entry_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          desvio_minutos?: number | null
+          empresa_id: string
+          escala_bloco_id?: string | null
+          escala_id?: string | null
+          funcionario_id: string
+          id?: string
+          sem_escala?: boolean
+          time_entry_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          desvio_minutos?: number | null
+          empresa_id?: string
+          escala_bloco_id?: string | null
+          escala_id?: string | null
+          funcionario_id?: string
+          id?: string
+          sem_escala?: boolean
+          time_entry_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_time_entry_context_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_time_entry_context_escala_bloco_id_fkey"
+            columns: ["escala_bloco_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_escala_blocos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_time_entry_context_escala_id_fkey"
+            columns: ["escala_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_escalas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_time_entry_context_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_time_entry_context_time_entry_id_fkey"
+            columns: ["time_entry_id"]
+            isOneToOne: true
+            referencedRelation: "time_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_turnos: {
+        Row: {
+          ativo: boolean
+          cor: string
+          created_at: string
+          criado_por: string | null
+          cruza_meia_noite: boolean
+          empresa_id: string
+          hora_fim: string
+          hora_inicio: string
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          cor?: string
+          created_at?: string
+          criado_por?: string | null
+          cruza_meia_noite?: boolean
+          empresa_id: string
+          hora_fim: string
+          hora_inicio: string
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          cor?: string
+          created_at?: string
+          criado_por?: string | null
+          cruza_meia_noite?: boolean
+          empresa_id?: string
+          hora_fim?: string
+          hora_inicio?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_turnos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
             referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
