@@ -16,7 +16,9 @@ import {
  *  - list_documents         { categories: string[] }
  *  - list_entregas
  *  - list_time_entries_today
+ *  - get_meu_kit            -> requisitos do kit do cargo + política de irregularidade
  *  - submit_time_entry      { tipo, latitude, longitude, accuracy, device_info }
+
  *  - submit_epi_request     { epi_id, motivo }
  *  - sign_document          { document_id, ip_address?, user_agent? }
  *  - logout
