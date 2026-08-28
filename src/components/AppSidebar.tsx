@@ -42,9 +42,12 @@ const generalItems = [
 const cadastroItems = [
   { title: "Funcionários", url: "/app/funcionarios", icon: Users },
   { title: "EPIs", url: "/app/epis", icon: HardHat },
+  { title: "Kits de EPI", url: "/app/kits-epi", icon: Boxes },
+  { title: "Indicadores de EPI", url: "/app/indicadores-epi", icon: BarChart3 },
   { title: "Treinamentos (NRs)", url: "/app/treinamentos", icon: GraduationCap },
   { title: "Setores", url: "/app/setores", icon: Building2 },
 ];
+
 
 const supportItems = [
   { title: "Configurações", url: "/app/configuracoes", icon: Settings },
