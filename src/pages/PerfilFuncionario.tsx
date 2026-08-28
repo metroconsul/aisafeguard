@@ -312,7 +312,17 @@ export default function PerfilFuncionario() {
         </p>
       </div>
 
+      {/* Kit de EPI do cargo */}
+      {funcionario && (
+        <KitEpiSection
+          funcionarioId={funcionario.id}
+          cargoNome={funcionario.cargo}
+          canRegister={perfil?.role !== "rh"}
+        />
+      )}
+
       {/* Tabs */}
+
       <Tabs defaultValue="admissao_rescisao">
         <TabsList className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-lg border border-border/80 bg-card p-1 shadow-card">
           {TABS.map((t) => (
