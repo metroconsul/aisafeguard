@@ -42,6 +42,7 @@ import PortalEpis from "@/pages/portal/PortalEpis";
 import PortalHolerites from "@/pages/portal/PortalHolerites";
 import PortalPontos from "@/pages/portal/PortalPontos";
 import PortalDocumentos from "@/pages/portal/PortalDocumentos";
+import PortalEscala from "@/pages/portal/restaurant/PortalEscala";
 
 // Produto de operação de turnos (isolado do Safeguard industrial)
 import { RequireProduct } from "@/components/RequireProduct";
