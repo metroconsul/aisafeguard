@@ -327,7 +327,66 @@ export default function RestaurantEscala() {
       toast({ title: "Não foi possível aplicar", description: e.message, variant: "destructive" }),
   });
 
+  const salvarComoModelo = useMutation({
+    mutationFn: async () => {
+      if (!empresaId) return;
+      if (escalas.length === 0) throw new Error("Monte a semana antes de salvar como modelo.");
+      const nomeModelo = `Semana de ${fmt(semana)}`;
+      const { data: modelo, error } = await supabase
+        .from("restaurant_modelos_escala")
+        .insert({
+          empresa_id: empresaId,
+          nome: nomeModelo,
+          vigencia_inicio: semana,
+          status: "ativo",
+          criado_por: perfil?.id,
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
+
+      const itens = escalas.flatMap((e) => {
+        const dow = new Date(`${e.data}T00:00:00Z`).getUTCDay();
+        if (e.folga || e.restaurant_escala_blocos.length === 0) {
+          return [
+            {
+              empresa_id: empresaId,
+              modelo_id: modelo.id,
+              funcionario_id: e.funcionario_id,
+              dia_semana: dow,
+              turno_id: null,
+              ordem: 1,
+              folga: true,
+            },
+          ];
+        }
+        return e.restaurant_escala_blocos
+          .sort((a, b) => a.ordem - b.ordem)
+          .map((b, idx) => ({
+            empresa_id: empresaId,
+            modelo_id: modelo.id,
+            funcionario_id: e.funcionario_id,
+            dia_semana: dow,
+            turno_id: b.turno_id,
+            ordem: idx + 1,
+            folga: false,
+          }));
+      });
+
+      const { error: itErr } = await supabase.from("restaurant_modelo_escala_itens").insert(itens);
+      if (itErr) throw itErr;
+      return nomeModelo;
+    },
+    onSuccess: (n) => {
+      qc.invalidateQueries({ queryKey: ["restaurant-modelos", empresaId] });
+      toast({ title: "Modelo criado", description: `"${n}" pode ser aplicado em outras semanas.` });
+    },
+    onError: (e: Error) =>
+      toast({ title: "Não foi possível criar o modelo", description: e.message, variant: "destructive" }),
+  });
+
   const publicar = useMutation({
+
     mutationFn: async () => {
       if (!empresaId) return;
       const ids = escalas.filter((e) => e.status !== "publicada").map((e) => e.id);
