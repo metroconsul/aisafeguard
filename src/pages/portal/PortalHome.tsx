@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AlertTriangle, FileText, LogOut, ChevronRight } from "lucide-react";
 import { RegistroPontoCard } from "@/components/portal/RegistroPontoCard";
+import { MeuKitCard } from "@/components/portal/MeuKitCard";
+
 
 export default function PortalHome() {
   const { employee, logout, portalApi } = usePortalAuth();
@@ -75,6 +77,11 @@ export default function PortalHome() {
 
       {/* Registro de Jornada (Bater Ponto) */}
       <RegistroPontoCard employee={employee} />
+
+      {/* Meu kit de EPI */}
+      <MeuKitCard />
+
+
 
       {/* Pendências Urgentes */}
       <div className="space-y-3">

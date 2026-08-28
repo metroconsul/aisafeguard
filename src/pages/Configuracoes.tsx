@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
 import { Building2, Upload, Loader2 } from "lucide-react";
+import { PoliticaEpiCard } from "@/components/epi/PoliticaEpiCard";
+
 
 export default function Configuracoes() {
   const { user, perfil, loading: authLoading, refreshEmpresa, empresa } = useAuth();
@@ -173,6 +175,9 @@ export default function Configuracoes() {
           </Button>
         </CardContent>
       </Card>
+
+      <PoliticaEpiCard />
     </div>
+
   );
 }

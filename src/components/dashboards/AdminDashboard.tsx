@@ -9,6 +9,7 @@ import { UltimasEntregasTable } from "@/components/UltimasEntregasTable";
 import { InsightsCard } from "@/components/dashboards/InsightsCard";
 import { AtividadeRecenteCard } from "@/components/dashboards/AtividadeRecenteCard";
 import { useNavigate } from "react-router-dom";
+import { IrregularesCard } from "@/components/epi/IrregularesCard";
 
  type Trend = { value: string; positive: boolean } | null;
 
@@ -122,7 +123,8 @@ export function AdminDashboard() {
       </section>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.35fr_.85fr]"><CustoEpiObraChart /><InsightsCard /></div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.35fr_.85fr]"><UltimasEntregasTable /><div className="space-y-4"><EntregasSemanaChart /><AtividadeRecenteCard /></div></div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.35fr_.85fr]"><IrregularesCard /><AtividadeRecenteCard /></div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.35fr_.85fr]"><UltimasEntregasTable /><div className="space-y-4"><EntregasSemanaChart /></div></div>
     </div>
   );
 }

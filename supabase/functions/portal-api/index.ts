@@ -16,7 +16,9 @@ import {
  *  - list_documents         { categories: string[] }
  *  - list_entregas
  *  - list_time_entries_today
+ *  - get_meu_kit            -> requisitos do kit do cargo + política de irregularidade
  *  - submit_time_entry      { tipo, latitude, longitude, accuracy, device_info }
+
  *  - submit_epi_request     { epi_id, motivo }
  *  - sign_document          { document_id, ip_address?, user_agent? }
  *  - logout
@@ -107,10 +109,67 @@ Deno.serve(async (req) => {
         return jsonResponse({ entries: data ?? [] });
       }
 
+      case "get_meu_kit": {
+        const { data, error } = await supabase
+          .from("funcionario_epi_requisitos")
+          .select("id, epi_id, quantidade_necessaria, quantidade_entregue, obrigatorio, status, proxima_vencimento, epis(nome_equipamento, numero_ca)")
+          .eq("funcionario_id", session.funcionario_id)
+          .eq("empresa_id", session.empresa_id);
+        if (error) return jsonResponse({ error: error.message }, 500);
+        const { data: policy } = await supabase
+          .from("epi_policies")
+          .select("modo, aviso_antecedencia_dias")
+          .eq("empresa_id", session.empresa_id)
+          .maybeSingle();
+        return jsonResponse({
+          requisitos: data ?? [],
+          policy: policy ?? { modo: "none", aviso_antecedencia_dias: 7 },
+        });
+      }
+
       case "submit_time_entry": {
         const tipo = String(body.tipo ?? "");
         const allowed = ["entrada", "saida_almoco", "volta_almoco", "saida"];
         if (!allowed.includes(tipo)) return jsonResponse({ error: "tipo inválido" }, 400);
+
+        // Política de irregularidade de EPI (validação obrigatoriamente no servidor).
+        const { data: policy } = await supabase
+          .from("epi_policies")
+          .select("modo")
+          .eq("empresa_id", session.empresa_id)
+          .maybeSingle();
+        const modo = String(policy?.modo ?? "none");
+
+        let irregularidade: { vencidos: number; pendentes: number } | null = null;
+        if (modo === "alert" || modo === "hard_block") {
+          const { data: reqs } = await supabase
+            .from("funcionario_epi_requisitos")
+            .select("status")
+            .eq("funcionario_id", session.funcionario_id)
+            .eq("empresa_id", session.empresa_id)
+            .eq("obrigatorio", true)
+            .in("status", ["pending", "partial", "expired"]);
+          const vencidos = (reqs ?? []).filter((r) => r.status === "expired").length;
+          const pendentes = (reqs ?? []).length - vencidos;
+          if (vencidos + pendentes > 0) irregularidade = { vencidos, pendentes };
+        }
+
+        if (modo === "hard_block" && irregularidade) {
+          // Exceção autorizada pela gestão para o dia libera o registro.
+          const hoje = new Date().toISOString().split("T")[0];
+          const { data: excecao } = await supabase
+            .from("epi_excecoes_ponto")
+            .select("id")
+            .eq("funcionario_id", session.funcionario_id)
+            .eq("empresa_id", session.empresa_id)
+            .eq("data_referencia", hoje)
+            .maybeSingle();
+          if (!excecao) {
+            // Status 200 intencional: o cliente do Portal precisa ler o payload do bloqueio.
+            return jsonResponse({ blocked: true, reason: "epi_irregular", irregularidade });
+          }
+        }
+
         const insertBody: Record<string, unknown> = {
           empresa_id: session.empresa_id,
           funcionario_id: session.funcionario_id,
@@ -123,8 +182,9 @@ Deno.serve(async (req) => {
         if (typeof body.device_info === "string") insertBody.device_info = String(body.device_info).slice(0, 200);
         const { data, error } = await supabase.from("time_entries").insert(insertBody).select("id, tipo, recorded_at").single();
         if (error) return jsonResponse({ error: error.message }, 500);
-        return jsonResponse({ entry: data });
+        return jsonResponse({ entry: data, warning: modo === "alert" ? irregularidade : null });
       }
+
 
       case "submit_epi_request": {
         const epi_id = String(body.epi_id ?? "");

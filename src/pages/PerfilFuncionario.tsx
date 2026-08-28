@@ -11,6 +11,8 @@ import { format, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import UploadDocumentoModal from "@/components/UploadDocumentoModal";
 import UploadTreinamentoModal from "@/components/UploadTreinamentoModal";
+import { KitEpiSection } from "@/components/epi/KitEpiSection";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -127,7 +129,7 @@ function handlePrint(func: Funcionario, docs: Document[], category: string, empr
 export default function PerfilFuncionario() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { empresa } = useAuth();
+  const { empresa, perfil } = useAuth();
   const [func, setFunc] = useState<Funcionario | null>(null);
   const [docs, setDocs] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
@@ -312,7 +314,19 @@ export default function PerfilFuncionario() {
         </p>
       </div>
 
+      {/* Kit de EPI do cargo */}
+      {func && (
+        <KitEpiSection
+          funcionarioId={func.id}
+          cargoNome={func.cargo}
+          canRegister={perfil?.role !== "rh"}
+        />
+      )}
+
+
+
       {/* Tabs */}
+
       <Tabs defaultValue="admissao_rescisao">
         <TabsList className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-lg border border-border/80 bg-card p-1 shadow-card">
           {TABS.map((t) => (

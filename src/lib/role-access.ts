@@ -8,6 +8,8 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/app/documentos",
     "/app/funcionarios",
     "/app/epis",
+    "/app/kits-epi",
+    "/app/indicadores-epi",
     "/app/treinamentos",
     "/app/setores",
     "/app/configuracoes",
@@ -21,6 +23,8 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/app",
     "/app/funcionarios",
     "/app/epis",
+    "/app/kits-epi",
+    "/app/indicadores-epi",
     "/app/treinamentos",
     "/app/setores",
     "/app/documentos",
@@ -38,7 +42,10 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/app",
     "/app/nova-entrega",
     "/app/epis",
+    "/app/kits-epi",
+    "/app/indicadores-epi",
   ],
+
 };
 
 export function canAccessRoute(role: string | undefined, route: string): boolean {

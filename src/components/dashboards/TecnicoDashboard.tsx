@@ -7,6 +7,7 @@ import { KpiCard } from "@/components/KpiCard";
 import { DistribuicaoEpiChart } from "@/components/charts/DistribuicaoEpiChart";
 import { EntregasSetorChart } from "@/components/charts/EntregasSetorChart";
 import { Button } from "@/components/ui/button";
+import { IrregularesCard } from "@/components/epi/IrregularesCard";
 
 export function TecnicoDashboard() {
   const { perfil } = useAuth();
@@ -106,6 +107,8 @@ export function TecnicoDashboard() {
           <DistribuicaoEpiChart />
         </div>
       </div>
+
+      <IrregularesCard />
 
       <div className="flex flex-wrap gap-3">
         <Button onClick={() => navigate("/app/treinamentos")} className="gap-2">
