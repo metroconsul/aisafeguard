@@ -15,6 +15,9 @@ import NovaEntrega from "@/pages/NovaEntrega";
 import Funcionarios from "@/pages/Funcionarios";
 import PerfilFuncionario from "@/pages/PerfilFuncionario";
 import Epis from "@/pages/Epis";
+import KitsEpi from "@/pages/KitsEpi";
+import IndicadoresEpi from "@/pages/IndicadoresEpi";
+
 import Setores from "@/pages/Setores";
 import Configuracoes from "@/pages/Configuracoes";
 import Seguranca from "@/pages/Seguranca";
