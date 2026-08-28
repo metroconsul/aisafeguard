@@ -129,7 +129,7 @@ function handlePrint(func: Funcionario, docs: Document[], category: string, empr
 export default function PerfilFuncionario() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { empresa } = useAuth();
+  const { empresa, perfil } = useAuth();
   const [func, setFunc] = useState<Funcionario | null>(null);
   const [docs, setDocs] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
