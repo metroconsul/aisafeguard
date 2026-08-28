@@ -8,9 +8,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { EmptyState } from "@/components/EmptyState";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
-interface Funcionario { id: string; nome: string; telefone_whatsapp: string | null; }
+interface Funcionario { id: string; nome: string; telefone_whatsapp: string | null; cargo?: string | null; setor?: string | null; setor_id?: string | null; }
+
 interface Epi { id: string; nome_equipamento: string; numero_ca: string; dias_validade: number; }
 
 const OBRAS = [
