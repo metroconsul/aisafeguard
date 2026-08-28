@@ -97,16 +97,40 @@ export function RegistroPontoCard({ employee }: { employee: PortalEmployee }) {
     if (!coords) return;
     setSaving(true);
     try {
-      await portalApi("submit_time_entry", {
+      const res = await portalApi<{
+        blocked?: boolean;
+        irregularidade?: { vencidos: number; pendentes: number } | null;
+        warning?: { vencidos: number; pendentes: number } | null;
+      }>("submit_time_entry", {
         tipo: proximoTipo,
         latitude: coords.latitude,
         longitude: coords.longitude,
         accuracy: coords.accuracy,
         device_info: navigator.userAgent.substring(0, 200),
       });
+
+      if (res?.blocked) {
+        setConfirmOpen(false);
+        setCoords(null);
+        toast.error(
+          mensagemBloqueioPonto(res.irregularidade?.vencidos ?? 0, res.irregularidade?.pendentes ?? 0),
+          { duration: 8000 },
+        );
+        return;
+      }
+
       toast.success(`Ponto registrado às ${format(new Date(), "HH:mm")}!`, {
         icon: <CheckCircle2 className="h-5 w-5 text-success" />,
       });
+
+      if (res?.warning) {
+        toast.warning(
+          mensagemBloqueioPonto(res.warning.vencidos, res.warning.pendentes),
+          { duration: 8000 },
+        );
+      }
+
+
 
       // Detecção de anomalia (fire-and-forget)
       const agora = new Date();
