@@ -442,6 +442,15 @@ export default function RestaurantEscala() {
               <Button variant="outline" className="gap-2" onClick={() => setAplicarOpen(true)}>
                 <Wand2 className="h-4 w-4" /> Aplicar modelo
               </Button>
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => salvarComoModelo.mutate()}
+                disabled={salvarComoModelo.isPending || escalas.length === 0}
+              >
+                <Save className="h-4 w-4" /> Salvar como modelo
+              </Button>
+
               <Button className="gap-2" onClick={() => publicar.mutate()} disabled={publicar.isPending || rascunhos === 0}>
                 <Send className="h-4 w-4" /> Publicar semana
               </Button>
