@@ -118,7 +118,32 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+
+              {/* Operação de turnos — shell separado, protegido por entitlement de produto */}
+              <Route
+                path="/restaurant"
+                element={
+                  <ProtectedRoute>
+                    <RequireProduct product={PRODUCT_KEYS.restaurant}>
+                      <RestaurantShell />
+                    </RequireProduct>
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<RestaurantDashboard />} />
+                <Route path="dashboard" element={<RestaurantDashboard />} />
+                <Route path="escala" element={<RestaurantEscala />} />
+                <Route path="turnos" element={<RestaurantTurnos />} />
+                <Route path="regimes" element={<RestaurantRegimes />} />
+                <Route path="conformidade" element={<RestaurantConformidade />} />
+                <Route path="historico" element={<RestaurantHistorico />} />
+                <Route path="configuracoes" element={<RestaurantConfiguracoes />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+
+              <Route path="*" element={<NotFound />} />
             </Routes>
+
           </PortalAuthProvider>
         </AuthProvider>
       </BrowserRouter>
