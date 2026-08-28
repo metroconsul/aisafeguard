@@ -131,8 +131,9 @@ export function dadosSuficientes(pontos: number): boolean {
 
 export function mensagemBloqueioPonto(vencidos: number, pendentes: number): string {
   const partes: string[] = [];
-  if (vencidos > 0) partes.push(`${vencidos} item${vencidos > 1 ? "ns" : ""} de EPI vencido${vencidos > 1 ? "s" : ""}`);
-  if (pendentes > 0) partes.push(`${pendentes} item${pendentes > 1 ? "ns" : ""} de EPI não entregue${pendentes > 1 ? "s" : ""}`);
+  const item = (n: number) => (n > 1 ? "itens" : "item");
+  if (vencidos > 0) partes.push(`${vencidos} ${item(vencidos)} de EPI vencido${vencidos > 1 ? "s" : ""}`);
+  if (pendentes > 0) partes.push(`${pendentes} ${item(pendentes)} de EPI não entregue${pendentes > 1 ? "s" : ""}`);
   const motivo = partes.join(" e ") || "pendência de EPI";
   return `Ponto bloqueado porque existe ${motivo}. Procure o responsável pelo almoxarifado.`;
 }
