@@ -66,17 +66,21 @@ function SearchCombobox({ label, placeholder, items, value, onChange }: { label:
 export default function NovaEntrega() {
   const { perfil } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [epis, setEpis] = useState<Epi[]>([]);
-  const [funcId, setFuncId] = useState("");
+  const [funcId, setFuncId] = useState(searchParams.get("funcionario") ?? "");
   const [obra, setObra] = useState("");
-  const [selectedEpis, setSelectedEpis] = useState<Set<string>>(new Set());
+  const [selectedEpis, setSelectedEpis] = useState<Set<string>>(() => {
+    const epiParam = searchParams.get("epi");
+    return epiParam ? new Set([epiParam]) : new Set<string>();
+  });
   const [loading, setLoading] = useState(false);
   const [geradas, setGeradas] = useState<{ epiNome: string; link: string }[]>([]);
 
   useEffect(() => {
     if (!perfil?.empresa_id) return;
-    supabase.from("funcionarios").select("id, nome, telefone_whatsapp").eq("empresa_id", perfil.empresa_id).order("nome").then(({ data }) => { if (data) setFuncionarios(data); });
+    supabase.from("funcionarios").select("id, nome, telefone_whatsapp, cargo, setor, setor_id").eq("empresa_id", perfil.empresa_id).order("nome").then(({ data }) => { if (data) setFuncionarios(data as Funcionario[]); });
     supabase.from("epis").select("id, nome_equipamento, numero_ca, dias_validade").eq("empresa_id", perfil.empresa_id).order("nome_equipamento").then(({ data }) => { if (data) setEpis(data); });
   }, [perfil?.empresa_id]);
 
@@ -97,13 +101,25 @@ export default function NovaEntrega() {
     if (selectedEpis.size === 0) return toast.error("Selecione ao menos um EPI.");
     if (!perfil?.empresa_id || !selectedFunc) return;
     setLoading(true);
+    const { data: auth } = await supabase.auth.getUser();
     const results: { epiNome: string; link: string }[] = [];
     for (const epiId of selectedEpis) {
       const epi = epis.find((e) => e.id === epiId);
       if (!epi) continue;
       const dataVencimento = new Date();
       dataVencimento.setDate(dataVencimento.getDate() + epi.dias_validade);
-      const { data, error } = await supabase.from("entregas").insert({ funcionario_id: funcId, epi_id: epiId, data_vencimento: dataVencimento.toISOString(), empresa_id: perfil.empresa_id }).select().single();
+      const { data, error } = await supabase.from("entregas").insert({
+        funcionario_id: funcId,
+        epi_id: epiId,
+        data_vencimento: dataVencimento.toISOString(),
+        empresa_id: perfil.empresa_id,
+        quantidade: 1,
+        origem: "avulsa",
+        cargo_snapshot: selectedFunc.cargo ?? null,
+        setor_snapshot: selectedFunc.setor ?? null,
+        setor_id_snapshot: selectedFunc.setor_id ?? null,
+        registrado_por: auth.user?.id ?? null,
+      }).select().single();
       if (error || !data) { toast.error(`Erro ao registrar ${epi.nome_equipamento}`); continue; }
       const PUBLIC_BASE_URL = "https://aisafeguard.lovable.app";
       const linkAssinatura = `${PUBLIC_BASE_URL}/assinar/${data.id}`;
@@ -113,6 +129,7 @@ export default function NovaEntrega() {
     setLoading(false);
     if (results.length > 0) toast.success("Entrega registrada e disponibilizada no portal.");
   };
+
 
   const reset = () => { setGeradas([]); setFuncId(""); setObra(""); setSelectedEpis(new Set()); };
 
