@@ -46,15 +46,30 @@ export default function Funcionarios() {
 
   useEffect(() => { load(); }, []);
 
+  /** Garante um registro em `cargos` para o texto digitado e devolve o id (mantendo o texto legado). */
+  const resolveCargoId = async (empresaId: string, cargoNome: string): Promise<string | null> => {
+    const nome = cargoNome.trim();
+    if (!nome) return null;
+    const { data: existente } = await supabase
+      .from("cargos").select("id").eq("empresa_id", empresaId).ilike("nome", nome).maybeSingle();
+    if (existente?.id) return existente.id;
+    const { data: criado, error } = await supabase
+      .from("cargos").insert({ empresa_id: empresaId, nome }).select("id").single();
+    if (error) { console.warn("Não foi possível vincular o cargo:", error.message); return null; }
+    return criado?.id ?? null;
+  };
+
   const handleAdd = async () => {
     if (!perfil?.empresa_id) {
       toast.error("Perfil não carregado.");
       return;
     }
     const { setor_id, ...rest } = form;
+    const cargoId = await resolveCargoId(perfil.empresa_id, form.cargo);
     const { error } = await supabase.from("funcionarios").insert({
       ...rest,
       setor_id: setor_id || null,
+      cargo_id: cargoId,
       empresa_id: perfil.empresa_id,
     });
     if (error) { toast.error("Erro: " + error.message); return; }
@@ -63,6 +78,7 @@ export default function Funcionarios() {
     setOpen(false);
     load();
   };
+
 
   const colunas = useMemo(() => {
     const q = query.trim().toLowerCase();
