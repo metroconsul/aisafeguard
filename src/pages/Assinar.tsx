@@ -219,6 +219,7 @@ export default function Assinar() {
     // Atualiza via edge function (service role) — garante que o status sempre seja
     // gravado, sem depender de RLS de anon. Um registro por item assinado.
     const falhas: string[] = [];
+    const sucessos: string[] = [];
     for (const itemId of selectedIds) {
       const { data: updateRes, error: updateErr } = await supabase.functions.invoke(
         "update-signature",
@@ -239,6 +240,7 @@ export default function Assinar() {
         continue;
       }
 
+      sucessos.push(itemId);
       const item = entrega.itens.find((i) => i.id === itemId);
       await triggerSignatureWebhook({
         id_entrega: itemId,
@@ -252,22 +254,35 @@ export default function Assinar() {
 
     setSaving(false);
 
-    if (falhas.length === selectedIds.length) {
+    if (sucessos.length === 0) {
       toast.error(falhas[0] || "Não foi possível registrar a assinatura. Tente novamente.");
       return;
     }
+
+    const itensAtualizados = entrega.itens.map((i) =>
+      sucessos.includes(i.id) ? { ...i, status_assinatura: "Assinado" } : i
+    );
+
     if (falhas.length > 0) {
       toast.warning(`${falhas.length} item(ns) não foram assinados. Tente novamente.`);
-      setEntrega({
-        ...entrega,
-        itens: entrega.itens.map((i) =>
-          selectedIds.includes(i.id) ? { ...i, status_assinatura: "Assinado" } : i
-        ),
-      });
+      setEntrega({ ...entrega, itens: itensAtualizados });
+      setSelectedIds(
+        itensAtualizados.filter((i) => i.status_assinatura !== "Assinado").map((i) => i.id)
+      );
+      return;
+    }
+
+    if (itensAtualizados.some((i) => i.status_assinatura !== "Assinado")) {
+      toast.success("Itens assinados com sucesso!");
+      setEntrega({ ...entrega, itens: itensAtualizados });
+      setSelectedIds([]);
+      clear();
+      setPhotoData(null);
       return;
     }
     setDone(true);
   };
+
 
 
   if (loading) {
