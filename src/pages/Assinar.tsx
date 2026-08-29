@@ -510,8 +510,15 @@ export default function Assinar() {
             Limpar
           </Button>
           <Button onClick={save} disabled={!canSubmit || saving} className="flex-1">
-            {saving ? "Salvando..." : "Confirmar Assinatura"}
+            {saving
+              ? "Salvando..."
+              : isKit
+              ? selectedIds.length > 1
+                ? `Assinar ${selectedIds.length} itens`
+                : "Assinar item"
+              : "Confirmar Assinatura"}
           </Button>
+
         </div>
 
         {/* Status indicators */}
