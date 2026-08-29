@@ -31,7 +31,7 @@ export function RestaurantShell() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/login");
+    navigate("/turnos/login", { replace: true });
   };
 
   return (

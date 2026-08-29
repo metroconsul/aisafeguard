@@ -15,8 +15,11 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
     if (!user) {
       setRedirecting(true);
-      if (location.pathname !== "/login") {
-        navigate("/login", { replace: true });
+      const loginPath = location.pathname === "/restaurant" || location.pathname.startsWith("/restaurant/")
+        ? "/turnos/login"
+        : "/login";
+      if (location.pathname !== loginPath) {
+        navigate(loginPath, { replace: true });
       }
       return;
     }
