@@ -6,8 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ShieldCheck, Loader2 } from "lucide-react";
-import { readFunctionError, translateFunctionError } from "@/lib/function-error";
-
 
 export default function Cadastro() {
   const navigate = useNavigate();
@@ -46,15 +44,14 @@ export default function Cadastro() {
     setLoading(false);
 
     if (error) {
-      toast.error(await readFunctionError(error, "Erro ao criar conta."));
+      toast.error(error.message || "Erro ao criar conta.");
       return;
     }
 
     if (data?.error) {
-      toast.error(translateFunctionError(data.error) || data.error);
+      toast.error(data.error);
       return;
     }
-
 
     toast.success("Conta criada! Verifique seu email para confirmar o cadastro.");
     navigate("/login");

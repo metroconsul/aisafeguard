@@ -40,13 +40,6 @@ Deno.serve(async (req) => {
       .eq("id", data.empresa_id)
       .single();
 
-    const { data: produto } = await supabase
-      .from("empresa_produtos")
-      .select("product_key")
-      .eq("empresa_id", data.empresa_id)
-      .eq("enabled", true)
-      .maybeSingle();
-
     // Cria sessão (válida por 30 dias)
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -76,7 +69,6 @@ Deno.serve(async (req) => {
         empresa_id: data.empresa_id,
         empresa_nome: empresa?.nome_fantasia ?? "",
         empresa_logo: empresa?.logo_url ?? null,
-        product_key: produto?.product_key ?? "safeguard_industrial",
       },
     });
   } catch (err) {

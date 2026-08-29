@@ -179,10 +179,6 @@ Deno.serve(async (req) => {
 
     // === SIGNUP FLOW ===
     const { nome_empresa, nome_usuario, email, senha } = body;
-    // Produto do nicho: definido pela porta de cadastro, nunca escolhido depois.
-    const productKey = body.product_key === "restaurant_operations"
-      ? "restaurant_operations"
-      : "safeguard_industrial";
 
     if (!nome_empresa || !nome_usuario || !email || !senha) {
       return new Response(
@@ -242,22 +238,6 @@ Deno.serve(async (req) => {
       await supabase.auth.admin.deleteUser(userId);
       return new Response(
         JSON.stringify({ error: "Erro ao criar perfil: " + perfilError.message }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // 3b. Entitlement do produto (uma empresa = um produto)
-    const { error: produtoError } = await supabase.from("empresa_produtos").insert({
-      empresa_id: empresaData.id,
-      product_key: productKey,
-      enabled: true,
-      ativado_por: userId,
-    });
-
-    if (produtoError) {
-      await supabase.auth.admin.deleteUser(userId);
-      return new Response(
-        JSON.stringify({ error: "Erro ao habilitar produto: " + produtoError.message }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
