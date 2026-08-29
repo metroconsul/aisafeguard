@@ -61,6 +61,9 @@ export default function Assinar() {
   const [cameraOpen, setCameraOpen] = useState(false);
   const [photoData, setPhotoData] = useState<string | null>(null);
 
+  // Itens do kit selecionados para assinatura
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
   useEffect(() => {
     if (!id) return;
     supabase.functions
@@ -68,18 +71,41 @@ export default function Assinar() {
       .then(({ data, error }) => {
         const ent = (data as any)?.entrega;
         if (!error && ent) {
+          const itens: KitItem[] = Array.isArray(ent.itens) && ent.itens.length > 0
+            ? ent.itens
+            : [
+                {
+                  id: ent.id,
+                  nome_equipamento: ent.epi?.nome_equipamento ?? "",
+                  numero_ca: ent.epi?.numero_ca ?? "",
+                  quantidade: 1,
+                  status_assinatura: ent.status_assinatura,
+                },
+              ];
           setEntrega({
             id: ent.id,
             funcionario: { ...ent.funcionario, cpf: null },
             epi: ent.epi,
             data_entrega: ent.data_entrega,
             status_assinatura: ent.status_assinatura,
+            kit_nome: ent.kit_nome ?? null,
+            itens,
           });
-          if (ent.status_assinatura === "Assinado") setDone(true);
+          setSelectedIds(
+            itens.filter((i) => i.status_assinatura !== "Assinado").map((i) => i.id)
+          );
+          const pendentes = itens.filter((i) => i.status_assinatura !== "Assinado");
+          if (pendentes.length === 0) setDone(true);
         }
         setLoading(false);
       });
   }, [id]);
+
+  const toggleItem = (itemId: string) =>
+    setSelectedIds((prev) =>
+      prev.includes(itemId) ? prev.filter((i) => i !== itemId) : [...prev, itemId]
+    );
+
 
   // CPF: validação real é feita no servidor (update-signature).
   // Aqui só validamos formato (11 dígitos) para habilitar o botão.
