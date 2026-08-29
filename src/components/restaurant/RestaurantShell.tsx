@@ -12,9 +12,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
-import { useProdutos } from "@/hooks/useProdutos";
 import { useRestaurantSettings } from "@/hooks/useRestaurantSettings";
-import { ProductSwitcher } from "@/components/restaurant/ProductSwitcher";
 
 const navItems = [
   { title: "Visão geral", url: "/restaurant/dashboard", icon: LayoutDashboard },
@@ -28,7 +26,6 @@ const navItems = [
 
 export function RestaurantShell() {
   const { perfil, empresa, signOut } = useAuth();
-  const { hasBoth } = useProdutos();
   const { brand } = useRestaurantSettings();
   const navigate = useNavigate();
 
@@ -94,7 +91,6 @@ export function RestaurantShell() {
             <span className="text-sm font-semibold">{brand.BRAND_NAME}</span>
           </div>
           <div className="flex-1" />
-          {hasBoth && <ProductSwitcher current="restaurant" />}
           <button
             onClick={handleSignOut}
             className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
