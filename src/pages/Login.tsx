@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ShieldCheck, Loader2 } from "lucide-react";
 import { PRODUCT_HOME, PRODUCT_KEYS, fetchProductKey } from "@/lib/product-access";
+import { navLog } from "@/lib/nav-telemetry";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -33,11 +34,25 @@ export default function Login() {
     }
     // O destino vem do produto da empresa, não da porta de entrada.
     const productKey = await fetchProductKey();
+    navLog("entitlement", "Login", `Login Safeguard resolveu produto=${productKey ?? "nenhum"}`, {
+      productKey,
+      door: "/login",
+    });
     if (productKey && productKey !== PRODUCT_KEYS.safeguard) {
+      navLog("redirect", "Login", "Conta é de outro produto", {
+        from: "/login",
+        to: PRODUCT_HOME[productKey],
+        reason: "wrong_door",
+      });
       toast.info("Sua conta pertence a outro produto. Redirecionando...");
       navigate(PRODUCT_HOME[productKey], { replace: true });
       return;
     }
+    navLog("redirect", "Login", "Entrando no Safeguard", {
+      from: "/login",
+      to: "/app",
+      reason: "login_ok",
+    });
     navigate("/app", { replace: true });
   };
 

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { CalendarDays, Loader2 } from "lucide-react";
 import { DEFAULT_BRAND } from "@/restaurant/brand";
 import { PRODUCT_HOME, PRODUCT_KEYS, fetchProductKey } from "@/lib/product-access";
+import { navLog } from "@/lib/nav-telemetry";
 
 /** Entrada exclusiva do produto de Operação de Turnos (restaurantes e bares). */
 export default function TurnosLogin() {
@@ -33,11 +34,25 @@ export default function TurnosLogin() {
     }
 
     const productKey = await fetchProductKey();
+    navLog("entitlement", "TurnosLogin", `Login Turnos resolveu produto=${productKey ?? "nenhum"}`, {
+      productKey,
+      door: "/turnos/login",
+    });
     if (productKey && productKey !== PRODUCT_KEYS.restaurant) {
+      navLog("redirect", "TurnosLogin", "Conta é de outro produto", {
+        from: "/turnos/login",
+        to: PRODUCT_HOME[productKey],
+        reason: "wrong_door",
+      });
       toast.info("Sua conta pertence a outro produto. Redirecionando...");
       navigate(PRODUCT_HOME[productKey], { replace: true });
       return;
     }
+    navLog("redirect", "TurnosLogin", "Entrando em Turnos", {
+      from: "/turnos/login",
+      to: PRODUCT_HOME[PRODUCT_KEYS.restaurant],
+      reason: "login_ok",
+    });
     navigate(PRODUCT_HOME[PRODUCT_KEYS.restaurant], { replace: true });
   };
 
