@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { triggerSignatureWebhook } from "@/lib/webhook";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,8 @@ const TERMO_ACEITE =
 
 export default function Assinar() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const onlyThisItem = searchParams.get("item") === "1";
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -91,15 +93,18 @@ export default function Assinar() {
             kit_nome: ent.kit_nome ?? null,
             itens,
           });
+          const pendentesIds = itens
+            .filter((i) => i.status_assinatura !== "Assinado")
+            .map((i) => i.id);
           setSelectedIds(
-            itens.filter((i) => i.status_assinatura !== "Assinado").map((i) => i.id)
+            onlyThisItem && pendentesIds.includes(ent.id) ? [ent.id] : pendentesIds
           );
           const pendentes = itens.filter((i) => i.status_assinatura !== "Assinado");
           if (pendentes.length === 0) setDone(true);
         }
         setLoading(false);
       });
-  }, [id]);
+  }, [id, onlyThisItem]);
 
   const toggleItem = (itemId: string) =>
     setSelectedIds((prev) =>

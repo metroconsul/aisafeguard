@@ -150,7 +150,7 @@ export default function PortalEpis() {
                       </p>
                     </div>
                     <Button
-                      onClick={() => navigate(`/assinar/${item.id}`)}
+                      onClick={() => navigate(`/assinar/${item.id}?item=1`)}
                       variant="outline"
                       size="sm"
                       className="shrink-0"
