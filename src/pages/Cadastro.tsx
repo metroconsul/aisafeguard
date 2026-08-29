@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ShieldCheck, Loader2 } from "lucide-react";
+import { readFunctionError, translateFunctionError } from "@/lib/function-error";
+
 
 export default function Cadastro() {
   const navigate = useNavigate();
