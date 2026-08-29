@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -48,9 +49,21 @@ export function useProdutos() {
   const ativo = produtos.find((p) => p.enabled);
   const productKey = (ativo?.product_key ?? null) as ProductKey | null;
 
-  if (!empresaId) {
-    navLog("entitlement", "useProdutos", "Sem empresa_id no perfil — entitlement indefinido", {});
-  }
+  // Loga apenas quando o estado do entitlement realmente muda (evita ruído por render).
+  const lastLogged = useRef<string | null>(null);
+  useEffect(() => {
+    const signature = `${empresaId ?? "sem-empresa"}|${query.isLoading}|${productKey ?? "nenhum"}`;
+    if (lastLogged.current === signature) return;
+    lastLogged.current = signature;
+    navLog(
+      "entitlement",
+      "useProdutos",
+      empresaId
+        ? `Entitlement: produto=${productKey ?? "nenhum"} loading=${query.isLoading}`
+        : "Sem empresa_id no perfil — entitlement indefinido",
+      { empresaId: empresaId ?? null, productKey, loading: query.isLoading },
+    );
+  }, [empresaId, productKey, query.isLoading]);
 
   return {
     produtos,
