@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
 
     const { data, error } = await supabase
       .from("entregas")
-      .select("id, data_entrega, status_assinatura, funcionarios(nome, telefone_whatsapp), epis(nome_equipamento, numero_ca)")
+      .select("id, data_entrega, status_assinatura, funcionario_id, kit_id, quantidade, origem, funcionarios(nome, telefone_whatsapp), epis(nome_equipamento, numero_ca), epi_kits(nome)")
       .eq("id", entregaId)
       .maybeSingle();
 
@@ -59,18 +59,58 @@ Deno.serve(async (req) => {
     const func = data.funcionarios as any;
     const epi = data.epis as any;
 
+    // Quando a entrega faz parte de um kit, devolve os demais itens pendentes
+    // do mesmo kit para que o colaborador possa assinar item a item ou o kit completo.
+    let itens: Array<Record<string, unknown>> = [
+      {
+        id: data.id,
+        nome_equipamento: epi?.nome_equipamento ?? "",
+        numero_ca: epi?.numero_ca ?? "",
+        quantidade: (data as any).quantidade ?? 1,
+        status_assinatura: data.status_assinatura,
+      },
+    ];
+
+    if ((data as any).kit_id) {
+      const { data: siblings } = await supabase
+        .from("entregas")
+        .select("id, quantidade, status_assinatura, data_entrega, epis(nome_equipamento, numero_ca)")
+        .eq("kit_id", (data as any).kit_id)
+        .eq("funcionario_id", (data as any).funcionario_id)
+        .is("cancelado_em", null)
+        .order("data_entrega", { ascending: true });
+
+      const pendentes = (siblings ?? []).filter(
+        (s: any) => s.status_assinatura !== "Assinado" || s.id === data.id
+      );
+      if (pendentes.length > 0) {
+        itens = pendentes.map((s: any) => ({
+          id: s.id,
+          nome_equipamento: s.epis?.nome_equipamento ?? "",
+          numero_ca: s.epis?.numero_ca ?? "",
+          quantidade: s.quantidade ?? 1,
+          status_assinatura: s.status_assinatura,
+        }));
+      }
+    }
+
     return new Response(
       JSON.stringify({
         entrega: {
           id: data.id,
           data_entrega: data.data_entrega,
           status_assinatura: data.status_assinatura,
+          origem: (data as any).origem ?? "avulsa",
+          kit_id: (data as any).kit_id ?? null,
+          kit_nome: ((data as any).epi_kits as any)?.nome ?? null,
           funcionario: { nome: func?.nome ?? "", telefone_whatsapp: func?.telefone_whatsapp ?? null },
           epi: { nome_equipamento: epi?.nome_equipamento ?? "", numero_ca: epi?.numero_ca ?? "" },
+          itens,
         },
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
+
   } catch (e) {
     return new Response(
       JSON.stringify({ error: (e as Error).message }),

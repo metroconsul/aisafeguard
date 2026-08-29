@@ -19,6 +19,10 @@ interface MeuEpi {
   numero_ca: string;
   epi_id: string;
   status_assinatura: string | null;
+  quantidade: number;
+  origem: string;
+  kit_id: string | null;
+  kit_nome: string | null;
 }
 
 const MOTIVOS = ["Desgaste Natural", "Perda", "Defeito"];
@@ -46,6 +50,7 @@ export default function PortalEpis() {
       setEpis(
         (r.entregas || []).map((row) => {
           const epi = row.epis as { id: string; nome_equipamento: string; numero_ca: string } | null;
+          const kit = row.epi_kits as { nome: string } | null;
           return {
             id: row.id,
             data_entrega: row.data_entrega,
@@ -54,8 +59,13 @@ export default function PortalEpis() {
             numero_ca: epi?.numero_ca ?? "—",
             epi_id: epi?.id ?? "",
             status_assinatura: row.status_assinatura ?? null,
+            quantidade: row.quantidade ?? 1,
+            origem: row.origem ?? "avulsa",
+            kit_id: row.kit_id ?? null,
+            kit_nome: kit?.nome ?? null,
           };
         })
+
       );
     } catch (e: any) {
       toast.error(e.message || "Erro ao carregar EPIs");
@@ -91,6 +101,16 @@ export default function PortalEpis() {
 
   if (!employee) return null;
 
+  const pendentes = epis.filter((e) => e.status_assinatura !== "Assinado");
+  const pendentesAvulsos = pendentes.filter((e) => !e.kit_id);
+  const gruposKit = pendentes
+    .filter((e) => e.kit_id)
+    .reduce<Record<string, MeuEpi[]>>((acc, e) => {
+      const key = e.kit_id as string;
+      acc[key] = [...(acc[key] ?? []), e];
+      return acc;
+    }, {});
+
   return (
     <div className="space-y-5 p-5">
       <div>
@@ -99,33 +119,79 @@ export default function PortalEpis() {
       </div>
 
       {/* Pendentes de assinatura */}
-      {!loading && epis.some((e) => e.status_assinatura !== "Assinado") && (
+      {!loading && pendentes.length > 0 && (
         <div className="space-y-3">
           <h2 className="text-sm font-semibold text-destructive uppercase tracking-wider">
             Pendentes de assinatura
           </h2>
-          {epis
-            .filter((e) => e.status_assinatura !== "Assinado")
-            .map((epi) => (
-              <div
-                key={`pend-${epi.id}`}
-                className="rounded-xl border-2 border-destructive/30 bg-destructive/5 p-4"
-              >
-                <p className="font-semibold text-foreground">{epi.epi_nome}</p>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  C.A.: {epi.numero_ca} · Confirme o recebimento para regularizar.
-                </p>
-                <Button
-                  onClick={() => navigate(`/assinar/${epi.id}`)}
-                  variant="destructive"
-                  className="mt-3 w-full h-12 text-base font-semibold"
-                >
-                  Assinar Recebimento
-                </Button>
+
+          {/* Kits pendentes — lista de itens + assinatura do kit completo */}
+          {Object.entries(gruposKit).map(([kitId, itens]) => (
+            <div
+              key={`kit-${kitId}`}
+              className="rounded-xl border-2 border-destructive/30 bg-destructive/5 p-4"
+            >
+              <p className="font-semibold text-foreground">
+                {itens[0].kit_nome || "Kit de EPI"}
+              </p>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {itens.length} item(ns) aguardando sua confirmação.
+              </p>
+              <div className="mt-3 space-y-1.5">
+                {itens.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-foreground">{item.epi_nome}</p>
+                      <p className="text-xs text-muted-foreground">
+                        C.A.: {item.numero_ca} · Qtd: {item.quantidade}
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => navigate(`/assinar/${item.id}?item=1`)}
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0"
+                    >
+                      Assinar
+                    </Button>
+                  </div>
+                ))}
               </div>
-            ))}
+              <Button
+                onClick={() => navigate(`/assinar/${itens[0].id}`)}
+                variant="destructive"
+                className="mt-3 w-full h-12 text-base font-semibold"
+              >
+                Confirmar kit completo
+              </Button>
+            </div>
+          ))}
+
+          {/* Entregas avulsas pendentes */}
+          {pendentesAvulsos.map((epi) => (
+            <div
+              key={`pend-${epi.id}`}
+              className="rounded-xl border-2 border-destructive/30 bg-destructive/5 p-4"
+            >
+              <p className="font-semibold text-foreground">{epi.epi_nome}</p>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                C.A.: {epi.numero_ca} · Confirme o recebimento para regularizar.
+              </p>
+              <Button
+                onClick={() => navigate(`/assinar/${epi.id}`)}
+                variant="destructive"
+                className="mt-3 w-full h-12 text-base font-semibold"
+              >
+                Assinar Recebimento
+              </Button>
+            </div>
+          ))}
         </div>
       )}
+
 
       {loading ? (
         <div className="flex justify-center py-12">

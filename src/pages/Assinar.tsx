@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { triggerSignatureWebhook } from "@/lib/webhook";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,22 @@ import { Input } from "@/components/ui/input";
 import { CheckCircle2, Loader2, Camera, XCircle, ShieldCheck, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
+interface KitItem {
+  id: string;
+  nome_equipamento: string;
+  numero_ca: string;
+  quantidade: number;
+  status_assinatura: string | null;
+}
+
 interface EntregaData {
   id: string;
   funcionario: { nome: string; telefone_whatsapp: string | null; cpf: string | null };
   epi: { nome_equipamento: string; numero_ca: string };
   data_entrega: string | null;
   status_assinatura: string | null;
+  kit_nome: string | null;
+  itens: KitItem[];
 }
 
 function formatCpf(value: string) {
@@ -32,6 +42,8 @@ const TERMO_ACEITE =
 
 export default function Assinar() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const onlyThisItem = searchParams.get("item") === "1";
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -51,6 +63,9 @@ export default function Assinar() {
   const [cameraOpen, setCameraOpen] = useState(false);
   const [photoData, setPhotoData] = useState<string | null>(null);
 
+  // Itens do kit selecionados para assinatura
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
   useEffect(() => {
     if (!id) return;
     supabase.functions
@@ -58,18 +73,44 @@ export default function Assinar() {
       .then(({ data, error }) => {
         const ent = (data as any)?.entrega;
         if (!error && ent) {
+          const itens: KitItem[] = Array.isArray(ent.itens) && ent.itens.length > 0
+            ? ent.itens
+            : [
+                {
+                  id: ent.id,
+                  nome_equipamento: ent.epi?.nome_equipamento ?? "",
+                  numero_ca: ent.epi?.numero_ca ?? "",
+                  quantidade: 1,
+                  status_assinatura: ent.status_assinatura,
+                },
+              ];
           setEntrega({
             id: ent.id,
             funcionario: { ...ent.funcionario, cpf: null },
             epi: ent.epi,
             data_entrega: ent.data_entrega,
             status_assinatura: ent.status_assinatura,
+            kit_nome: ent.kit_nome ?? null,
+            itens,
           });
-          if (ent.status_assinatura === "Assinado") setDone(true);
+          const pendentesIds = itens
+            .filter((i) => i.status_assinatura !== "Assinado")
+            .map((i) => i.id);
+          setSelectedIds(
+            onlyThisItem && pendentesIds.includes(ent.id) ? [ent.id] : pendentesIds
+          );
+          const pendentes = itens.filter((i) => i.status_assinatura !== "Assinado");
+          if (pendentes.length === 0) setDone(true);
         }
         setLoading(false);
       });
-  }, [id]);
+  }, [id, onlyThisItem]);
+
+  const toggleItem = (itemId: string) =>
+    setSelectedIds((prev) =>
+      prev.includes(itemId) ? prev.filter((i) => i !== itemId) : [...prev, itemId]
+    );
+
 
   // CPF: validação real é feita no servidor (update-signature).
   // Aqui só validamos formato (11 dígitos) para habilitar o botão.
@@ -171,7 +212,8 @@ export default function Assinar() {
   };
 
   // Submit validation
-  const canSubmit = cpfValid === true && !!photoData && hasDrawn;
+  const isKit = !!entrega?.kit_nome && (entrega?.itens.length ?? 0) > 0;
+  const canSubmit = cpfValid === true && !!photoData && hasDrawn && selectedIds.length > 0;
 
   const save = async () => {
     if (!canvasRef.current || !id || !entrega || !canSubmit) return;
@@ -180,40 +222,73 @@ export default function Assinar() {
     const now = new Date().toISOString();
 
     // Atualiza via edge function (service role) — garante que o status sempre seja
-    // gravado, sem depender de RLS de anon.
-    const { data: updateRes, error: updateErr } = await supabase.functions.invoke(
-      "update-signature",
-      {
-        body: {
-          entrega_id: id,
-          status_assinatura: "Assinado",
-          imagem_assinatura: signatureDataUrl,
-          foto_assinatura: photoData,
-          cpf: stripCpf(cpfInput),
-        },
-      }
-    );
+    // gravado, sem depender de RLS de anon. Um registro por item assinado.
+    const falhas: string[] = [];
+    const sucessos: string[] = [];
+    for (const itemId of selectedIds) {
+      const { data: updateRes, error: updateErr } = await supabase.functions.invoke(
+        "update-signature",
+        {
+          body: {
+            entrega_id: itemId,
+            status_assinatura: "Assinado",
+            imagem_assinatura: signatureDataUrl,
+            foto_assinatura: photoData,
+            cpf: stripCpf(cpfInput),
+          },
+        }
+      );
 
-    if (updateErr || (updateRes && (updateRes as any).error)) {
-      console.error("Falha ao registrar assinatura:", updateErr || (updateRes as any).error);
-      const msg = (updateRes as any)?.error || "Não foi possível registrar a assinatura. Tente novamente.";
-      toast.error(msg);
-      setSaving(false);
+      if (updateErr || (updateRes && (updateRes as any).error)) {
+        console.error("Falha ao registrar assinatura:", updateErr || (updateRes as any).error);
+        falhas.push((updateRes as any)?.error || "Erro ao registrar item");
+        continue;
+      }
+
+      sucessos.push(itemId);
+      const item = entrega.itens.find((i) => i.id === itemId);
+      await triggerSignatureWebhook({
+        id_entrega: itemId,
+        nome_funcionario: entrega.funcionario.nome,
+        telefone_whatsapp: entrega.funcionario.telefone_whatsapp || "",
+        nome_epi: item?.nome_equipamento || entrega.epi.nome_equipamento,
+        data_assinatura: now,
+        imagem_assinatura: signatureDataUrl,
+      });
+    }
+
+    setSaving(false);
+
+    if (sucessos.length === 0) {
+      toast.error(falhas[0] || "Não foi possível registrar a assinatura. Tente novamente.");
       return;
     }
 
-    await triggerSignatureWebhook({
-      id_entrega: id,
-      nome_funcionario: entrega.funcionario.nome,
-      telefone_whatsapp: entrega.funcionario.telefone_whatsapp || "",
-      nome_epi: entrega.epi.nome_equipamento,
-      data_assinatura: now,
-      imagem_assinatura: signatureDataUrl,
-    });
+    const itensAtualizados = entrega.itens.map((i) =>
+      sucessos.includes(i.id) ? { ...i, status_assinatura: "Assinado" } : i
+    );
 
-    setSaving(false);
+    if (falhas.length > 0) {
+      toast.warning(`${falhas.length} item(ns) não foram assinados. Tente novamente.`);
+      setEntrega({ ...entrega, itens: itensAtualizados });
+      setSelectedIds(
+        itensAtualizados.filter((i) => i.status_assinatura !== "Assinado").map((i) => i.id)
+      );
+      return;
+    }
+
+    if (itensAtualizados.some((i) => i.status_assinatura !== "Assinado")) {
+      toast.success("Itens assinados com sucesso!");
+      setEntrega({ ...entrega, itens: itensAtualizados });
+      setSelectedIds([]);
+      clear();
+      setPhotoData(null);
+      return;
+    }
     setDone(true);
   };
+
+
 
   if (loading) {
     return (
@@ -252,13 +327,89 @@ export default function Assinar() {
           <p className="text-sm text-muted-foreground">
             Funcionário: <strong className="text-foreground">{entrega.funcionario.nome}</strong>
           </p>
-          <p className="text-sm text-muted-foreground">
-            EPI:{" "}
-            <strong className="text-foreground">
-              {entrega.epi.nome_equipamento} (CA: {entrega.epi.numero_ca})
-            </strong>
-          </p>
+          {isKit ? (
+            <p className="text-sm text-muted-foreground">
+              Kit: <strong className="text-foreground">{entrega.kit_nome}</strong>
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              EPI:{" "}
+              <strong className="text-foreground">
+                {entrega.epi.nome_equipamento} (CA: {entrega.epi.numero_ca})
+              </strong>
+            </p>
+          )}
         </div>
+
+        {/* Itens a assinar */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-muted-foreground">
+              {isKit ? "Itens do kit" : "Item entregue"}
+            </label>
+            {isKit && entrega.itens.filter((i) => i.status_assinatura !== "Assinado").length > 1 && (
+              <button
+                type="button"
+                onClick={() => {
+                  const pendentes = entrega.itens
+                    .filter((i) => i.status_assinatura !== "Assinado")
+                    .map((i) => i.id);
+                  setSelectedIds(selectedIds.length === pendentes.length ? [] : pendentes);
+                }}
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                {selectedIds.length ===
+                entrega.itens.filter((i) => i.status_assinatura !== "Assinado").length
+                  ? "Limpar seleção"
+                  : "Selecionar kit completo"}
+              </button>
+            )}
+          </div>
+          <div className="space-y-1.5">
+            {entrega.itens.map((item) => {
+              const assinado = item.status_assinatura === "Assinado";
+              const checked = selectedIds.includes(item.id);
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  disabled={assinado}
+                  onClick={() => toggleItem(item.id)}
+                  className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
+                    assinado
+                      ? "border-border bg-muted/40 opacity-70"
+                      : checked
+                      ? "border-primary bg-primary/5"
+                      : "border-border bg-card hover:bg-muted/30"
+                  }`}
+                >
+                  {assinado ? (
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+                  ) : checked ? (
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+                  ) : (
+                    <XCircle className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {item.nome_equipamento}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      CA: {item.numero_ca} · Qtd: {item.quantidade}
+                      {assinado ? " · já assinado" : ""}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          {isKit && (
+            <p className="text-[11px] text-muted-foreground">
+              Você pode assinar item a item ou confirmar o kit completo de uma vez.
+            </p>
+          )}
+        </div>
+
 
         {/* Termo de Aceite */}
         <div className="rounded-lg border border-border bg-muted/30 p-4">
@@ -364,8 +515,15 @@ export default function Assinar() {
             Limpar
           </Button>
           <Button onClick={save} disabled={!canSubmit || saving} className="flex-1">
-            {saving ? "Salvando..." : "Confirmar Assinatura"}
+            {saving
+              ? "Salvando..."
+              : isKit
+              ? selectedIds.length > 1
+                ? `Assinar ${selectedIds.length} itens`
+                : "Assinar item"
+              : "Confirmar Assinatura"}
           </Button>
+
         </div>
 
         {/* Status indicators */}
