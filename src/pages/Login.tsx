@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ShieldCheck, Loader2 } from "lucide-react";
+import { PRODUCT_HOME, PRODUCT_KEYS, fetchProductKey } from "@/lib/product-access";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -30,7 +31,14 @@ export default function Login() {
         : error.message);
       return;
     }
-    navigate("/app");
+    // O destino vem do produto da empresa, não da porta de entrada.
+    const productKey = await fetchProductKey();
+    if (productKey && productKey !== PRODUCT_KEYS.safeguard) {
+      toast.info("Sua conta pertence a outro produto. Redirecionando...");
+      navigate(PRODUCT_HOME[productKey], { replace: true });
+      return;
+    }
+    navigate("/app", { replace: true });
   };
 
   const handleGoogleSignIn = async () => {

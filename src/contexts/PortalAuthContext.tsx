@@ -9,6 +9,7 @@ export interface PortalEmployee {
   empresa_id: string;
   empresa_nome: string;
   empresa_logo: string | null;
+  product_key?: string | null;
 }
 
 interface PortalAuthContextType {

@@ -1,8 +1,10 @@
 import { NavLink } from "react-router-dom";
-import { Home, HardHat, FileText, FolderOpen, Clock } from "lucide-react";
+import { Home, HardHat, FileText, FolderOpen, Clock, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePortalAuth } from "@/contexts/PortalAuthContext";
+import { PRODUCT_KEYS } from "@/lib/product-access";
 
-const tabs = [
+const safeguardTabs = [
   { to: "/portal", icon: Home, label: "Início", end: true },
   { to: "/portal/epis", icon: HardHat, label: "EPIs", end: false },
   { to: "/portal/holerites", icon: FileText, label: "Holerites", end: false },
@@ -10,7 +12,17 @@ const tabs = [
   { to: "/portal/documentos", icon: FolderOpen, label: "Docs", end: false },
 ];
 
+const turnosTabs = [
+  { to: "/portal", icon: Home, label: "Início", end: true },
+  { to: "/portal/restaurant/escala", icon: CalendarDays, label: "Escala", end: false },
+  { to: "/portal/pontos", icon: Clock, label: "Pontos", end: false },
+];
+
 export function BottomTabBar() {
+  const { employee } = usePortalAuth();
+  const tabs =
+    employee?.product_key === PRODUCT_KEYS.restaurant ? turnosTabs : safeguardTabs;
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-md safe-area-bottom">
       <div className="mx-auto flex max-w-md items-stretch">
