@@ -25,6 +25,8 @@ import GestaoEquipe from "@/pages/GestaoEquipe";
 import Assinar from "@/pages/Assinar";
 import Login from "@/pages/Login";
 import Cadastro from "@/pages/Cadastro";
+import TurnosLogin from "@/pages/turnos/TurnosLogin";
+import TurnosCadastro from "@/pages/turnos/TurnosCadastro";
 import CofreEmpresa from "@/pages/CofreEmpresa";
 import Treinamentos from "@/pages/Treinamentos";
 import Holerites from "@/pages/Holerites";
@@ -75,6 +77,8 @@ const App = () => (
               <Route path="/pitch" element={<Pitch />} />
               <Route path="/login" element={<Login />} />
               <Route path="/cadastro" element={<Cadastro />} />
+              <Route path="/turnos/login" element={<TurnosLogin />} />
+              <Route path="/turnos/cadastro" element={<TurnosCadastro />} />
               <Route path="/assinar/:id" element={<Assinar />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="/onboarding/:id" element={<OnboardingPublico />} />
@@ -95,6 +99,7 @@ const App = () => (
                 path="/app/*"
                 element={
                   <ProtectedRoute>
+                    <RequireProduct product={PRODUCT_KEYS.safeguard}>
                     <AppLayout>
                       <Routes>
                         <Route path="/" element={<Dashboard />} />
@@ -117,6 +122,7 @@ const App = () => (
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </AppLayout>
+                    </RequireProduct>
                   </ProtectedRoute>
                 }
               />
