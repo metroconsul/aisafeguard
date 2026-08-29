@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { PRODUCT_KEYS, type ProductKey } from "@/lib/product-access";
+import { PRODUCT_HOME, PRODUCT_KEYS, type ProductKey } from "@/lib/product-access";
 
 export interface EmpresaProduto {
   id: string;
@@ -10,7 +10,10 @@ export interface EmpresaProduto {
   brand_config: Record<string, unknown> | null;
 }
 
-/** Produtos habilitados para a empresa do usuário autenticado. */
+/**
+ * Produto da empresa do usuário autenticado.
+ * Uma empresa possui exatamente um produto habilitado — nunca os dois.
+ */
 export function useProdutos() {
   const { perfil } = useAuth();
   const empresaId = perfil?.empresa_id;
@@ -30,19 +33,16 @@ export function useProdutos() {
   });
 
   const produtos = query.data ?? [];
-  const has = (key: ProductKey) => produtos.some((p) => p.product_key === key && p.enabled);
-
-  // O Safeguard industrial é o produto base do projeto: continua ativo mesmo sem registro,
-  // garantindo que nenhuma empresa existente perca acesso.
-  const hasSafeguard = true;
-  const hasRestaurant = has(PRODUCT_KEYS.restaurant);
+  const ativo = produtos.find((p) => p.enabled);
+  const productKey = (ativo?.product_key ?? null) as ProductKey | null;
 
   return {
     produtos,
     loading: query.isLoading,
-    hasSafeguard,
-    hasRestaurant,
-    hasBoth: hasSafeguard && hasRestaurant,
+    productKey,
+    home: productKey ? PRODUCT_HOME[productKey] : null,
+    isSafeguard: productKey === PRODUCT_KEYS.safeguard,
+    isRestaurant: productKey === PRODUCT_KEYS.restaurant,
     refetch: query.refetch,
   };
 }
