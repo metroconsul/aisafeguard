@@ -19,6 +19,10 @@ interface MeuEpi {
   numero_ca: string;
   epi_id: string;
   status_assinatura: string | null;
+  quantidade: number;
+  origem: string;
+  kit_id: string | null;
+  kit_nome: string | null;
 }
 
 const MOTIVOS = ["Desgaste Natural", "Perda", "Defeito"];
