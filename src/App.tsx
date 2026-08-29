@@ -58,6 +58,8 @@ import RestaurantRegimes from "@/pages/restaurant/RestaurantRegimes";
 import RestaurantConformidade from "@/pages/restaurant/RestaurantConformidade";
 import RestaurantHistorico from "@/pages/restaurant/RestaurantHistorico";
 import RestaurantConfiguracoes from "@/pages/restaurant/RestaurantConfiguracoes";
+import DebugNav from "@/pages/DebugNav";
+import { NavTelemetry } from "@/components/NavTelemetry";
 
 
 const queryClient = new QueryClient();
@@ -70,7 +72,10 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <PortalAuthProvider>
+            <NavTelemetry />
             <Routes>
+              {/* Diagnóstico de navegação/entitlements */}
+              <Route path="/debug/nav" element={<DebugNav />} />
               {/* Public routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/site" element={<LandingPage />} />
