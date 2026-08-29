@@ -207,7 +207,8 @@ export default function Assinar() {
   };
 
   // Submit validation
-  const canSubmit = cpfValid === true && !!photoData && hasDrawn;
+  const isKit = !!entrega?.kit_nome && (entrega?.itens.length ?? 0) > 0;
+  const canSubmit = cpfValid === true && !!photoData && hasDrawn && selectedIds.length > 0;
 
   const save = async () => {
     if (!canvasRef.current || !id || !entrega || !canSubmit) return;
@@ -216,40 +217,58 @@ export default function Assinar() {
     const now = new Date().toISOString();
 
     // Atualiza via edge function (service role) — garante que o status sempre seja
-    // gravado, sem depender de RLS de anon.
-    const { data: updateRes, error: updateErr } = await supabase.functions.invoke(
-      "update-signature",
-      {
-        body: {
-          entrega_id: id,
-          status_assinatura: "Assinado",
-          imagem_assinatura: signatureDataUrl,
-          foto_assinatura: photoData,
-          cpf: stripCpf(cpfInput),
-        },
-      }
-    );
+    // gravado, sem depender de RLS de anon. Um registro por item assinado.
+    const falhas: string[] = [];
+    for (const itemId of selectedIds) {
+      const { data: updateRes, error: updateErr } = await supabase.functions.invoke(
+        "update-signature",
+        {
+          body: {
+            entrega_id: itemId,
+            status_assinatura: "Assinado",
+            imagem_assinatura: signatureDataUrl,
+            foto_assinatura: photoData,
+            cpf: stripCpf(cpfInput),
+          },
+        }
+      );
 
-    if (updateErr || (updateRes && (updateRes as any).error)) {
-      console.error("Falha ao registrar assinatura:", updateErr || (updateRes as any).error);
-      const msg = (updateRes as any)?.error || "Não foi possível registrar a assinatura. Tente novamente.";
-      toast.error(msg);
-      setSaving(false);
-      return;
+      if (updateErr || (updateRes && (updateRes as any).error)) {
+        console.error("Falha ao registrar assinatura:", updateErr || (updateRes as any).error);
+        falhas.push((updateRes as any)?.error || "Erro ao registrar item");
+        continue;
+      }
+
+      const item = entrega.itens.find((i) => i.id === itemId);
+      await triggerSignatureWebhook({
+        id_entrega: itemId,
+        nome_funcionario: entrega.funcionario.nome,
+        telefone_whatsapp: entrega.funcionario.telefone_whatsapp || "",
+        nome_epi: item?.nome_equipamento || entrega.epi.nome_equipamento,
+        data_assinatura: now,
+        imagem_assinatura: signatureDataUrl,
+      });
     }
 
-    await triggerSignatureWebhook({
-      id_entrega: id,
-      nome_funcionario: entrega.funcionario.nome,
-      telefone_whatsapp: entrega.funcionario.telefone_whatsapp || "",
-      nome_epi: entrega.epi.nome_equipamento,
-      data_assinatura: now,
-      imagem_assinatura: signatureDataUrl,
-    });
-
     setSaving(false);
+
+    if (falhas.length === selectedIds.length) {
+      toast.error(falhas[0] || "Não foi possível registrar a assinatura. Tente novamente.");
+      return;
+    }
+    if (falhas.length > 0) {
+      toast.warning(`${falhas.length} item(ns) não foram assinados. Tente novamente.`);
+      setEntrega({
+        ...entrega,
+        itens: entrega.itens.map((i) =>
+          selectedIds.includes(i.id) ? { ...i, status_assinatura: "Assinado" } : i
+        ),
+      });
+      return;
+    }
     setDone(true);
   };
+
 
   if (loading) {
     return (
