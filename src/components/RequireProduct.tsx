@@ -4,9 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProdutos } from "@/hooks/useProdutos";
 import {
   PRODUCT_HOME,
-  PRODUCT_KEYS,
   type ProductKey,
-  canViewRestaurant,
 } from "@/lib/product-access";
 import { Button } from "@/components/ui/button";
 
@@ -20,7 +18,7 @@ interface Props {
  * (empresa_tem_produto) — aqui garantimos que a conta só veja o produto dela.
  */
 export function RequireProduct({ product, children }: Props) {
-  const { perfil, loading: authLoading } = useAuth();
+  const { loading: authLoading } = useAuth();
   const { productKey, loading } = useProdutos();
 
   if (authLoading || loading) {
@@ -55,9 +53,6 @@ export function RequireProduct({ product, children }: Props) {
       </div>
     );
   }
-
-  const roleOk = product === PRODUCT_KEYS.restaurant ? canViewRestaurant(perfil?.role) : true;
-  if (!roleOk) return <Navigate to={PRODUCT_HOME[product]} replace />;
 
   return <>{children}</>;
 }
