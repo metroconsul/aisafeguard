@@ -87,7 +87,7 @@ Deno.serve(async (req) => {
       case "list_entregas": {
         const { data, error } = await supabase
           .from("entregas")
-          .select("id, data_entrega, data_vencimento, status_assinatura, epis(id, nome_equipamento, numero_ca)")
+          .select("id, data_entrega, data_vencimento, status_assinatura, quantidade, origem, kit_id, epis(id, nome_equipamento, numero_ca), epi_kits(nome)")
           .eq("funcionario_id", session.funcionario_id)
           .eq("empresa_id", session.empresa_id)
           .order("data_entrega", { ascending: false });
