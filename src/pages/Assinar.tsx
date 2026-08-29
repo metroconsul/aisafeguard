@@ -322,13 +322,89 @@ export default function Assinar() {
           <p className="text-sm text-muted-foreground">
             Funcionário: <strong className="text-foreground">{entrega.funcionario.nome}</strong>
           </p>
-          <p className="text-sm text-muted-foreground">
-            EPI:{" "}
-            <strong className="text-foreground">
-              {entrega.epi.nome_equipamento} (CA: {entrega.epi.numero_ca})
-            </strong>
-          </p>
+          {isKit ? (
+            <p className="text-sm text-muted-foreground">
+              Kit: <strong className="text-foreground">{entrega.kit_nome}</strong>
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              EPI:{" "}
+              <strong className="text-foreground">
+                {entrega.epi.nome_equipamento} (CA: {entrega.epi.numero_ca})
+              </strong>
+            </p>
+          )}
         </div>
+
+        {/* Itens a assinar */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-muted-foreground">
+              {isKit ? "Itens do kit" : "Item entregue"}
+            </label>
+            {isKit && entrega.itens.filter((i) => i.status_assinatura !== "Assinado").length > 1 && (
+              <button
+                type="button"
+                onClick={() => {
+                  const pendentes = entrega.itens
+                    .filter((i) => i.status_assinatura !== "Assinado")
+                    .map((i) => i.id);
+                  setSelectedIds(selectedIds.length === pendentes.length ? [] : pendentes);
+                }}
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                {selectedIds.length ===
+                entrega.itens.filter((i) => i.status_assinatura !== "Assinado").length
+                  ? "Limpar seleção"
+                  : "Selecionar kit completo"}
+              </button>
+            )}
+          </div>
+          <div className="space-y-1.5">
+            {entrega.itens.map((item) => {
+              const assinado = item.status_assinatura === "Assinado";
+              const checked = selectedIds.includes(item.id);
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  disabled={assinado}
+                  onClick={() => toggleItem(item.id)}
+                  className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
+                    assinado
+                      ? "border-border bg-muted/40 opacity-70"
+                      : checked
+                      ? "border-primary bg-primary/5"
+                      : "border-border bg-card hover:bg-muted/30"
+                  }`}
+                >
+                  {assinado ? (
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+                  ) : checked ? (
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+                  ) : (
+                    <XCircle className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {item.nome_equipamento}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      CA: {item.numero_ca} · Qtd: {item.quantidade}
+                      {assinado ? " · já assinado" : ""}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          {isKit && (
+            <p className="text-[11px] text-muted-foreground">
+              Você pode assinar item a item ou confirmar o kit completo de uma vez.
+            </p>
+          )}
+        </div>
+
 
         {/* Termo de Aceite */}
         <div className="rounded-lg border border-border bg-muted/30 p-4">
