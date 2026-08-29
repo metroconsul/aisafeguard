@@ -3,9 +3,12 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { NotificacoesPopover } from "@/components/NotificacoesPopover";
+import { useProdutos } from "@/hooks/useProdutos";
+import { ProductSwitcher } from "@/components/restaurant/ProductSwitcher";
 
 export function AppHeader() {
   const { perfil, signOut } = useAuth();
+  const { hasBoth } = useProdutos();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -45,6 +48,8 @@ export function AppHeader() {
       <div className="flex-1 sm:flex-none" />
 
       <div className="flex items-center gap-2 sm:gap-3">
+        {hasBoth && <ProductSwitcher current="safeguard" />}
+
         <div className="hidden items-center gap-2 rounded-lg border border-secondary/15 bg-secondary/5 px-2.5 py-1.5 lg:flex">
           <Sparkles className="h-3.5 w-3.5 text-secondary-400" strokeWidth={1.8} />
           <span className="text-xs font-medium text-secondary-500">Operação em tempo real</span>
