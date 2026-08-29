@@ -21,8 +21,9 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Check role-based access once perfil is loaded
-    if (perfil) {
+    // O RBAC legado cobre apenas o produto Safeguard (/app/*).
+    // Produtos independentes possuem seus próprios guards de acesso.
+    if (perfil && (location.pathname === "/app" || location.pathname.startsWith("/app/"))) {
       const fullPath = location.pathname;
       if (!canAccessRoute(perfil.role, fullPath)) {
         // Redirect to dashboard (always accessible)
