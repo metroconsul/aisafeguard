@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { CalendarDays, Loader2 } from "lucide-react";
 import { DEFAULT_BRAND } from "@/restaurant/brand";
 import { PRODUCT_KEYS } from "@/lib/product-access";
+import { readFunctionError, translateFunctionError } from "@/lib/function-error";
+
 
 /** Cadastro exclusivo do nicho de restaurantes e bares (Operação de Turnos). */
 export default function TurnosCadastro() {
