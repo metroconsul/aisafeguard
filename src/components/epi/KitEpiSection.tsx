@@ -112,11 +112,11 @@ export function KitEpiSection({ funcionarioId, cargoNome, canRegister = true }: 
       if (error) throw error;
 
       await logEpiAudit({
-        empresa_id: func.empresa_id,
+        empresaId: func.empresa_id,
         entity: "entregas",
-        entity_id: inseridas?.[0]?.id ?? null,
+        entityId: inseridas?.[0]?.id ?? null,
         action: "entrega_kit",
-        new_value: { funcionario_id: funcionarioId, itens: rows.length, origem: "kit" },
+        newValue: { funcionario_id: funcionarioId, itens: rows.length, origem: "kit" },
       });
 
       toast.success(`${rows.length} entrega(s) registrada(s). Pendente(s) de assinatura no Portal.`);
