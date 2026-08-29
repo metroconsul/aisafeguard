@@ -7,6 +7,7 @@ import {
   type ProductKey,
 } from "@/lib/product-access";
 import { Button } from "@/components/ui/button";
+import { navLog } from "@/lib/nav-telemetry";
 
 interface Props {
   product: ProductKey;
@@ -21,7 +22,15 @@ export function RequireProduct({ product, children }: Props) {
   const { loading: authLoading } = useAuth();
   const { productKey, loading } = useProdutos();
 
+  const path = typeof window !== "undefined" ? window.location.pathname : "";
+
   if (authLoading || loading) {
+    navLog("guard", "RequireProduct", "Carregando auth/entitlement", {
+      path,
+      product,
+      authLoading,
+      entitlementLoading: loading,
+    });
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -31,10 +40,21 @@ export function RequireProduct({ product, children }: Props) {
 
   // Conta pertence ao outro produto → nunca libera, apenas volta para o dela.
   if (productKey && productKey !== product) {
+    navLog("redirect", "RequireProduct", `Produto da conta (${productKey}) difere da rota (${product})`, {
+      from: path,
+      to: PRODUCT_HOME[productKey],
+      reason: "product_mismatch",
+      productKey,
+      routeProduct: product,
+    });
     return <Navigate to={PRODUCT_HOME[productKey]} replace />;
   }
 
   if (!productKey) {
+    navLog("entitlement", "RequireProduct", "Nenhum produto habilitado (fail-closed)", {
+      path,
+      product,
+    });
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-6">
         <div className="max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
@@ -54,5 +74,6 @@ export function RequireProduct({ product, children }: Props) {
     );
   }
 
+  navLog("guard", "RequireProduct", `Acesso liberado para ${product}`, { path, product });
   return <>{children}</>;
 }

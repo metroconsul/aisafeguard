@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { PRODUCT_HOME, PRODUCT_KEYS, type ProductKey } from "@/lib/product-access";
+import { navLog } from "@/lib/nav-telemetry";
 
 export interface EmpresaProduto {
   id: string;
@@ -27,14 +28,29 @@ export function useProdutos() {
         .from("empresa_produtos")
         .select("id, product_key, enabled, brand_config")
         .eq("empresa_id", empresaId!);
-      if (error) throw error;
-      return (data ?? []) as unknown as EmpresaProduto[];
+      if (error) {
+        navLog("entitlement", "useProdutos", `Erro ao ler empresa_produtos: ${error.message}`, {
+          empresaId,
+          code: error.code,
+        });
+        throw error;
+      }
+      const rows = (data ?? []) as unknown as EmpresaProduto[];
+      navLog("entitlement", "useProdutos", "empresa_produtos carregado", {
+        empresaId,
+        rows: rows.map((r) => ({ key: r.product_key, enabled: r.enabled })),
+      });
+      return rows;
     },
   });
 
   const produtos = query.data ?? [];
   const ativo = produtos.find((p) => p.enabled);
   const productKey = (ativo?.product_key ?? null) as ProductKey | null;
+
+  if (!empresaId) {
+    navLog("entitlement", "useProdutos", "Sem empresa_id no perfil — entitlement indefinido", {});
+  }
 
   return {
     produtos,
