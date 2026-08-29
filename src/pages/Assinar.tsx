@@ -7,12 +7,22 @@ import { Input } from "@/components/ui/input";
 import { CheckCircle2, Loader2, Camera, XCircle, ShieldCheck, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
+interface KitItem {
+  id: string;
+  nome_equipamento: string;
+  numero_ca: string;
+  quantidade: number;
+  status_assinatura: string | null;
+}
+
 interface EntregaData {
   id: string;
   funcionario: { nome: string; telefone_whatsapp: string | null; cpf: string | null };
   epi: { nome_equipamento: string; numero_ca: string };
   data_entrega: string | null;
   status_assinatura: string | null;
+  kit_nome: string | null;
+  itens: KitItem[];
 }
 
 function formatCpf(value: string) {
