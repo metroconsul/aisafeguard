@@ -50,6 +50,7 @@ export default function PortalEpis() {
       setEpis(
         (r.entregas || []).map((row) => {
           const epi = row.epis as { id: string; nome_equipamento: string; numero_ca: string } | null;
+          const kit = row.epi_kits as { nome: string } | null;
           return {
             id: row.id,
             data_entrega: row.data_entrega,
@@ -58,8 +59,13 @@ export default function PortalEpis() {
             numero_ca: epi?.numero_ca ?? "—",
             epi_id: epi?.id ?? "",
             status_assinatura: row.status_assinatura ?? null,
+            quantidade: row.quantidade ?? 1,
+            origem: row.origem ?? "avulsa",
+            kit_id: row.kit_id ?? null,
+            kit_nome: kit?.nome ?? null,
           };
         })
+
       );
     } catch (e: any) {
       toast.error(e.message || "Erro ao carregar EPIs");
