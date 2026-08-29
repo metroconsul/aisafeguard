@@ -48,6 +48,7 @@ import PortalEscala from "@/pages/portal/restaurant/PortalEscala";
 
 // Produto de operação de turnos (isolado do Safeguard industrial)
 import { RequireProduct } from "@/components/RequireProduct";
+import { RequirePortalProduct } from "@/components/portal/RequirePortalProduct";
 import { PRODUCT_KEYS } from "@/lib/product-access";
 import { RestaurantShell } from "@/components/restaurant/RestaurantShell";
 import RestaurantDashboard from "@/pages/restaurant/RestaurantDashboard";
@@ -87,11 +88,39 @@ const App = () => (
               <Route path="/portal/login" element={<PortalLogin />} />
               <Route path="/portal" element={<PortalLayout />}>
                 <Route index element={<PortalHome />} />
-                <Route path="epis" element={<PortalEpis />} />
-                <Route path="holerites" element={<PortalHolerites />} />
+                <Route
+                  path="epis"
+                  element={
+                    <RequirePortalProduct product={PRODUCT_KEYS.safeguard}>
+                      <PortalEpis />
+                    </RequirePortalProduct>
+                  }
+                />
+                <Route
+                  path="holerites"
+                  element={
+                    <RequirePortalProduct product={PRODUCT_KEYS.safeguard}>
+                      <PortalHolerites />
+                    </RequirePortalProduct>
+                  }
+                />
                 <Route path="pontos" element={<PortalPontos />} />
-                <Route path="documentos" element={<PortalDocumentos />} />
-                <Route path="restaurant/escala" element={<PortalEscala />} />
+                <Route
+                  path="documentos"
+                  element={
+                    <RequirePortalProduct product={PRODUCT_KEYS.safeguard}>
+                      <PortalDocumentos />
+                    </RequirePortalProduct>
+                  }
+                />
+                <Route
+                  path="restaurant/escala"
+                  element={
+                    <RequirePortalProduct product={PRODUCT_KEYS.restaurant}>
+                      <PortalEscala />
+                    </RequirePortalProduct>
+                  }
+                />
               </Route>
 
               {/* Protected admin routes */}
